@@ -1,6 +1,8 @@
 .gradle
 .settings
 .idea
+.classpath
+.project
 
 #    Source (von uns bereits erstellt)
 #        └── Client (von uns bereits erstellt)
