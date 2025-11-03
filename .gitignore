@@ -1,1 +1,16 @@
 .gradle
+.settings
+.idea
+
+#    Source (von uns bereits erstellt)
+#        └── Client (von uns bereits erstellt)
+#            ├── bin
+#            ├── build
+#            ├── build.gradle
+#            ├── gradle
+#            ├── gradlew
+#            ├── gradlew.bat
+#            ├── ReadMe.md
+#            ├── res
+#            ├── settings.gradle
+#            └── src
