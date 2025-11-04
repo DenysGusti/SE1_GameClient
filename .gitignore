@@ -3,6 +3,7 @@
 .idea
 .classpath
 .project
+build
 
 #    Source (von uns bereits erstellt)
 #        └── Client (von uns bereits erstellt)
