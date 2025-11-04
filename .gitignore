@@ -4,6 +4,7 @@
 .classpath
 .project
 build
+bin
 
 #    Source (von uns bereits erstellt)
 #        └── Client (von uns bereits erstellt)
