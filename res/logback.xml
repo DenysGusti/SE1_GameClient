@@ -1,7 +1,17 @@
 <configuration>
 
-    <!-- Additional appenders (more complex ones, e.g. logging into files) are given in the logging script on Moodle -->
+    <!-- Additional appender (more complex ones, e.g. logging into files) are given in the logging script on Moodle -->
     <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>
+                %d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>app.log</file>
+        <append>true</append>
         <encoder>
             <pattern>
                 %d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
@@ -20,7 +30,7 @@
     <logger name="org.springframework.web" level="ERROR"/>
 
     <!-- We can set the default logging behaviour for our own code too -->
-    <!-- If you add an additional appender "register" them here -->
+    <!-- If you add an appender "register" them here -->
     <root level="WARN">
         <appender-ref ref="stdout"/>
         <appender-ref ref="FILE"/>
