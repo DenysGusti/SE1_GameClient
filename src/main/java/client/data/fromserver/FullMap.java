@@ -2,12 +2,17 @@ package client.data.fromserver;
 
 import client.data.XYPair;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.*;
 
 public record FullMap(Map<XYPair, FullMapNode> nodes, XYPair size,
                       XYPair myPlayerPosition, XYPair enemyPlayerPosition,
                       XYPair myFortPosition, XYPair enemyFortPosition,
                       XYPair treasurePosition) {
+    private static final Logger logger = LoggerFactory.getLogger(FullMap.class);
+
     private static final XYPair HALF_MAP_SIZE = new XYPair(10, 5);
 
     public FullMap(Map<XYPair, FullMapNode> nodes, XYPair size,

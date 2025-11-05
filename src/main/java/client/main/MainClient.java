@@ -1,5 +1,8 @@
 package client.main;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -15,6 +18,7 @@ import messagesbase.messagesfromserver.GameState;
 import reactor.core.publisher.Mono;
 
 public class MainClient {
+    private static final Logger logger = LoggerFactory.getLogger(MainClient.class);
 
     // ADDITIONAL TIPS ON THIS MATTER ARE GIVEN THROUGHOUT THE TUTORIAL SESSION!
 
