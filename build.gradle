@@ -99,7 +99,7 @@ dependencies {
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.18'
     implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.5.18'
 
-    // Network Messages, ensure that you always use the ones suitable for the current sem ester!
+    // Network Messages, ensure that you always use the ones suitable for the current semester!
     // Based on this Jar file also a range of reference implementations
     // for various marshalling libraries will be provided.
     // The reference implementation relies on Jakarta to support modern Java versions.
