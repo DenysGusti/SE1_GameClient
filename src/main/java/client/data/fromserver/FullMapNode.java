@@ -12,4 +12,20 @@ public record FullMapNode(ETerrain terrain, boolean isRevealed) {
     public FullMapNode {
         Objects.requireNonNull(terrain, "Terrain must not be null");
     }
+
+    public FullMapNode withIsRevealed(boolean isRevealed) {
+        return new FullMapNode(this.terrain, isRevealed);
+    }
+
+    public boolean isGrass() {
+        return terrain == ETerrain.Grass;
+    }
+
+    public boolean isMountain() {
+        return terrain == ETerrain.Mountain;
+    }
+
+    public boolean isWater() {
+        return terrain == ETerrain.Water;
+    }
 }

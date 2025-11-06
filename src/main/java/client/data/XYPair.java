@@ -10,7 +10,7 @@ import java.util.Set;
 public record XYPair(int x, int y) {
     private static final Logger logger = LoggerFactory.getLogger(XYPair.class);
 
-    Set<XYPair> getAdjacentNeighbors(XYPair gridSize) {
+    public Set<XYPair> getAdjacentNeighbors(XYPair gridSize) {
         Objects.requireNonNull(gridSize, "gridSize must not be null");
 
         var gridNeighbors = new HashSet<XYPair>();
@@ -27,7 +27,7 @@ public record XYPair(int x, int y) {
         return gridNeighbors;
     }
 
-    Set<XYPair> getDiagonalNeighbors(XYPair gridSize) {
+    public Set<XYPair> getDiagonalNeighbors(XYPair gridSize) {
         Objects.requireNonNull(gridSize, "gridSize must not be null");
 
         var gridNeighbors = new HashSet<XYPair>();
@@ -44,7 +44,7 @@ public record XYPair(int x, int y) {
         return gridNeighbors;
     }
 
-    Set<XYPair> getAllNeighbors(XYPair gridSize) {
+    public Set<XYPair> getAllNeighbors(XYPair gridSize) {
         Objects.requireNonNull(gridSize, "gridSize must not be null");
 
         Set<XYPair> gridNeighbors = getAdjacentNeighbors(gridSize);
@@ -52,13 +52,21 @@ public record XYPair(int x, int y) {
         return gridNeighbors;
     }
 
-    boolean isOnBorder(XYPair gridSize) {
+    public Set<XYPair> getAllNeighborsWithThis(XYPair gridSize) {
+        Objects.requireNonNull(gridSize, "gridSize must not be null");
+
+        Set<XYPair> gridNeighbors = getAllNeighbors(gridSize);
+        gridNeighbors.add(this);
+        return gridNeighbors;
+    }
+
+    public boolean isOnBorder(XYPair gridSize) {
         Objects.requireNonNull(gridSize, "gridSize must not be null");
 
         return x == 0 || x == gridSize.x() - 1 || y == 0 || y == gridSize.y() - 1;
     }
 
-    boolean isOnCorner(XYPair gridSize) {
+    public boolean isOnCorner(XYPair gridSize) {
         Objects.requireNonNull(gridSize, "gridSize must not be null");
 
         return x == 0 && y == 0 || x == 0 && y == gridSize.y() - 1 ||
