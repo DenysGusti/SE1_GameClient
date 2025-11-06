@@ -5,6 +5,7 @@
 .project
 build
 bin
+*.log
 
 #    Source (von uns bereits erstellt)
 #        └── Client (von uns bereits erstellt)
