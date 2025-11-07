@@ -12,18 +12,35 @@ public record GameState(String ID, FullMap fullMap, PlayerState myPlayer, Player
     public GameState {
         Objects.requireNonNull(ID, "ID must not be null");
         Objects.requireNonNull(fullMap, "fullMap must not be null");
+        Objects.requireNonNull(myPlayer, "myPlayer must not be null");
     }
 
-    public GameState withAccumulatedMap(FullMap accumulatedMap) {
-        Objects.requireNonNull(accumulatedMap, "accumulatedMap must not be null");
-        return new GameState(ID, accumulatedMap, myPlayer, enemyPlayer);
-    }
-
-    public Optional<PlayerState> getOptionalMyPlayer() {
-        return Optional.ofNullable(myPlayer);
+    public GameState withFullMap(FullMap fullMap) {
+        Objects.requireNonNull(fullMap, "fullMap must not be null");
+        return new GameState(ID, fullMap, myPlayer, enemyPlayer);
     }
 
     public Optional<PlayerState> getOptionalEnemyPlayer() {
         return Optional.ofNullable(enemyPlayer);
+    }
+
+    public boolean myPlayerMustWait() {
+        return myPlayer.mustWait();
+    }
+
+    public boolean myPlayerMustAct() {
+        return myPlayer.mustAct();
+    }
+
+    public boolean myPlayerWon() {
+        return myPlayer.won();
+    }
+
+    public boolean myPlayerLost() {
+        return myPlayer.lost();
+    }
+
+    public boolean myPlayerHasCollectedTreasure() {
+        return myPlayer.hasCollectedTreasure();
     }
 }

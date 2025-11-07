@@ -34,7 +34,7 @@ public class FromServerConverter {
 
         PlayerState myPlayer = gameState.getPlayers().stream()
                 .filter(player -> player.equals(UniquePlayerIdentifier.of(myPlayerID)))
-                .findFirst().map(this::convertPlayerState).orElse(null);
+                .findFirst().map(this::convertPlayerState).orElseThrow();
 
         PlayerState enemyPlayer = gameState.getPlayers().stream()
                 .filter(player -> !player.equals(UniquePlayerIdentifier.of(myPlayerID)))
