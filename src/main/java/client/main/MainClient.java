@@ -19,13 +19,13 @@ import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 public class MainClient {
     private static final Logger logger = LoggerFactory.getLogger(MainClient.class);
-    private static final String CONFIG_PROPERTIES_FILE = "config.properties";
+    private static final String CONFIG_FILE_NAME = "config.properties";
 
     private static void validateArguments(String[] args) throws CommandLineArgumentsException {
         Objects.requireNonNull(args, "args must not be null");
@@ -36,12 +36,10 @@ public class MainClient {
             throw new CommandLineArgumentsException("Invalid game visualization mode!");
     }
 
-    private static PlayerInformation loadPlayerInformation(String fileName) throws IOException {
-        Objects.requireNonNull(fileName, "fileName must not be null");
-
+    private static PlayerInformation loadPlayerInformation() throws IOException {
         var properties = new Properties();
-        try (var fileReader = new FileReader(fileName)) {
-            properties.load(fileReader);
+        try (InputStream inputStream = MainClient.class.getClassLoader().getResourceAsStream(CONFIG_FILE_NAME)) {
+            properties.load(inputStream);
         }
         String firstName = properties.getProperty("player.firstname");
         String lastName = properties.getProperty("player.lastname");
@@ -75,7 +73,7 @@ public class MainClient {
 
         PlayerInformation playerInformation;
         try {
-            playerInformation = loadPlayerInformation(CONFIG_PROPERTIES_FILE);
+            playerInformation = loadPlayerInformation();
         } catch (FileNotFoundException e) {
             logger.error("Properties file not found.", e);
             return;
