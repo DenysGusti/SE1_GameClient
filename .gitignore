@@ -6,6 +6,7 @@
 build
 bin
 *.log
+#config.properties
 
 #    Source (von uns bereits erstellt)
 #        └── Client (von uns bereits erstellt)
