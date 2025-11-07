@@ -80,7 +80,7 @@ public class MainClient {
             logger.error("Properties file not found.", e);
             return;
         } catch (IOException e) {
-            logger.error("Error reading config.properties.", e);
+            logger.error("Error reading properties file.", e);
             return;
         }
 
