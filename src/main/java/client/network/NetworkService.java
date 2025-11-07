@@ -68,18 +68,6 @@ public class NetworkService {
         return uniqueGameIdentifier.getUniqueGameID();
     }
 
-    public NetworkService(String serverBaseUrl, String gameId) {
-        this(
-                WebClient.builder()
-                        .baseUrl(serverBaseUrl + "/games/" + gameId)
-                        .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE)
-                        .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE)
-                        .build(),
-                new FromClientConverter(), new FromServerConverter(new FullMapConverter()), new FullMapAccumulator()
-        );
-        logger.info("NetworkService initialized with gameId: {}", gameId);
-    }
-
     public NetworkService(WebClient gameWebClient, FromClientConverter fromClientConverter,
                           FromServerConverter fromServerConverter, FullMapAccumulator fullMapAccumulator) {
         this.gameWebClient = Objects.requireNonNull(gameWebClient, "gameWebClient must not be null");
@@ -140,13 +128,11 @@ public class NetworkService {
                 .map(serverGameState -> {
                     GameState clientGameState = fromServerConverter.convertGameState(this.myPlayerID, serverGameState);
 
-                    boolean hasCollectedTreasure = clientGameState.getOptionalMyPlayer()
-                            .map(PlayerState::hasCollectedTreasure)
-                            .orElse(false);
+                    boolean hasCollectedTreasure = clientGameState.myPlayerHasCollectedTreasure();
 
                     this.fullMapAccumulator.accumulateFullMap(clientGameState.fullMap(), hasCollectedTreasure);
 
-                    return clientGameState.withAccumulatedMap(this.fullMapAccumulator.getFullMap());
+                    return clientGameState.withFullMap(this.fullMapAccumulator.getFullMap());
                 });
     }
 
