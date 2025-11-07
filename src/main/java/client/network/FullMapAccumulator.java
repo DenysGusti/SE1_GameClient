@@ -14,14 +14,17 @@ public class FullMapAccumulator {
     private boolean isTreasureRevealed = false;
 
     public void accumulateFullMap(FullMap newTurnFullMap, boolean hasCollectedTreasure) {
-        FullMap newFullMap = Objects.requireNonNull(newTurnFullMap, "newTurnFullMap must not be null");
+        FullMap mapToAccumulate = Objects.requireNonNull(newTurnFullMap, "newTurnFullMap must not be null");
 
         if (!this.isTreasureRevealed && hasCollectedTreasure) {
-            newFullMap = newTurnFullMap.withRevealedMyTreasureFromMyPlayer();
+            mapToAccumulate = newTurnFullMap.withRevealedMyTreasureFromMyPlayer();
             this.isTreasureRevealed = true;
         }
 
-        this.fullMap = newFullMap.withCombinedRevealedNodesFromOtherFullMap(this.fullMap);
+        if (this.fullMap == null)
+            this.fullMap = mapToAccumulate;
+        else
+            this.fullMap = this.fullMap.withCombinedRevealedNodesFromOtherFullMap(mapToAccumulate);
     }
 
     public FullMap getFullMap() {
