@@ -6,12 +6,13 @@ import client.data.XYPair;
 import client.data.fromclient.HalfMap;
 import client.data.fromserver.GameState;
 import client.main.exception.CommandLineArgumentsException;
-import client.network.FullMapAccumulator;
+import client.network.fromserver.FullMapAccumulator;
 import client.network.NetworkService;
 
-import client.network.converter.fromclient.FromClientConverter;
-import client.network.converter.fromserver.FromServerConverter;
-import client.network.converter.fromserver.FullMapConverter;
+import client.network.fromclient.FromClientConverter;
+import client.network.fromserver.FromServerConverter;
+import client.network.fromserver.FullMapConverter;
+import client.network.fromserver.FullMapRevealer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -27,7 +28,7 @@ public class MainClient {
     private static final Logger logger = LoggerFactory.getLogger(MainClient.class);
     private static final String CONFIG_FILE_NAME = "config.properties";
 
-    private static void validateArguments(String[] args) throws CommandLineArgumentsException {
+    public static void validateArguments(String[] args) throws CommandLineArgumentsException {
         Objects.requireNonNull(args, "args must not be null");
 
         if (args.length != 2 && args.length != 3)
@@ -59,7 +60,8 @@ public class MainClient {
         var fromClientConverter = new FromClientConverter();
         var fullMapConverter = new FullMapConverter();
         var fromServerConverter = new FromServerConverter(fullMapConverter);
-        var fullMapAccumulator = new FullMapAccumulator();
+        var fullMapRevealer = new FullMapRevealer();
+        var fullMapAccumulator = new FullMapAccumulator(fullMapRevealer);
         return new NetworkService(gameWebClient, fromClientConverter, fromServerConverter, fullMapAccumulator);
     }
 

@@ -5,10 +5,11 @@ import client.data.fromclient.*;
 import client.data.fromclient.EMove;
 import client.data.fromserver.*;
 
-import client.network.converter.fromclient.*;
-import client.network.converter.fromserver.*;
 import client.network.exception.ErrorResponseException;
 
+import client.network.fromclient.FromClientConverter;
+import client.network.fromserver.FromServerConverter;
+import client.network.fromserver.FullMapAccumulator;
 import messagesbase.*;
 import messagesbase.messagesfromclient.*;
 
