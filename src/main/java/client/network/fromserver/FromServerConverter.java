@@ -1,4 +1,4 @@
-package client.network.converter.fromserver;
+package client.network.fromserver;
 
 import client.data.PlayerInformation;
 
@@ -34,7 +34,7 @@ public class FromServerConverter {
 
         PlayerState myPlayer = gameState.getPlayers().stream()
                 .filter(player -> player.equals(UniquePlayerIdentifier.of(myPlayerID)))
-                .findFirst().map(this::convertPlayerState).orElseThrow();
+                .findFirst().map(this::convertPlayerState).orElseThrow();  // my player must always be present
 
         PlayerState enemyPlayer = gameState.getPlayers().stream()
                 .filter(player -> !player.equals(UniquePlayerIdentifier.of(myPlayerID)))
@@ -42,7 +42,7 @@ public class FromServerConverter {
 
         return new GameState(
                 gameState.getGameStateId(),
-                this.fullMapConverter.convertFullMap(gameState.getMap()).withRevealedCoordinatesFromMyPlayer(),
+                fullMapConverter.convertFullMap(gameState.getMap()),
                 myPlayer,
                 enemyPlayer
         );

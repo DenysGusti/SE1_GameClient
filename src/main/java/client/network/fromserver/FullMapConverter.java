@@ -1,4 +1,4 @@
-package client.network.converter.fromserver;
+package client.network.fromserver;
 
 import client.data.ETerrain;
 import client.data.XYPair;
@@ -29,7 +29,8 @@ public class FullMapConverter {
 
         Map<XYPair, client.data.fromserver.FullMapNode> nodes = new HashMap<>();
 
-        var size = new XYPair(0, 0);
+        var topLeft = new XYPair(Integer.MAX_VALUE, Integer.MAX_VALUE);
+        var bottomRight = new XYPair(Integer.MIN_VALUE, Integer.MIN_VALUE);
         XYPair myPlayerPosition = null;
         XYPair enemyPlayerPosition = null;
         XYPair myFortPosition = null;
@@ -54,10 +55,11 @@ public class FullMapConverter {
             if (node.getTreasureState() == ETreasureState.MyTreasureIsPresent)
                 myTreasurePosition = coordinate;
 
-            size = new XYPair(Math.max(size.x(), node.getX() + 1), Math.max(size.y(), node.getY() + 1));
+            topLeft = new XYPair(Math.min(topLeft.x(), node.getX()), Math.min(topLeft.y(), node.getY()));
+            bottomRight = new XYPair(Math.max(bottomRight.x(), node.getX()), Math.max(bottomRight.y(), node.getY()));
         }
 
-        return new FullMap(nodes, size,
+        return new FullMap(nodes, topLeft, bottomRight,
                 myPlayerPosition, enemyPlayerPosition,
                 myFortPosition, enemyFortPosition,
                 myTreasurePosition

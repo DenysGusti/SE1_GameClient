@@ -1,4 +1,4 @@
-package client.network.converter.fromclient;
+package client.network.fromclient;
 
 import client.data.ETerrain;
 import client.data.PlayerInformation;
