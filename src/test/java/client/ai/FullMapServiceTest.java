@@ -15,9 +15,9 @@ class FullMapServiceTest {
     private FullMapService mapService;
 
     // Test coordinates
-    private final XYPair coordTopLeft = new XYPair(2, 2);
-    private final XYPair coordBottomLeft = new XYPair(2, 8);
-    private final XYPair coordTopRight = new XYPair(18, 2);
+    private final XYPair coordinateTopLeft = new XYPair(2, 2);
+    private final XYPair coordinateBottomLeft = new XYPair(2, 8);
+    private final XYPair coordinateTopRight = new XYPair(18, 2);
 
     // Fort positions
     private final XYPair fortTopLeft = new XYPair(1, 1);
@@ -36,8 +36,8 @@ class FullMapServiceTest {
         var tallMap = new FullMap(Map.of(), new XYPair(0, 0), new XYPair(9, 9),
                 null, null, fortTopLeft, null, null);
 
-        assertTrue(mapService.isOnMySide(tallMap, coordTopLeft)); // (2,2) is on my side
-        assertFalse(mapService.isOnMySide(tallMap, coordBottomLeft)); // (2,8) is on enemy side
+        assertTrue(mapService.isOnMySide(tallMap, coordinateTopLeft)); // (2,2) is on my side
+        assertFalse(mapService.isOnMySide(tallMap, coordinateBottomLeft)); // (2,8) is on enemy side
     }
 
     @Test
@@ -46,8 +46,8 @@ class FullMapServiceTest {
         var tallMap = new FullMap(Map.of(), new XYPair(0, 0), new XYPair(9, 9),
                 null, null, fortBottomLeft, null, null);
 
-        assertFalse(mapService.isOnMySide(tallMap, coordTopLeft)); // (2,2) is on enemy side
-        assertTrue(mapService.isOnMySide(tallMap, coordBottomLeft)); // (2,8) is on my side
+        assertFalse(mapService.isOnMySide(tallMap, coordinateTopLeft)); // (2,2) is on enemy side
+        assertTrue(mapService.isOnMySide(tallMap, coordinateBottomLeft)); // (2,8) is on my side
     }
 
     @Test
@@ -57,8 +57,8 @@ class FullMapServiceTest {
         var wideMap = new FullMap(Map.of(), new XYPair(0, 0), new XYPair(19, 4),
                 null, null, fortTopLeft, null, null);
 
-        assertTrue(mapService.isOnMySide(wideMap, coordTopLeft)); // (2,2) is on my side
-        assertFalse(mapService.isOnMySide(wideMap, coordTopRight)); // (18,2) is on enemy side
+        assertTrue(mapService.isOnMySide(wideMap, coordinateTopLeft)); // (2,2) is on my side
+        assertFalse(mapService.isOnMySide(wideMap, coordinateTopRight)); // (18,2) is on enemy side
     }
 
     @Test
@@ -67,8 +67,8 @@ class FullMapServiceTest {
         var wideMap = new FullMap(Map.of(), new XYPair(0, 0), new XYPair(19, 4),
                 null, null, fortTopRight, null, null);
 
-        assertFalse(mapService.isOnMySide(wideMap, coordTopLeft)); // (2,2) is on enemy side
-        assertTrue(mapService.isOnMySide(wideMap, coordTopRight)); // (18,2) is on my side
+        assertFalse(mapService.isOnMySide(wideMap, coordinateTopLeft)); // (2,2) is on enemy side
+        assertTrue(mapService.isOnMySide(wideMap, coordinateTopRight)); // (18,2) is on my side
     }
 
     @Test
@@ -81,9 +81,9 @@ class FullMapServiceTest {
         var mapNoBounds = new FullMap(Map.of(), null, null,
                 null, null, fortTopLeft, null, null);
 
-        assertThrows(NullPointerException.class, () -> mapService.isOnMySide(null, coordTopLeft));
+        assertThrows(NullPointerException.class, () -> mapService.isOnMySide(null, coordinateTopLeft));
         assertThrows(NullPointerException.class, () -> mapService.isOnMySide(wideMap, null));
-        assertThrows(NullPointerException.class, () -> mapService.isOnMySide(mapNoFort, coordTopLeft));
-        assertThrows(NullPointerException.class, () -> mapService.isOnMySide(mapNoBounds, coordTopLeft));
+        assertThrows(NullPointerException.class, () -> mapService.isOnMySide(mapNoFort, coordinateTopLeft));
+        assertThrows(NullPointerException.class, () -> mapService.isOnMySide(mapNoBounds, coordinateTopLeft));
     }
 }

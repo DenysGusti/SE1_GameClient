@@ -66,29 +66,29 @@ class FullMapRevealerTest {
         Set<XYPair> expectedRevealed = playerOnMountain.getAllNeighborsWithThis(map.size());
 
         assertThat(newMap.nodes().values().stream().filter(FullMapNode::isRevealed).count(), is(9L));
-        for (XYPair coord : expectedRevealed) {
-            assertThat(newMap.nodes().get(coord).isRevealed(), is(true));
+        for (XYPair coordinate : expectedRevealed) {
+            assertThat(newMap.nodes().get(coordinate).isRevealed(), is(true));
         }
     }
 
     @Test
     @DisplayName("combineRevealedNodes should merge revealed nodes")
     void combineRevealedNodes() {
-        var coord1 = new XYPair(1, 1);
-        var coord2 = new XYPair(2, 2);
+        var coordinate1 = new XYPair(1, 1);
+        var coordinate2 = new XYPair(2, 2);
 
         Map<XYPair, FullMapNode> nodes1 = new HashMap<>(nodes);
-        nodes1.replace(coord1, new FullMapNode(ETerrain.Grass, true));
+        nodes1.replace(coordinate1, new FullMapNode(ETerrain.Grass, true));
         FullMap map1 = baseMap.withNodes(nodes1);
 
         Map<XYPair, FullMapNode> nodes2 = new HashMap<>(nodes);
-        nodes2.replace(coord2, new FullMapNode(ETerrain.Grass, true));
+        nodes2.replace(coordinate2, new FullMapNode(ETerrain.Grass, true));
         FullMap map2 = baseMap.withNodes(nodes2);
 
         FullMap combinedMap = revealer.combineRevealedNodes(map1, map2);
 
-        assertTrue(combinedMap.nodes().get(coord1).isRevealed());
-        assertTrue(combinedMap.nodes().get(coord2).isRevealed());
+        assertTrue(combinedMap.nodes().get(coordinate1).isRevealed());
+        assertTrue(combinedMap.nodes().get(coordinate2).isRevealed());
     }
 
     @Test

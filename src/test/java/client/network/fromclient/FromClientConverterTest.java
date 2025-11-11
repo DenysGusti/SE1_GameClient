@@ -45,11 +45,11 @@ class FromClientConverterTest {
     @Test
     @DisplayName("Should convert HalfMap correctly")
     void convertHalfMap() {
-        var fortCoord = new XYPair(1, 1);
-        var grassCoord = new XYPair(0, 0);
+        var fortCoordinate = new XYPair(1, 1);
+        var grassCoordinate = new XYPair(0, 0);
 
-        Map<XYPair, ETerrain> nodes = Map.of(grassCoord, ETerrain.Grass, fortCoord, ETerrain.Grass);
-        Set<XYPair> potentialForts = Set.of(fortCoord);
+        Map<XYPair, ETerrain> nodes = Map.of(grassCoordinate, ETerrain.Grass, fortCoordinate, ETerrain.Grass);
+        Set<XYPair> potentialForts = Set.of(fortCoordinate);
         HalfMap halfMap = new HalfMap(nodes, potentialForts);
 
         PlayerHalfMap result = converter.convertHalfMap(testPlayerID, halfMap);
@@ -59,16 +59,16 @@ class FromClientConverterTest {
 
         assertThat(result.getMapNodes(), hasItem(
                 allOf(
-                        hasProperty("x", is(fortCoord.x())),
-                        hasProperty("y", is(fortCoord.y())),
+                        hasProperty("x", is(fortCoordinate.x())),
+                        hasProperty("y", is(fortCoordinate.y())),
                         hasProperty("fortPresent", is(true))
                 )
         ));
 
         assertThat(result.getMapNodes(), hasItem(
                 allOf(
-                        hasProperty("x", is(grassCoord.x())),
-                        hasProperty("y", is(grassCoord.y())),
+                        hasProperty("x", is(grassCoordinate.x())),
+                        hasProperty("y", is(grassCoordinate.y())),
                         hasProperty("fortPresent", is(false))
                 )
         ));

@@ -1,6 +1,5 @@
 package client.data.fromclient;
 
-import client.data.XYPair;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
