@@ -3,6 +3,8 @@ package client.data;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.util.Set;
 
@@ -69,5 +71,20 @@ class XYPairTest {
     @DisplayName("isOnBorder should return false for internal coordinates")
     void isOnBorder_false() {
         assertFalse(new XYPair(5, 5).isOnBorder(gridSize));
+    }
+
+    @DisplayName("isOnCorner should correctly identify corner coordinates")
+    @ParameterizedTest(name = "Coord ({0},{1}) should be a corner: {2}")
+    @CsvSource({
+            "0, 0, true",   // Top-left
+            "9, 0, true",   // Top-right
+            "0, 9, true",   // Bottom-left
+            "9, 9, true",   // Bottom-right
+            "5, 0, false",  // Top-edge (not a corner)
+            "5, 5, false"   // Middle (not a corner)
+    })
+    void isOnCorner_dataDrivenTest(int x, int y, boolean expected) {
+        var coord = new XYPair(x, y);
+        assertEquals(expected, coord.isOnCorner(gridSize));
     }
 }
