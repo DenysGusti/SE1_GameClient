@@ -8,6 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
@@ -28,61 +29,61 @@ class FullMapAccumulatorTest {
     }
 
     @Test
-    @DisplayName("First accumulation should call reveal and set map")
-    void accumulateFullMap_firstCall() {
+    @DisplayName("First map accumulation should call reveal and set map")
+    void NewAccumulator_AccumulateFirstMap_SetsMapAndCallsReveal() {
         when(revealerMock.revealCoordinatesFromMyPlayer(newTurnMapMock)).thenReturn(revealedMapMock);
 
         accumulator.accumulateFullMap(newTurnMapMock, false);
 
-        verify(revealerMock, times(1)).revealCoordinatesFromMyPlayer(newTurnMapMock);
-        verify(revealerMock, never()).revealMyTreasureFromMyPlayer(any());
-        verify(revealerMock, never()).combineRevealedNodes(any(), any());
-        assertEquals(revealedMapMock, accumulator.getFullMap());
+        assertAll(
+                () -> verify(revealerMock, times(1)).revealCoordinatesFromMyPlayer(newTurnMapMock),
+                () -> verify(revealerMock, never()).revealMyTreasureFromMyPlayer(any()),
+                () -> verify(revealerMock, never()).combineRevealedNodes(any(), any()),
+                () -> assertEquals(revealedMapMock, accumulator.getFullMap())
+        );
     }
 
     @Test
     @DisplayName("Treasure collection should trigger treasure reveal")
-    void accumulateFullMap_treasureCollected() {
+    void MapWithTreasureCollected_AccumulateMap_CallsTreasureReveal() {
         when(revealerMock.revealCoordinatesFromMyPlayer(newTurnMapMock)).thenReturn(revealedMapMock);
         when(revealerMock.revealMyTreasureFromMyPlayer(revealedMapMock)).thenReturn(treasureRevealedMapMock);
 
         accumulator.accumulateFullMap(newTurnMapMock, true); // hasCollectedTreasure = true
 
-        verify(revealerMock, times(1)).revealCoordinatesFromMyPlayer(newTurnMapMock);
-        verify(revealerMock, times(1)).revealMyTreasureFromMyPlayer(revealedMapMock);
-        assertEquals(treasureRevealedMapMock, accumulator.getFullMap());
+        assertAll(
+                () -> verify(revealerMock, times(1)).revealCoordinatesFromMyPlayer(newTurnMapMock),
+                () -> verify(revealerMock, times(1)).revealMyTreasureFromMyPlayer(revealedMapMock),
+                () -> assertEquals(treasureRevealedMapMock, accumulator.getFullMap())
+        );
     }
 
     @Test
     @DisplayName("Treasure reveal should only happen once")
-    void accumulateFullMap_treasureRevealOnlyOnce() {
+    void TreasureAlreadyRevealed_AccumulateMapWithTreasure_TreasureRevealNotCalledAgain() {
         when(revealerMock.revealCoordinatesFromMyPlayer(any())).thenReturn(revealedMapMock);
         when(revealerMock.revealMyTreasureFromMyPlayer(any())).thenReturn(treasureRevealedMapMock);
 
-        // First turn (collects treasure)
-        accumulator.accumulateFullMap(newTurnMapMock, true);
+        accumulator.accumulateFullMap(newTurnMapMock, true); // First turn
+        accumulator.accumulateFullMap(newTurnMapMock, true); // Second turn
 
-        // Second turn (treasure already revealed)
-        accumulator.accumulateFullMap(newTurnMapMock, true);
-
-        // Verify revealMyTreasure was only called ONCE
         verify(revealerMock, times(1)).revealMyTreasureFromMyPlayer(any());
     }
 
     @Test
     @DisplayName("Subsequent accumulations should call combine")
-    void accumulateFullMap_secondCall() {
+    void ExistingMap_AccumulateSecondMap_CallsCombineNodes() {
         when(revealerMock.revealCoordinatesFromMyPlayer(newTurnMapMock)).thenReturn(revealedMapMock);
 
-        // First call
-        accumulator.accumulateFullMap(newTurnMapMock, false);
-        FullMap firstMap = accumulator.getFullMap(); // this is revealedMapMock
+        accumulator.accumulateFullMap(newTurnMapMock, false); // First call
+        FullMap firstMap = accumulator.getFullMap();
 
-        // Second call
         when(revealerMock.combineRevealedNodes(firstMap, revealedMapMock)).thenReturn(combinedMapMock);
-        accumulator.accumulateFullMap(newTurnMapMock, false);
+        accumulator.accumulateFullMap(newTurnMapMock, false); // Second call
 
-        verify(revealerMock, times(1)).combineRevealedNodes(firstMap, revealedMapMock);
-        assertEquals(combinedMapMock, accumulator.getFullMap());
+        assertAll(
+                () -> verify(revealerMock, times(1)).combineRevealedNodes(firstMap, revealedMapMock),
+                () -> assertEquals(combinedMapMock, accumulator.getFullMap())
+        );
     }
 }

@@ -41,28 +41,23 @@ class FullMapRevealerTest {
     }
 
     @Test
-    @DisplayName("Should reveal only player's coordinate when on Grass")
-    void revealCoordinates_playerOnGrass() {
-        FullMap map = baseMap.withMyTreasurePosition(null) // Using 'with' to create a new instance with player
-                .withNodes(nodes)
-                .withMyPlayerPosition(playerOnGrass);
-
+    @DisplayName("Player on Grass should reveal 1 tile")
+    void PlayerOnGrass_RevealCoordinates_RevealsOnlyPlayerTile() {
+        FullMap map = baseMap.withMyPlayerPosition(playerOnGrass);
         FullMap newMap = revealer.revealCoordinatesFromMyPlayer(map);
 
-        assertThat(newMap.nodes().get(playerOnGrass).isRevealed(), is(true));
-        assertThat(newMap.nodes().values().stream().filter(FullMapNode::isRevealed).count(), is(1L));
+        assertAll(
+                () -> assertThat(newMap.nodes().get(playerOnGrass).isRevealed(), is(true)),
+                () -> assertThat(newMap.nodes().values().stream().filter(FullMapNode::isRevealed).count(), is(1L))
+        );
     }
 
     @Test
-    @DisplayName("Should reveal 9 coordinates (player + 8 neighbors) when on Mountain")
-    void revealCoordinates_playerOnMountain() {
-        FullMap map = baseMap.withMyTreasurePosition(null)
-                .withNodes(nodes)
-                .withMyPlayerPosition(playerOnMountain);
-
+    @DisplayName("Player on Mountain should reveal 9 tiles")
+    void PlayerOnMountain_RevealCoordinates_RevealsNineTiles() {
+        FullMap map = baseMap.withMyPlayerPosition(playerOnMountain);
         FullMap newMap = revealer.revealCoordinatesFromMyPlayer(map);
 
-        // Use the map's real size for neighbor calculation
         Set<XYPair> expectedRevealed = playerOnMountain.getAllNeighborsWithThis(map.size());
 
         assertThat(newMap.nodes().values().stream().filter(FullMapNode::isRevealed).count(), is(9L));
@@ -72,8 +67,8 @@ class FullMapRevealerTest {
     }
 
     @Test
-    @DisplayName("combineRevealedNodes should merge revealed nodes")
-    void combineRevealedNodes() {
+    @DisplayName("Combining maps should merge revealed nodes")
+    void TwoMapsWithDifferentRevealedNodes_CombineNodes_ReturnsMergedMap() {
         var coordinate1 = new XYPair(1, 1);
         var coordinate2 = new XYPair(2, 2);
 
@@ -87,17 +82,16 @@ class FullMapRevealerTest {
 
         FullMap combinedMap = revealer.combineRevealedNodes(map1, map2);
 
-        assertTrue(combinedMap.nodes().get(coordinate1).isRevealed());
-        assertTrue(combinedMap.nodes().get(coordinate2).isRevealed());
+        assertAll(
+                () -> assertTrue(combinedMap.nodes().get(coordinate1).isRevealed(), "Coord 1 should be revealed"),
+                () -> assertTrue(combinedMap.nodes().get(coordinate2).isRevealed(), "Coord 2 should be revealed")
+        );
     }
 
     @Test
-    @DisplayName("revealMyTreasure should set treasure to player position")
-    void revealMyTreasure() {
-        FullMap map = baseMap.withMyTreasurePosition(null)
-                .withNodes(nodes)
-                .withMyPlayerPosition(playerOnGrass);
-
+    @DisplayName("Revealing treasure should set treasure position to player position")
+    void PlayerOnMap_RevealMyTreasure_SetsTreasureToPlayerPosition() {
+        FullMap map = baseMap.withMyPlayerPosition(playerOnGrass);
         FullMap newMap = revealer.revealMyTreasureFromMyPlayer(map);
 
         assertEquals(playerOnGrass, newMap.myTreasurePosition());

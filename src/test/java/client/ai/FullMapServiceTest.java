@@ -30,50 +30,56 @@ class FullMapServiceTest {
     }
 
     @Test
-    @DisplayName("TALL MAP (10x10): Fort Top-Left, should correctly identify sides")
-    void isOnMySide_TallMap_FortTopLeft() {
-        // Simulates a 10x10 map (seam is horizontal at y=5)
+    @DisplayName("TALL MAP (10x10): Fort Top-Left, checks side")
+    void TallMapWithFortTopLeft_CheckSideOfCoordinates_ReturnsTrueForTopFalseForBottom() {
         var tallMap = new FullMap(Map.of(), new XYPair(0, 0), new XYPair(9, 9),
                 null, null, fortTopLeft, null, null);
 
-        assertTrue(mapService.isOnMySide(tallMap, coordinateTopLeft)); // (2,2) is on my side
-        assertFalse(mapService.isOnMySide(tallMap, coordinateBottomLeft)); // (2,8) is on enemy side
+        assertAll(
+                () -> assertTrue(mapService.isOnMySide(tallMap, coordinateTopLeft), "Top-Left coord should be on my side"),
+                () -> assertFalse(mapService.isOnMySide(tallMap, coordinateBottomLeft), "Bottom-Left coord should be on enemy side")
+        );
     }
 
     @Test
-    @DisplayName("TALL MAP (10x10): Fort Bottom-Left, should correctly identify sides")
-    void isOnMySide_TallMap_FortBottom() {
+    @DisplayName("TALL MAP (10x10): Fort Bottom-Left, checks side")
+    void TallMapWithFortBottom_CheckSideOfCoordinates_ReturnsFalseForTopTrueForBottom() {
         var tallMap = new FullMap(Map.of(), new XYPair(0, 0), new XYPair(9, 9),
                 null, null, fortBottomLeft, null, null);
 
-        assertFalse(mapService.isOnMySide(tallMap, coordinateTopLeft)); // (2,2) is on enemy side
-        assertTrue(mapService.isOnMySide(tallMap, coordinateBottomLeft)); // (2,8) is on my side
+        assertAll(
+                () -> assertFalse(mapService.isOnMySide(tallMap, coordinateTopLeft), "Top-Left coord should be on enemy side"),
+                () -> assertTrue(mapService.isOnMySide(tallMap, coordinateBottomLeft), "Bottom-Left coord should be on my side")
+        );
     }
 
     @Test
-    @DisplayName("WIDE MAP (20x5): Fort Top-Left, should correctly identify sides")
-    void isOnMySide_WideMap_FortTopLeft() {
-        // Simulates a 20x5 map (seam is vertical at x=10)
+    @DisplayName("WIDE MAP (20x5): Fort Top-Left, checks side")
+    void WideMapWithFortTopLeft_CheckSideOfCoordinates_ReturnsTrueForLeftFalseForRight() {
         var wideMap = new FullMap(Map.of(), new XYPair(0, 0), new XYPair(19, 4),
                 null, null, fortTopLeft, null, null);
 
-        assertTrue(mapService.isOnMySide(wideMap, coordinateTopLeft)); // (2,2) is on my side
-        assertFalse(mapService.isOnMySide(wideMap, coordinateTopRight)); // (18,2) is on enemy side
+        assertAll(
+                () -> assertTrue(mapService.isOnMySide(wideMap, coordinateTopLeft), "Top-Left coord should be on my side"),
+                () -> assertFalse(mapService.isOnMySide(wideMap, coordinateTopRight), "Top-Right coord should be on enemy side")
+        );
     }
 
     @Test
-    @DisplayName("WIDE MAP (20x5): Fort Top-Right, should correctly identify sides")
-    void isOnMySide_WideMap_FortTopRight() {
+    @DisplayName("WIDE MAP (20x5): Fort Top-Right, checks side")
+    void WideMapWithFortTopRight_CheckSideOfCoordinates_ReturnsFalseForLeftTrueForRight() {
         var wideMap = new FullMap(Map.of(), new XYPair(0, 0), new XYPair(19, 4),
                 null, null, fortTopRight, null, null);
 
-        assertFalse(mapService.isOnMySide(wideMap, coordinateTopLeft)); // (2,2) is on enemy side
-        assertTrue(mapService.isOnMySide(wideMap, coordinateTopRight)); // (18,2) is on my side
+        assertAll(
+                () -> assertFalse(mapService.isOnMySide(wideMap, coordinateTopLeft), "Top-Left coord should be on enemy side"),
+                () -> assertTrue(mapService.isOnMySide(wideMap, coordinateTopRight), "Top-Right coord should be on my side")
+        );
     }
 
     @Test
-    @DisplayName("isOnMySide should throw NullPointerException for null inputs")
-    void isOnMySide_NullChecks() {
+    @DisplayName("Negative Test: isOnMySide throws NullPointerException for null inputs")
+    void NullInputs_CheckIsOnMySide_ThrowsNullPointerException() {
         var wideMap = new FullMap(Map.of(), new XYPair(0, 0), new XYPair(19, 4),
                 null, null, fortTopLeft, null, null);
         var mapNoFort = new FullMap(Map.of(), new XYPair(0, 0), new XYPair(19, 4),
@@ -81,9 +87,15 @@ class FullMapServiceTest {
         var mapNoBounds = new FullMap(Map.of(), null, null,
                 null, null, fortTopLeft, null, null);
 
-        assertThrows(NullPointerException.class, () -> mapService.isOnMySide(null, coordinateTopLeft));
-        assertThrows(NullPointerException.class, () -> mapService.isOnMySide(wideMap, null));
-        assertThrows(NullPointerException.class, () -> mapService.isOnMySide(mapNoFort, coordinateTopLeft));
-        assertThrows(NullPointerException.class, () -> mapService.isOnMySide(mapNoBounds, coordinateTopLeft));
+        assertAll(
+                () -> assertThrows(NullPointerException.class,
+                        () -> mapService.isOnMySide(null, coordinateTopLeft), "Map cannot be null"),
+                () -> assertThrows(NullPointerException.class,
+                        () -> mapService.isOnMySide(wideMap, null), "Coordinate cannot be null"),
+                () -> assertThrows(NullPointerException.class,
+                        () -> mapService.isOnMySide(mapNoFort, coordinateTopLeft), "Fort position cannot be null"),
+                () -> assertThrows(NullPointerException.class,
+                        () -> mapService.isOnMySide(mapNoBounds, coordinateTopLeft), "BottomRight coordinate cannot be null")
+        );
     }
 }

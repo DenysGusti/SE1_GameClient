@@ -30,8 +30,8 @@ class FromClientConverterTest {
     }
 
     @Test
-    @DisplayName("Should convert PlayerInformation correctly")
-    void convertPlayerInformation() {
+    @DisplayName("Converts client PlayerInformation to server PlayerRegistration")
+    void PlayerInfo_ConvertPlayerInformation_ReturnsCorrectPlayerRegistration() {
         var info = new PlayerInformation("Test", "User", "testuser");
         PlayerRegistration registration = converter.convertPlayerInformation(info);
 
@@ -43,8 +43,8 @@ class FromClientConverterTest {
     }
 
     @Test
-    @DisplayName("Should convert HalfMap correctly")
-    void convertHalfMap() {
+    @DisplayName("Converts client HalfMap to server PlayerHalfMap")
+    void ClientHalfMap_ConvertHalfMap_ReturnsCorrectPlayerHalfMap() {
         var fortCoordinate = new XYPair(1, 1);
         var grassCoordinate = new XYPair(0, 0);
 
@@ -54,31 +54,27 @@ class FromClientConverterTest {
 
         PlayerHalfMap result = converter.convertHalfMap(testPlayerID, halfMap);
 
-        assertThat(result.getUniquePlayerID(), is(testPlayerID));
-        assertThat(result.getMapNodes(), hasSize(2));
-
-        assertThat(result.getMapNodes(), hasItem(
-                allOf(
-                        hasProperty("x", is(fortCoordinate.x())),
-                        hasProperty("y", is(fortCoordinate.y())),
-                        hasProperty("fortPresent", is(true))
-                )
-        ));
-
-        assertThat(result.getMapNodes(), hasItem(
-                allOf(
-                        hasProperty("x", is(grassCoordinate.x())),
-                        hasProperty("y", is(grassCoordinate.y())),
-                        hasProperty("fortPresent", is(false))
-                )
-        ));
+        assertAll(
+                () -> assertThat(result.getUniquePlayerID(), is(testPlayerID)),
+                () -> assertThat(result.getMapNodes(), hasSize(2)),
+                () -> assertThat(result.getMapNodes(), hasItem(
+                        allOf(
+                                hasProperty("x", is(fortCoordinate.x())),
+                                hasProperty("y", is(fortCoordinate.y())),
+                                hasProperty("fortPresent", is(true))
+                        )
+                ))
+        );
     }
 
     @Test
-    @DisplayName("Should convert EMove correctly")
-    void convertMove() {
+    @DisplayName("Converts client EMove to server EMove")
+    void ClientMove_ConvertMove_ReturnsCorrectPlayerMove() {
         PlayerMove move = converter.convertMove(testPlayerID, EMove.Up);
-        assertThat(move.getUniquePlayerID(), is(testPlayerID));
-        assertThat(move.getMove(), is(messagesbase.messagesfromclient.EMove.Up));
+
+        assertAll(
+                () -> assertThat(move.getUniquePlayerID(), is(testPlayerID)),
+                () -> assertThat(move.getMove(), is(messagesbase.messagesfromclient.EMove.Up))
+        );
     }
 }

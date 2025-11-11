@@ -27,7 +27,7 @@ class FromServerConverterTest {
     private FullMapConverter fullMapConverterMock;
 
     @Mock
-    private FullMap fullMapMock; // The object our mock converter will return
+    private FullMap fullMapMock;
 
     @InjectMocks
     private FromServerConverter fromServerConverter;
@@ -60,8 +60,8 @@ class FromServerConverterTest {
     }
 
     @Test
-    @DisplayName("Should convert server GameState to client GameState")
-    void convertGameState() {
+    @DisplayName("Converts server GameState to client GameState")
+    void ServerGameState_ConvertGameState_ReturnsCorrectClientGameState() {
         GameState clientState = fromServerConverter.convertGameState(myPlayerID, serverGameState);
 
         assertAll(
@@ -73,8 +73,8 @@ class FromServerConverterTest {
     }
 
     @Test
-    @DisplayName("Should correctly convert my player state")
-    void convertGameState_myPlayerState() {
+    @DisplayName("Converts server GameState and finds correct MyPlayer data")
+    void ServerGameState_ConvertGameState_ReturnsCorrectMyPlayerState() {
         var myPlayer = fromServerConverter.convertGameState(myPlayerID, serverGameState).myPlayer();
         assertAll(
                 () -> assertThat(myPlayer.playerInformation().firstName(), is("My")),
@@ -84,8 +84,8 @@ class FromServerConverterTest {
     }
 
     @Test
-    @DisplayName("Should correctly convert enemy player state")
-    void convertGameState_enemyPlayerState() {
+    @DisplayName("Converts server GameState and finds correct EnemyPlayer data")
+    void ServerGameState_ConvertGameState_ReturnsCorrectEnemyPlayerState() {
         var enemyPlayer = fromServerConverter.convertGameState(myPlayerID, serverGameState)
                 .getOptionalEnemyPlayer().orElseThrow();
         assertAll(
@@ -96,8 +96,8 @@ class FromServerConverterTest {
     }
 
     @Test
-    @DisplayName("Should throw exception if my player is not in the list")
-    void convertGameState_myPlayerMissing_shouldThrow() {
+    @DisplayName("Negative Test: Throws exception if my player is not in the list")
+    void ServerGameStateWithNoPlayers_ConvertGameState_ThrowsNoSuchElementException() {
         messagesbase.messagesfromserver.GameState emptyState = new messagesbase.messagesfromserver.GameState(
                 new messagesbase.messagesfromserver.FullMap(), List.of(), "game-id-123");
 

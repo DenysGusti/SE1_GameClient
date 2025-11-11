@@ -27,19 +27,20 @@ class FullMapConverterTest {
     }
 
     @Test
-    @DisplayName("Should return an empty FullMap when server map is empty")
-    void convertFullMap_emptyServerMap() {
+    @DisplayName("Converts an empty server map to an empty client map")
+    void EmptyServerMap_ConvertFullMap_ReturnsEmptyClientMap() {
         var serverMap = new messagesbase.messagesfromserver.FullMap();
         FullMap clientMap = converter.convertFullMap(serverMap);
 
-        assertThat(clientMap.isEmpty(), is(true));
-        assertThat(clientMap.getOptionalTopLeftCoordinate().isEmpty(), is(true));
+        assertAll(
+                () -> assertThat(clientMap.isEmpty(), is(true)),
+                () -> assertThat(clientMap.getOptionalTopLeftCoordinate().isEmpty(), is(true))
+        );
     }
 
     @Test
-    @DisplayName("Should correctly calculate coordinates for a single half-map")
-    void convertFullMap_halfMap_calculatesCoords() {
-        // Simulates a map placed in the bottom-right quadrant
+    @DisplayName("Calculates correct bounding box for a partial map")
+    void ServerMapWithBottomRightNodes_ConvertFullMap_CalculatesCorrectBoundingBox() {
         var node1 = new FullMapNode(ETerrain.Grass, EPlayerPositionState.NoPlayerPresent,
                 ETreasureState.NoOrUnknownTreasureState, EFortState.NoOrUnknownFortState, 10, 5);
         var node2 = new FullMapNode(ETerrain.Grass, EPlayerPositionState.NoPlayerPresent,
@@ -48,7 +49,6 @@ class FullMapConverterTest {
         var serverMap = new messagesbase.messagesfromserver.FullMap(List.of(node1, node2));
         FullMap clientMap = converter.convertFullMap(serverMap);
 
-        // Check that the bounding box is correct
         assertAll(
                 () -> assertThat(clientMap.topLeftCoordinate(), is(new XYPair(10, 5))),
                 () -> assertThat(clientMap.bottomRightCoordinate(), is(new XYPair(19, 9)))
@@ -56,18 +56,18 @@ class FullMapConverterTest {
     }
 
     @Test
-    @DisplayName("Should correctly convert all map object types")
-    void convertFullMap_allNodeTypes() {
-        var myPlayerNode = new FullMapNode(ETerrain.Grass, EPlayerPositionState.MyPlayerPosition,
-                ETreasureState.NoOrUnknownTreasureState, EFortState.NoOrUnknownFortState, 0, 0);
-        var enemyPlayerNode = new FullMapNode(ETerrain.Grass, EPlayerPositionState.EnemyPlayerPosition,
-                ETreasureState.NoOrUnknownTreasureState, EFortState.NoOrUnknownFortState, 1, 0);
-        var myFortNode = new FullMapNode(ETerrain.Grass, EPlayerPositionState.NoPlayerPresent,
-                ETreasureState.NoOrUnknownTreasureState, EFortState.MyFortPresent, 2, 0);
-        var enemyFortNode = new FullMapNode(ETerrain.Grass, EPlayerPositionState.NoPlayerPresent,
-                ETreasureState.NoOrUnknownTreasureState, EFortState.EnemyFortPresent, 3, 0);
-        var myTreasureNode = new FullMapNode(ETerrain.Grass, EPlayerPositionState.NoPlayerPresent,
-                ETreasureState.MyTreasureIsPresent, EFortState.NoOrUnknownFortState, 4, 0);
+    @DisplayName("Correctly assigns all object positions from server map")
+    void ServerMapWithAllObjects_ConvertFullMap_AssignsCorrectPositions() {
+        var myPlayerNode =
+                new FullMapNode(ETerrain.Grass, EPlayerPositionState.MyPlayerPosition, ETreasureState.NoOrUnknownTreasureState, EFortState.NoOrUnknownFortState, 0, 0);
+        var enemyPlayerNode =
+                new FullMapNode(ETerrain.Grass, EPlayerPositionState.EnemyPlayerPosition, ETreasureState.NoOrUnknownTreasureState, EFortState.NoOrUnknownFortState, 1, 0);
+        var myFortNode =
+                new FullMapNode(ETerrain.Grass, EPlayerPositionState.NoPlayerPresent, ETreasureState.NoOrUnknownTreasureState, EFortState.MyFortPresent, 2, 0);
+        var enemyFortNode =
+                new FullMapNode(ETerrain.Grass, EPlayerPositionState.NoPlayerPresent, ETreasureState.NoOrUnknownTreasureState, EFortState.EnemyFortPresent, 3, 0);
+        var myTreasureNode =
+                new FullMapNode(ETerrain.Grass, EPlayerPositionState.NoPlayerPresent, ETreasureState.MyTreasureIsPresent, EFortState.NoOrUnknownFortState, 4, 0);
 
         var serverMap = new messagesbase.messagesfromserver.FullMap(
                 List.of(myPlayerNode, enemyPlayerNode, myFortNode, enemyFortNode, myTreasureNode));

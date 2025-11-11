@@ -22,59 +22,67 @@ class XYPairTest {
     }
 
     @Test
-    @DisplayName("Should return 4 adjacent neighbors for a middle coordinate")
-    void getAdjacentNeighbors_middle() {
+    @DisplayName("A coordinate in the middle of the grid")
+    void MiddleCoordinate_GetAdjacentNeighbors_ReturnsFourNeighbors() {
         Set<XYPair> neighbors = new XYPair(5, 5).getAdjacentNeighbors(gridSize);
-        assertThat(neighbors, hasSize(4));
-        assertThat(neighbors, containsInAnyOrder(new XYPair(4, 5), new XYPair(6, 5), new XYPair(5, 4), new XYPair(5, 6)));
+        assertAll(
+                () -> assertThat(neighbors, hasSize(4)),
+                () -> assertThat(neighbors, containsInAnyOrder(new XYPair(4, 5), new XYPair(6, 5), new XYPair(5, 4), new XYPair(5, 6)))
+        );
     }
 
     @Test
-    @DisplayName("Should return 2 adjacent neighbors for a top-left corner")
-    void getAdjacentNeighbors_corner() {
+    @DisplayName("A coordinate in the corner of the grid")
+    void CornerCoordinate_GetAdjacentNeighbors_ReturnsTwoNeighbors() {
         Set<XYPair> neighbors = new XYPair(0, 0).getAdjacentNeighbors(gridSize);
-        assertThat(neighbors, hasSize(2));
-        assertThat(neighbors, containsInAnyOrder(new XYPair(1, 0), new XYPair(0, 1)));
+        assertAll(
+                () -> assertThat(neighbors, hasSize(2)),
+                () -> assertThat(neighbors, containsInAnyOrder(new XYPair(1, 0), new XYPair(0, 1)))
+        );
     }
 
     @Test
-    @DisplayName("Should return 3 adjacent neighbors for a side edge")
-    void getAdjacentNeighbors_edge() {
+    @DisplayName("A coordinate on the edge of the grid")
+    void EdgeCoordinate_GetAdjacentNeighbors_ReturnsThreeNeighbors() {
         Set<XYPair> neighbors = new XYPair(9, 5).getAdjacentNeighbors(gridSize);
-        assertThat(neighbors, hasSize(3));
-        assertThat(neighbors, containsInAnyOrder(new XYPair(8, 5), new XYPair(9, 4), new XYPair(9, 6)));
+        assertAll(
+                () -> assertThat(neighbors, hasSize(3)),
+                () -> assertThat(neighbors, containsInAnyOrder(new XYPair(8, 5), new XYPair(9, 4), new XYPair(9, 6)))
+        );
     }
 
     @Test
-    @DisplayName("Should return 8 total neighbors for a middle coordinate")
-    void getAllNeighbors_middle() {
+    @DisplayName("A coordinate in the middle of the grid")
+    void MiddleCoordinate_GetAllNeighbors_ReturnsEightNeighbors() {
         Set<XYPair> neighbors = new XYPair(5, 5).getAllNeighbors(gridSize);
         assertThat(neighbors, hasSize(8));
     }
 
     @Test
-    @DisplayName("Should return 9 neighbors (all + self) for a middle coordinate")
-    void getAllNeighborsWithThis_middle() {
+    @DisplayName("A coordinate in the middle of the grid")
+    void MiddleCoordinate_GetAllNeighborsWithThis_ReturnsNineNeighborsIncludingSelf() {
         var middle = new XYPair(5, 5);
         Set<XYPair> neighbors = middle.getAllNeighborsWithThis(gridSize);
-        assertThat(neighbors, hasSize(9));
-        assertThat(neighbors, hasItem(middle));
+        assertAll(
+                () -> assertThat(neighbors, hasSize(9)),
+                () -> assertThat(neighbors, hasItem(middle))
+        );
     }
 
     @Test
-    @DisplayName("isOnBorder should return true for border coordinates")
-    void isOnBorder_true() {
+    @DisplayName("A coordinate on the border")
+    void BorderCoordinate_IsOnBorder_ReturnsTrue() {
         assertTrue(new XYPair(0, 5).isOnBorder(gridSize));
     }
 
     @Test
-    @DisplayName("isOnBorder should return false for internal coordinates")
-    void isOnBorder_false() {
+    @DisplayName("A coordinate not on the border")
+    void InternalCoordinate_IsOnBorder_ReturnsFalse() {
         assertFalse(new XYPair(5, 5).isOnBorder(gridSize));
     }
 
-    @DisplayName("isOnCorner should correctly identify corner coordinates")
-    @ParameterizedTest(name = "Coordinate ({0},{1}) should be a corner: {2}")
+    @DisplayName("Data-Driven Test: Checks various coordinates for corner status")
+    @ParameterizedTest(name = "Coord ({0},{1})_IsOnCorner_Returns {2}")
     @CsvSource({
             "0, 0, true",   // Top-left
             "9, 0, true",   // Top-right
@@ -83,7 +91,7 @@ class XYPairTest {
             "5, 0, false",  // Top-edge (not a corner)
             "5, 5, false"   // Middle (not a corner)
     })
-    void isOnCorner_dataDrivenTest(int x, int y, boolean expected) {
+    void VariousCoordinates_IsOnCorner_ReturnsCorrectBoolean(int x, int y, boolean expected) {
         var coordinate = new XYPair(x, y);
         assertEquals(expected, coordinate.isOnCorner(gridSize));
     }

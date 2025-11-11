@@ -26,7 +26,7 @@ class GameStateTest {
 
     @Test
     @DisplayName("Constructor should throw NullPointerException for null arguments")
-    void constructor_nullArgs_shouldThrowNPE() {
+    void NullIDOrMapOrPlayer_ConstructGameState_ThrowsNullPointerException() {
         assertThrows(NullPointerException.class, () -> new GameState(null, fullMapMock, myPlayerMock, null));
         assertThrows(NullPointerException.class, () -> new GameState("id", null, myPlayerMock, null));
         assertThrows(NullPointerException.class, () -> new GameState("id", fullMapMock, null, null));
@@ -34,14 +34,14 @@ class GameStateTest {
 
     @Test
     @DisplayName("myPlayerMustAct should delegate to myPlayer")
-    void myPlayerMustAct() {
+    void PlayerInMustActState_CheckMyPlayerMustAct_ReturnsTrue() {
         when(myPlayerMock.mustAct()).thenReturn(true);
         assertTrue(gameState.myPlayerMustAct());
     }
 
     @Test
     @DisplayName("myPlayerMustWait should delegate to myPlayer")
-    void myPlayerMustWait() {
+    void PlayerInMustWaitState_CheckMyPlayerMustWait_ReturnsTrue() {
         when(myPlayerMock.mustWait()).thenReturn(true);
         assertTrue(gameState.myPlayerMustWait());
     }

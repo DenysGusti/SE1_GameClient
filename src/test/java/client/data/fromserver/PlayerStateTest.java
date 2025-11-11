@@ -17,29 +17,40 @@ class PlayerStateTest {
     }
 
     @Test
-    @DisplayName("Constructor should throw NullPointerException for null arguments")
-    void constructor_nullArgs_shouldThrowNPE() {
-        assertThrows(NullPointerException.class, () -> new PlayerState(null, false, EPlayerGameState.MustAct));
-        assertThrows(NullPointerException.class, () -> new PlayerState(testPlayerInfo, false, null));
+    @DisplayName("Negative Test: Constructor throws exception for null arguments")
+    void NullInfoOrState_ConstructPlayerState_ThrowsNullPointerException() {
+        assertAll(
+                () -> assertThrows(NullPointerException.class, () -> new PlayerState(null, false, EPlayerGameState.MustAct)),
+                () -> assertThrows(NullPointerException.class, () -> new PlayerState(testPlayerInfo, false, null))
+        );
     }
 
     @Test
-    @DisplayName("Method logic should match enum state")
-    void stateMethods() {
+    @DisplayName("Helper methods return correct boolean based on state enum")
+    void VariousPlayerStates_CheckStateMethods_ReturnCorrectBooleans() {
         var actState = new PlayerState(testPlayerInfo, false, EPlayerGameState.MustAct);
-        assertTrue(actState.mustAct());
-        assertFalse(actState.mustWait());
-
         var waitState = new PlayerState(testPlayerInfo, false, EPlayerGameState.MustWait);
-        assertTrue(waitState.mustWait());
-        assertFalse(waitState.mustAct());
-
         var wonState = new PlayerState(testPlayerInfo, false, EPlayerGameState.Won);
-        assertTrue(wonState.won());
-        assertFalse(wonState.lost());
-
         var lostState = new PlayerState(testPlayerInfo, false, EPlayerGameState.Lost);
-        assertTrue(lostState.lost());
-        assertFalse(lostState.won());
+
+        assertAll(
+                () -> assertTrue(actState.mustAct()),
+                () -> assertFalse(actState.mustWait())
+        );
+
+        assertAll(
+                () -> assertTrue(waitState.mustWait()),
+                () -> assertFalse(waitState.mustAct())
+        );
+
+        assertAll(
+                () -> assertTrue(wonState.won()),
+                () -> assertFalse(wonState.lost())
+        );
+
+        assertAll(
+                () -> assertTrue(lostState.lost()),
+                () -> assertFalse(lostState.won())
+        );
     }
 }
