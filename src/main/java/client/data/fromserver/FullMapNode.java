@@ -14,7 +14,7 @@ public record FullMapNode(ETerrain terrain, boolean isRevealed) {
     }
 
     public FullMapNode withIsRevealed(boolean isRevealed) {
-        return new FullMapNode(this.terrain, isRevealed);
+        return new FullMapNode(terrain, isRevealed);
     }
 
     public boolean isGrass() {
