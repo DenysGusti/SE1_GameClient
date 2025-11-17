@@ -1,4 +1,4 @@
-package client.network.fromserver;
+package client.network.accumulator;
 
 import client.data.XYPair;
 import client.data.fromserver.FullMap;
