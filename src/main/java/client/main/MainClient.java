@@ -1,18 +1,20 @@
 package client.main;
 
-import client.data.ETerrain;
 import client.data.PlayerInformation;
-import client.data.XYPair;
+import client.data.UniqueGameIdentifier;
 import client.data.fromclient.HalfMap;
 import client.data.fromserver.GameState;
 import client.main.exception.CommandLineArgumentsException;
-import client.network.fromserver.FullMapAccumulator;
+import client.mapgeneration.*;
+import client.mapgeneration.rule.*;
+import client.mapgeneration.validation.*;
+import client.network.accumulator.FullMapAccumulator;
 import client.network.NetworkService;
 
 import client.network.fromclient.FromClientConverter;
 import client.network.fromserver.FromServerConverter;
 import client.network.fromserver.FullMapConverter;
-import client.network.fromserver.FullMapRevealer;
+import client.network.accumulator.FullMapRevealer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -22,11 +24,13 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Duration;
 import java.util.*;
 
 public class MainClient {
     private static final Logger logger = LoggerFactory.getLogger(MainClient.class);
     private static final String CONFIG_FILE_NAME = "config.properties";
+    private static final long POLL_DELAY_MS = 400; // 400ms delay
 
     public static void validateArguments(String[] args) throws CommandLineArgumentsException {
         Objects.requireNonNull(args, "args must not be null");
@@ -48,12 +52,12 @@ public class MainClient {
         return new PlayerInformation(firstName, lastName, uaccount);
     }
 
-    private static NetworkService createNetworkService(String serverBaseURL, String gameID) {
+    private static NetworkService createNetworkService(String serverBaseURL, UniqueGameIdentifier uniqueGameIdentifier) {
         Objects.requireNonNull(serverBaseURL, "serverBaseURL must not be null");
-        Objects.requireNonNull(gameID, "gameID must not be null");
+        Objects.requireNonNull(uniqueGameIdentifier, "uniqueGameIdentifier must not be null");
 
         var gameWebClient = WebClient.builder()
-                .baseUrl(serverBaseURL + "/games/" + gameID)
+                .baseUrl(serverBaseURL + "/games/" + uniqueGameIdentifier.uniqueGameID())
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE)
                 .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE)
                 .build();
@@ -64,6 +68,18 @@ public class MainClient {
         var fullMapAccumulator = new FullMapAccumulator(fullMapRevealer);
         return new NetworkService(gameWebClient, fromClientConverter, fromServerConverter, fullMapAccumulator);
     }
+
+    private static HalfMapGenerator createHalfMapGenerator() {
+        Collection<IHalfMapValidationRule> rules = List.of(
+                new TerrainRule(), new BorderRule(), new FortRule(), new ConnectivityRule()
+        );
+        var halfMapValidator = new HalfMapValidator(rules);
+        long seed = new Random().nextLong();
+        logger.info("Creating HalfMapGenerator with seed {}", seed);
+        var random = new Random(seed);
+        return new HalfMapGenerator(random, halfMapValidator);
+    }
+
 
     public static void main(String[] args) {
         try {
@@ -85,88 +101,37 @@ public class MainClient {
         }
 
         String serverBaseURL = args[1];
-        String gameID;
+        UniqueGameIdentifier gameID;
         if (args.length > 2)
-            gameID = args[2];
+            gameID = new UniqueGameIdentifier(args[2]);
         else
-            gameID = NetworkService.createNewGame(serverBaseURL, true, true);
+            gameID = NetworkService.createNewGame(serverBaseURL, true, true).block();
         NetworkService networkService = createNetworkService(serverBaseURL, gameID);
 
         networkService.registerPlayer(playerInformation).block();
         logger.info("Player registration complete.");
 
-        GameState gameState;
+        GameState firstState = networkService.receiveGameState()
+                .doOnSubscribe(subscription -> logger.debug("Polling for game state..."))
+                .repeatWhen(companion -> companion.delayElements(Duration.ofMillis(POLL_DELAY_MS)))
+                .filter(GameState::myPlayerMustAct)
+                .next()
+                .blockOptional().orElseThrow();
 
-        while (true) {
-            gameState = networkService.receiveGameState().blockOptional().orElseThrow();
+        logger.debug(firstState.toString());
 
-            if (gameState.myPlayerMustWait())
-                logger.debug("Waiting for my turn...");
-            else
-                break;
-        }
+        HalfMapGenerator halfMapGenerator = createHalfMapGenerator();
+        HalfMap halfMap = halfMapGenerator.generateHalfMap();
+        networkService.sendHalfMap(halfMap).block();
+
+        GameState gameState = networkService.receiveGameState()
+                .doOnSubscribe(subscription -> logger.debug("Polling for game state..."))
+                .repeatWhen(companion -> companion.delayElements(Duration.ofMillis(POLL_DELAY_MS)))
+                .filter(state -> !state.gameStateID().equals(firstState.gameStateID()))
+                .filter(state -> !state.myPlayerMustWait())
+                .next()
+                .blockOptional().orElseThrow();
 
         logger.debug(gameState.toString());
-
-        var nodes = new HashMap<XYPair, ETerrain>();
-        nodes.put(new XYPair(0, 0), ETerrain.Grass);
-        nodes.put(new XYPair(1, 0), ETerrain.Grass);
-        nodes.put(new XYPair(2, 0), ETerrain.Grass);
-        nodes.put(new XYPair(3, 0), ETerrain.Grass);
-        nodes.put(new XYPair(4, 0), ETerrain.Grass);
-        nodes.put(new XYPair(5, 0), ETerrain.Grass);
-        nodes.put(new XYPair(6, 0), ETerrain.Grass);
-        nodes.put(new XYPair(7, 0), ETerrain.Grass);
-        nodes.put(new XYPair(8, 0), ETerrain.Grass);
-        nodes.put(new XYPair(9, 0), ETerrain.Grass);
-
-        nodes.put(new XYPair(0, 1), ETerrain.Grass);
-        nodes.put(new XYPair(1, 1), ETerrain.Water);
-        nodes.put(new XYPair(2, 1), ETerrain.Water);
-        nodes.put(new XYPair(3, 1), ETerrain.Water);
-        nodes.put(new XYPair(4, 1), ETerrain.Water);
-        nodes.put(new XYPair(5, 1), ETerrain.Water);
-        nodes.put(new XYPair(6, 1), ETerrain.Water);
-        nodes.put(new XYPair(7, 1), ETerrain.Water);
-        nodes.put(new XYPair(8, 1), ETerrain.Water);
-        nodes.put(new XYPair(9, 1), ETerrain.Grass);
-
-        nodes.put(new XYPair(0, 2), ETerrain.Grass);
-        nodes.put(new XYPair(1, 2), ETerrain.Mountain);
-        nodes.put(new XYPair(2, 2), ETerrain.Mountain);
-        nodes.put(new XYPair(3, 2), ETerrain.Mountain);
-        nodes.put(new XYPair(4, 2), ETerrain.Mountain);
-        nodes.put(new XYPair(5, 2), ETerrain.Mountain);
-        nodes.put(new XYPair(6, 2), ETerrain.Mountain);
-        nodes.put(new XYPair(7, 2), ETerrain.Mountain);
-        nodes.put(new XYPair(8, 2), ETerrain.Mountain);
-        nodes.put(new XYPair(9, 2), ETerrain.Grass);
-
-        nodes.put(new XYPair(0, 3), ETerrain.Grass);
-        nodes.put(new XYPair(1, 3), ETerrain.Grass);
-        nodes.put(new XYPair(2, 3), ETerrain.Grass);
-        nodes.put(new XYPair(3, 3), ETerrain.Grass);
-        nodes.put(new XYPair(4, 3), ETerrain.Grass);
-        nodes.put(new XYPair(5, 3), ETerrain.Grass);
-        nodes.put(new XYPair(6, 3), ETerrain.Grass);
-        nodes.put(new XYPair(7, 3), ETerrain.Grass);
-        nodes.put(new XYPair(8, 3), ETerrain.Grass);
-        nodes.put(new XYPair(9, 3), ETerrain.Grass);
-
-        nodes.put(new XYPair(0, 4), ETerrain.Grass);
-        nodes.put(new XYPair(1, 4), ETerrain.Grass);
-        nodes.put(new XYPair(2, 4), ETerrain.Grass);
-        nodes.put(new XYPair(3, 4), ETerrain.Grass);
-        nodes.put(new XYPair(4, 4), ETerrain.Grass);
-        nodes.put(new XYPair(5, 4), ETerrain.Grass);
-        nodes.put(new XYPair(6, 4), ETerrain.Grass);
-        nodes.put(new XYPair(7, 4), ETerrain.Grass);
-        nodes.put(new XYPair(8, 4), ETerrain.Grass);
-        nodes.put(new XYPair(9, 4), ETerrain.Grass);
-
-        var potentialForts = Set.of(new XYPair(0, 0));
-
-        var halfMap = new HalfMap(nodes, potentialForts);
-        networkService.sendHalfMap(halfMap).block();
     }
 }
