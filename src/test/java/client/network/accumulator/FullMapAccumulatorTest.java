@@ -1,4 +1,4 @@
-package client.network.fromserver;
+package client.network.accumulator;
 
 import client.data.fromserver.FullMap;
 import org.junit.jupiter.api.BeforeEach;
