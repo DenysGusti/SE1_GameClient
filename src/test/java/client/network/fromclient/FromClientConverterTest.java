@@ -2,6 +2,7 @@ package client.network.fromclient;
 
 import client.data.ETerrain;
 import client.data.PlayerInformation;
+import client.data.UniquePlayerIdentifier;
 import client.data.XYPair;
 import client.data.fromclient.EMove;
 import client.data.fromclient.HalfMap;
@@ -22,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 class FromClientConverterTest {
 
     private FromClientConverter converter;
-    private final String testPlayerID = "test-player-id";
+    private final UniquePlayerIdentifier testPlayer = new UniquePlayerIdentifier("test-player-id");
 
     @BeforeEach
     void setUp() {
@@ -52,10 +53,10 @@ class FromClientConverterTest {
         Set<XYPair> potentialForts = Set.of(fortCoordinate);
         HalfMap halfMap = new HalfMap(nodes, potentialForts);
 
-        PlayerHalfMap result = converter.convertHalfMap(testPlayerID, halfMap);
+        PlayerHalfMap result = converter.convertHalfMap(testPlayer, halfMap);
 
         assertAll(
-                () -> assertThat(result.getUniquePlayerID(), is(testPlayerID)),
+                () -> assertThat(result.getUniquePlayerID(), is(testPlayer.uniquePlayerID())),
                 () -> assertThat(result.getMapNodes(), hasSize(2)),
                 () -> assertThat(result.getMapNodes(), hasItem(
                         allOf(
@@ -70,10 +71,10 @@ class FromClientConverterTest {
     @Test
     @DisplayName("Converts client EMove to server EMove")
     void ClientMove_ConvertMove_ReturnsCorrectPlayerMove() {
-        PlayerMove move = converter.convertMove(testPlayerID, EMove.Up);
+        PlayerMove move = converter.convertMove(testPlayer, EMove.Up);
 
         assertAll(
-                () -> assertThat(move.getUniquePlayerID(), is(testPlayerID)),
+                () -> assertThat(move.getUniquePlayerID(), is(testPlayer.uniquePlayerID())),
                 () -> assertThat(move.getMove(), is(messagesbase.messagesfromclient.EMove.Up))
         );
     }

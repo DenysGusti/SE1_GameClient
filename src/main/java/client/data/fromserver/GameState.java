@@ -6,18 +6,18 @@ import org.slf4j.LoggerFactory;
 import java.util.Objects;
 import java.util.Optional;
 
-public record GameState(String ID, FullMap fullMap, PlayerState myPlayer, PlayerState enemyPlayer) {
+public record GameState(String gameStateID, FullMap fullMap, PlayerState myPlayer, PlayerState enemyPlayer) {
     private static final Logger logger = LoggerFactory.getLogger(GameState.class);
 
     public GameState {
-        Objects.requireNonNull(ID, "ID must not be null");
+        Objects.requireNonNull(gameStateID, "uniqueGameID must not be null");
         Objects.requireNonNull(fullMap, "fullMap must not be null");
         Objects.requireNonNull(myPlayer, "myPlayer must not be null");
     }
 
     public GameState withFullMap(FullMap fullMap) {
         Objects.requireNonNull(fullMap, "fullMap must not be null");
-        return new GameState(ID, fullMap, myPlayer, enemyPlayer);
+        return new GameState(gameStateID, fullMap, myPlayer, enemyPlayer);
     }
 
     public Optional<PlayerState> getOptionalEnemyPlayer() {

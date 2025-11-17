@@ -1,9 +1,9 @@
 package client.network.fromserver;
 
+import client.data.UniquePlayerIdentifier;
 import client.data.fromserver.EPlayerGameState;
 import client.data.fromserver.FullMap;
 import client.data.fromserver.GameState;
-import messagesbase.UniquePlayerIdentifier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,28 +32,28 @@ class FromServerConverterTest {
     @InjectMocks
     private FromServerConverter fromServerConverter;
 
-    private final String myPlayerID = "my-player-id";
-    private final String enemyPlayerID = "enemy-player-id";
+    private final UniquePlayerIdentifier myPlayer = new UniquePlayerIdentifier("my-player-id");
+    private final UniquePlayerIdentifier enemyPlayer = new UniquePlayerIdentifier("enemy-player-id");
     private messagesbase.messagesfromserver.GameState serverGameState;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
-        var myPlayer = new messagesbase.messagesfromserver.PlayerState(
+        var myPlayerState = new messagesbase.messagesfromserver.PlayerState(
                 "My", "Player", "myuser",
                 messagesbase.messagesfromserver.EPlayerGameState.MustAct,
-                UniquePlayerIdentifier.of(myPlayerID), false);
+                messagesbase.UniquePlayerIdentifier.of(myPlayer.uniquePlayerID()), false);
 
-        var enemyPlayer = new messagesbase.messagesfromserver.PlayerState(
+        var enemyPlayerState = new messagesbase.messagesfromserver.PlayerState(
                 "Enemy", "Player", "enemyuser",
                 messagesbase.messagesfromserver.EPlayerGameState.MustWait,
-                UniquePlayerIdentifier.of(enemyPlayerID), true);
+                messagesbase.UniquePlayerIdentifier.of(enemyPlayer.uniquePlayerID()), true);
 
         var serverFullMap = new messagesbase.messagesfromserver.FullMap();
 
         serverGameState = new messagesbase.messagesfromserver.GameState(
-                serverFullMap, List.of(myPlayer, enemyPlayer), "game-id-123");
+                serverFullMap, List.of(myPlayerState, enemyPlayerState), "game-id-123");
 
         when(fullMapConverterMock.convertFullMap(any(messagesbase.messagesfromserver.FullMap.class)))
                 .thenReturn(fullMapMock);
@@ -62,10 +62,10 @@ class FromServerConverterTest {
     @Test
     @DisplayName("Converts server GameState to client GameState")
     void ServerGameState_ConvertGameState_ReturnsCorrectClientGameState() {
-        GameState clientState = fromServerConverter.convertGameState(myPlayerID, serverGameState);
+        GameState clientState = fromServerConverter.convertGameState(myPlayer, serverGameState);
 
         assertAll(
-                () -> assertThat(clientState.ID(), is("game-id-123")),
+                () -> assertThat(clientState.gameStateID(), is("game-id-123")),
                 () -> assertThat(clientState.fullMap(), is(fullMapMock)),
                 () -> assertThat(clientState.myPlayer(), is(notNullValue())),
                 () -> assertThat(clientState.getOptionalEnemyPlayer().isPresent(), is(true))
@@ -73,20 +73,20 @@ class FromServerConverterTest {
     }
 
     @Test
-    @DisplayName("Converts server GameState and finds correct MyPlayer data")
+    @DisplayName("Converts server GameState and finds correct MyPlayerState data")
     void ServerGameState_ConvertGameState_ReturnsCorrectMyPlayerState() {
-        var myPlayer = fromServerConverter.convertGameState(myPlayerID, serverGameState).myPlayer();
+        var myPlayerState = fromServerConverter.convertGameState(myPlayer, serverGameState).myPlayer();
         assertAll(
-                () -> assertThat(myPlayer.playerInformation().firstName(), is("My")),
-                () -> assertThat(myPlayer.state(), is(EPlayerGameState.MustAct)),
-                () -> assertThat(myPlayer.hasCollectedTreasure(), is(false))
+                () -> assertThat(myPlayerState.playerInformation().firstName(), is("My")),
+                () -> assertThat(myPlayerState.state(), is(EPlayerGameState.MustAct)),
+                () -> assertThat(myPlayerState.hasCollectedTreasure(), is(false))
         );
     }
 
     @Test
     @DisplayName("Converts server GameState and finds correct EnemyPlayer data")
     void ServerGameState_ConvertGameState_ReturnsCorrectEnemyPlayerState() {
-        var enemyPlayer = fromServerConverter.convertGameState(myPlayerID, serverGameState)
+        var enemyPlayer = fromServerConverter.convertGameState(myPlayer, serverGameState)
                 .getOptionalEnemyPlayer().orElseThrow();
         assertAll(
                 () -> assertThat(enemyPlayer.playerInformation().firstName(), is("Enemy")),
@@ -98,9 +98,9 @@ class FromServerConverterTest {
     @Test
     @DisplayName("Negative Test: Throws exception if my player is not in the list")
     void ServerGameStateWithNoPlayers_ConvertGameState_ThrowsNoSuchElementException() {
-        messagesbase.messagesfromserver.GameState emptyState = new messagesbase.messagesfromserver.GameState(
+        var emptyState = new messagesbase.messagesfromserver.GameState(
                 new messagesbase.messagesfromserver.FullMap(), List.of(), "game-id-123");
 
-        assertThrows(NoSuchElementException.class, () -> fromServerConverter.convertGameState(myPlayerID, emptyState));
+        assertThrows(NoSuchElementException.class, () -> fromServerConverter.convertGameState(myPlayer, emptyState));
     }
 }

@@ -2,6 +2,7 @@ package client.network.fromclient;
 
 import client.data.ETerrain;
 import client.data.PlayerInformation;
+import client.data.UniquePlayerIdentifier;
 import client.data.XYPair;
 import client.data.fromclient.EMove;
 import client.data.fromclient.HalfMap;
@@ -40,8 +41,8 @@ public class FromClientConverter {
         );
     }
 
-    public PlayerHalfMap convertHalfMap(String myPlayerID, HalfMap halfMap) {
-        Objects.requireNonNull(myPlayerID, "myPlayerID must not be null");
+    public PlayerHalfMap convertHalfMap(UniquePlayerIdentifier uniquePlayerIdentifier, HalfMap halfMap) {
+        Objects.requireNonNull(uniquePlayerIdentifier, "uniquePlayerIdentifier must not be null");
         Objects.requireNonNull(halfMap, "halfMap must not be null");
 
         var nodes = new ArrayList<PlayerHalfMapNode>();
@@ -52,12 +53,12 @@ public class FromClientConverter {
             nodes.add(new PlayerHalfMapNode(coordinate.x(), coordinate.y(), isMyFort, terrainConverter.get(terrain)));
         });
 
-        return new PlayerHalfMap(myPlayerID, nodes);
+        return new PlayerHalfMap(uniquePlayerIdentifier.uniquePlayerID(), nodes);
     }
 
-    public PlayerMove convertMove(String myPlayerID, EMove move) {
-        Objects.requireNonNull(myPlayerID, "myPlayerID must not be null");
+    public PlayerMove convertMove(UniquePlayerIdentifier uniquePlayerIdentifier, EMove move) {
+        Objects.requireNonNull(uniquePlayerIdentifier, "uniquePlayerIdentifier must not be null");
         Objects.requireNonNull(move, "move must not be null");
-        return PlayerMove.of(myPlayerID, moveConverter.get(move));
+        return PlayerMove.of(uniquePlayerIdentifier.uniquePlayerID(), moveConverter.get(move));
     }
 }

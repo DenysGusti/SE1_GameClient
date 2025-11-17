@@ -1,10 +1,10 @@
 package client.network.fromserver;
 
+import client.data.UniquePlayerIdentifier;
 import client.data.PlayerInformation;
 
 import client.data.fromserver.*;
 
-import messagesbase.UniquePlayerIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,23 +28,27 @@ public class FromServerConverter {
         this.fullMapConverter = Objects.requireNonNull(fullMapConverter, "fullMapConverter must not be null");
     }
 
-    public GameState convertGameState(String myPlayerID, messagesbase.messagesfromserver.GameState gameState) {
-        Objects.requireNonNull(myPlayerID, "myPlayerID must not be null");
+    public UniquePlayerIdentifier convertPlayerID(messagesbase.UniquePlayerIdentifier uniquePlayerIdentifier) {
+        return new UniquePlayerIdentifier(uniquePlayerIdentifier.getUniquePlayerID());
+    }
+
+    public GameState convertGameState(UniquePlayerIdentifier uniquePlayerIdentifier, messagesbase.messagesfromserver.GameState gameState) {
+        Objects.requireNonNull(uniquePlayerIdentifier, "uniquePlayerIdentifier must not be null");
         Objects.requireNonNull(gameState, "gameState must not be null");
 
-        PlayerState myPlayer = gameState.getPlayers().stream()
-                .filter(player -> player.equals(UniquePlayerIdentifier.of(myPlayerID)))
+        PlayerState myPlayerState = gameState.getPlayers().stream()
+                .filter(player -> player.equals(messagesbase.UniquePlayerIdentifier.of(uniquePlayerIdentifier.uniquePlayerID())))
                 .findFirst().map(this::convertPlayerState).orElseThrow();  // my player must always be present
 
-        PlayerState enemyPlayer = gameState.getPlayers().stream()
-                .filter(player -> !player.equals(UniquePlayerIdentifier.of(myPlayerID)))
+        PlayerState enemyPlayerState = gameState.getPlayers().stream()
+                .filter(player -> !player.equals(messagesbase.UniquePlayerIdentifier.of(uniquePlayerIdentifier.uniquePlayerID())))
                 .findFirst().map(this::convertPlayerState).orElse(null);
 
         return new GameState(
                 gameState.getGameStateId(),
                 fullMapConverter.convertFullMap(gameState.getMap()),
-                myPlayer,
-                enemyPlayer
+                myPlayerState,
+                enemyPlayerState
         );
     }
 
