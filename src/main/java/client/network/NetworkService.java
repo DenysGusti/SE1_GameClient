@@ -1,15 +1,17 @@
 package client.network;
 
 import client.data.*;
+import client.data.UniqueGameIdentifier;
+import client.data.UniquePlayerIdentifier;
 import client.data.fromclient.*;
 import client.data.fromclient.EMove;
 import client.data.fromserver.*;
 
-import client.network.exception.ErrorResponseException;
+import client.network.exception.*;
 
 import client.network.fromclient.FromClientConverter;
 import client.network.fromserver.FromServerConverter;
-import client.network.fromserver.FullMapAccumulator;
+import client.network.accumulator.FullMapAccumulator;
 import messagesbase.*;
 import messagesbase.messagesfromclient.*;
 
@@ -25,33 +27,30 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import reactor.core.publisher.Mono;
 
-import java.time.Duration;
 import java.util.Objects;
 
 public class NetworkService {
     private static final Logger logger = LoggerFactory.getLogger(NetworkService.class);
-    private static final long MIN_REQUEST_INTERVAL_NS = 400_000_000; // 0.4 seconds
 
     private final WebClient gameWebClient;
     private final FromClientConverter fromClientConverter;
     private final FromServerConverter fromServerConverter;
     private final FullMapAccumulator fullMapAccumulator;
 
-    private String myPlayerID = null;
-    private long lastGameStateRequestTime = 0; // in nanoseconds
+    private UniquePlayerIdentifier myPlayer = null; // session player token
 
-    public static String createNewGame(String serverBaseUrl, boolean debugMode, boolean dummyCompetition) {
-        Objects.requireNonNull(serverBaseUrl, "serverBaseUrl must not be null");
+    public static Mono<UniqueGameIdentifier> createNewGame(String serverBaseURL, boolean debugMode, boolean dummyCompetition) {
+        Objects.requireNonNull(serverBaseURL, "serverBaseURL must not be null");
         logger.info("Attempting to create a new game, debugMode={}, dummyCompetition={}", debugMode, dummyCompetition);
 
         var webClient = WebClient
                 .builder()
-                .baseUrl(serverBaseUrl + "/games")
+                .baseUrl(serverBaseURL + "/games")
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE)
                 .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE)
                 .build();
 
-        Mono<UniqueGameIdentifier> webAccess = webClient
+        return webClient
                 .method(HttpMethod.GET)
                 .uri(uriBuilder -> uriBuilder
                         .queryParam("enableDebugMode", debugMode)
@@ -59,14 +58,13 @@ public class NetworkService {
                         .build()
                 )
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<>() {
+                .<messagesbase.UniqueGameIdentifier>bodyToMono(new ParameterizedTypeReference<>() {
+                })
+                .map(uniqueGameIdentifier -> {
+                    Objects.requireNonNull(uniqueGameIdentifier, "Server response for new game creation is null.");
+                    logger.info("New game created with uniqueGameID: {}", uniqueGameIdentifier.getUniqueGameID());
+                    return new UniqueGameIdentifier(uniqueGameIdentifier.getUniqueGameID());
                 });
-
-        UniqueGameIdentifier uniqueGameIdentifier = webAccess.block();
-        Objects.requireNonNull(uniqueGameIdentifier, "Server response for new game creation is null.");
-
-        logger.info("New game created with ID: {}", uniqueGameIdentifier.getUniqueGameID());
-        return uniqueGameIdentifier.getUniqueGameID();
     }
 
     public NetworkService(WebClient gameWebClient, FromClientConverter fromClientConverter,
@@ -81,53 +79,49 @@ public class NetworkService {
     public Mono<Void> registerPlayer(PlayerInformation playerInformation) {
         Objects.requireNonNull(playerInformation, "playerInformation must not be null");
         logger.info("Registering player...");
-        PlayerRegistration playerRegistration = this.fromClientConverter.convertPlayerInformation(playerInformation);
+        PlayerRegistration playerRegistration = fromClientConverter.convertPlayerInformation(playerInformation);
 
-        return this.gameWebClient
+        return gameWebClient
                 .method(HttpMethod.POST)
                 .uri("/players")
                 .body(BodyInserters.fromValue(playerRegistration))
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<ResponseEnvelope<UniquePlayerIdentifier>>() {
+                .bodyToMono(new ParameterizedTypeReference<ResponseEnvelope<messagesbase.UniquePlayerIdentifier>>() {
                 })
-                .doOnNext(response -> {
-                            Objects.requireNonNull(response, "Server response for registering player is null.");
-                            if (response.getState() == ERequestState.Error)
-                                throw new ErrorResponseException(response.getExceptionMessage());
-
-                            UniquePlayerIdentifier uniquePlayerIdentifier = response.getData().orElseThrow();
-                            this.myPlayerID = uniquePlayerIdentifier.getUniquePlayerID();
-                            logger.info("Player registered with ID: {}", this.myPlayerID);
+                .<messagesbase.UniquePlayerIdentifier>handle((response, sink) -> {
+                    Objects.requireNonNull(response, "Server response for registering player is null.");
+                    if (response.getState() == ERequestState.Error) {
+                        sink.error(new PlayerRegistrationException(response.getExceptionName() + ": " + response.getExceptionMessage()));
+                        return;
+                    }
+                    sink.next(response.getData().orElseThrow());
+                })
+                .doOnNext(uniquePlayerIdentifier -> {
+                            this.myPlayer = fromServerConverter.convertPlayerID(uniquePlayerIdentifier);
+                            logger.info("Player registered with uniqueGameID: {}", this.myPlayer.uniquePlayerID());
                         }
                 ).then();
     }
 
     public Mono<GameState> receiveGameState() {
-        Objects.requireNonNull(this.myPlayerID, "myPlayerID must not be null");
+        Objects.requireNonNull(myPlayer, "sessionToken must not be null");
 
-        long delayNs = calculateRequestDelayNs();
-        this.lastGameStateRequestTime = System.nanoTime() + delayNs;
-
-        return Mono.delay(Duration.ofNanos(delayNs))
-                .flatMap(tick -> {
-                    logger.debug("Requesting game state...");
-                    return this.gameWebClient
-                            .method(HttpMethod.GET)
-                            .uri("/states/" + this.myPlayerID)
-                            .retrieve()
-                            .bodyToMono(new ParameterizedTypeReference<ResponseEnvelope<messagesbase.messagesfromserver.GameState>>() {
-                            });
+        return gameWebClient
+                .method(HttpMethod.GET)
+                .uri("/states/" + myPlayer.uniquePlayerID())
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<ResponseEnvelope<messagesbase.messagesfromserver.GameState>>() {
                 })
                 .<messagesbase.messagesfromserver.GameState>handle((response, sink) -> {
                     Objects.requireNonNull(response, "Server response for receiving game state is null.");
                     if (response.getState() == ERequestState.Error) {
-                        sink.error(new ErrorResponseException(response.getExceptionName() + ": " + response.getExceptionMessage()));
+                        sink.error(new GameStateException(response.getExceptionName() + ": " + response.getExceptionMessage()));
                         return;
                     }
                     sink.next(response.getData().orElseThrow());
                 })
                 .map(serverGameState -> {
-                    GameState clientGameState = fromServerConverter.convertGameState(this.myPlayerID, serverGameState);
+                    GameState clientGameState = fromServerConverter.convertGameState(myPlayer, serverGameState);
 
                     boolean hasCollectedTreasure = clientGameState.myPlayerHasCollectedTreasure();
 
@@ -139,10 +133,10 @@ public class NetworkService {
 
     public Mono<Void> sendHalfMap(HalfMap halfMap) {
         Objects.requireNonNull(halfMap, "halfMap must not be null");
-        Objects.requireNonNull(this.myPlayerID, "myPlayerID must not be null");
+        Objects.requireNonNull(myPlayer, "sessionToken must not be null");
         logger.info("Sending map to server...");
 
-        PlayerHalfMap playerHalfMap = this.fromClientConverter.convertHalfMap(this.myPlayerID, halfMap);
+        PlayerHalfMap playerHalfMap = this.fromClientConverter.convertHalfMap(myPlayer, halfMap);
 
         return this.gameWebClient
                 .method(HttpMethod.POST)
@@ -151,11 +145,12 @@ public class NetworkService {
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<ResponseEnvelope>() {
                 })
-                .doOnNext(response -> {
+                .<ResponseEnvelope>handle((response, sink) -> {
                     Objects.requireNonNull(response, "Server response for sending half map is null.");
-                    if (response.getState() == ERequestState.Error)
-                        throw new ErrorResponseException(response.getExceptionName() + ": " + response.getExceptionMessage());
-
+                    if (response.getState() == ERequestState.Error) {
+                        sink.error(new HalfMapException(response.getExceptionName() + ": " + response.getExceptionMessage()));
+                        return;
+                    }
                     logger.info("Map sent successfully.");
                 })
                 .then();
@@ -163,35 +158,26 @@ public class NetworkService {
 
     public Mono<Void> sendMove(EMove move) {
         Objects.requireNonNull(move, "move must not be null");
-        Objects.requireNonNull(this.myPlayerID, "myPlayerID must not be null, register player first.");
+        Objects.requireNonNull(myPlayer, "sessionToken must not be null, register player first.");
         logger.info("Sending move: {}", move);
 
-        PlayerMove playerMove = this.fromClientConverter.convertMove(this.myPlayerID, move);
+        PlayerMove playerMove = this.fromClientConverter.convertMove(myPlayer, move);
 
-        return this.gameWebClient
+        return gameWebClient
                 .method(HttpMethod.POST)
                 .uri("/moves")
                 .body(BodyInserters.fromValue(playerMove))
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<ResponseEnvelope>() {
                 })
-                .doOnNext(response -> {
-                    Objects.requireNonNull(response, "Server response for send move is null.");
-                    if (response.getState() == ERequestState.Error)
-                        throw new ErrorResponseException(response.getExceptionName() + ": " + response.getExceptionMessage());
-
+                .<ResponseEnvelope>handle((response, sink) -> {
+                    Objects.requireNonNull(response, "Server response for sending move is null.");
+                    if (response.getState() == ERequestState.Error) {
+                        sink.error(new MoveException(response.getExceptionName() + ": " + response.getExceptionMessage()));
+                        return;
+                    }
                     logger.info("Move sent successfully.");
                 })
                 .then();
-    }
-
-    private long calculateRequestDelayNs() {
-        long timeSinceLastRequest = System.nanoTime() - this.lastGameStateRequestTime;
-        if (timeSinceLastRequest < MIN_REQUEST_INTERVAL_NS) {
-            long sleepTimeNs = MIN_REQUEST_INTERVAL_NS - timeSinceLastRequest;
-            logger.debug("Throttling request. Will wait for {}ms.", sleepTimeNs / 1_000_000);
-            return sleepTimeNs;
-        }
-        return 0;
     }
 }
