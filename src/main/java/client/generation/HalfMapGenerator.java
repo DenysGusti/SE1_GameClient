@@ -1,9 +1,8 @@
-package client.mapgeneration;
+package client.generation;
 
 import client.data.ETerrain;
 import client.data.XYPair;
 import client.data.fromclient.HalfMap;
-import client.mapgeneration.validation.HalfMapValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,27 +20,15 @@ public class HalfMapGenerator {
     private static final int REQUIRED_FORTS = 1;
 
     private final Random random;
-    private final HalfMapValidator halfMapValidator;
 
-    public HalfMapGenerator(Random random, HalfMapValidator halfMapValidator) {
+    public HalfMapGenerator(Random random) {
         this.random = Objects.requireNonNull(random, "random must not be null");
-        this.halfMapValidator = Objects.requireNonNull(halfMapValidator, "halfMapValidator must not be null");
     }
 
     public HalfMap generateHalfMap() {
-        for (int attempt = 0; attempt < 100; ++attempt) {
-            Map<XYPair, ETerrain> nodes = createRandomTerrain();
-            Set<XYPair> potentialForts = placePotentialForts(nodes);
-            HalfMap halfMap = new HalfMap(nodes, potentialForts);
-
-            if (halfMapValidator.isValid(halfMap)) {
-                logger.info("Generated a valid map in {} attempts.", attempt);
-                return halfMap;
-            }
-        }
-
-        logger.error("Failed to generate a valid map after 100 attempts!");
-        throw new RuntimeException("Map generation failed. Check rules.");
+        Map<XYPair, ETerrain> nodes = createRandomTerrain();
+        Set<XYPair> potentialForts = placePotentialForts(nodes);
+        return new HalfMap(nodes, potentialForts);
     }
 
     private Map<XYPair, ETerrain> createRandomTerrain() {

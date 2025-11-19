@@ -1,7 +1,8 @@
-package client.mapgeneration.validation;
+package client.validation;
 
 import client.data.fromclient.HalfMap;
 
+import client.validation.rule.IHalfMapValidationRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,13 +18,11 @@ public class HalfMapValidator {
         this.rules = Objects.requireNonNull(rules, "rules must not be null");
     }
 
-    public boolean isValid(HalfMap halfMap) {
+    public Notification validate(HalfMap halfMap) {
         Objects.requireNonNull(halfMap, "halfMap must not be null");
 
-        for (IHalfMapValidationRule rule : rules) {
-            if (!rule.isValid(halfMap))
-                return false;
-        }
-        return true;
+        var notification = new Notification();
+        rules.forEach(rule -> rule.validate(halfMap, notification));
+        return notification;
     }
 }

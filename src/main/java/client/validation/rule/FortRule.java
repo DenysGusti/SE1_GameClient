@@ -1,10 +1,11 @@
-package client.mapgeneration.rule;
+package client.validation.rule;
 
 import client.data.ETerrain;
 import client.data.XYPair;
 import client.data.fromclient.HalfMap;
-import client.mapgeneration.validation.IHalfMapValidationRule;
+import client.validation.Notification;
 
+import client.validation.exception.FortRuleException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,16 +17,14 @@ public class FortRule implements IHalfMapValidationRule {
     private static final int REQUIRED_FORTS = 1;
 
     @Override
-    public boolean isValid(HalfMap halfMap) {
+    public void validate(HalfMap halfMap, Notification notification) {
         Objects.requireNonNull(halfMap, "halfMap must not be null");
 
         if (halfMap.potentialForts().size() != REQUIRED_FORTS)
-            return false;
+            notification.addError(new FortRuleException("FortRule: Wrong number of forts. Found " + halfMap.potentialForts().size() + ", Required " + REQUIRED_FORTS));
 
         for (XYPair fortPosition : halfMap.potentialForts())
             if (halfMap.nodes().get(fortPosition) != ETerrain.Grass)
-                return false;
-
-        return true;
+                notification.addError(new FortRuleException("FortRule: A fort was placed on a non-Grass tile at " + fortPosition));
     }
 }

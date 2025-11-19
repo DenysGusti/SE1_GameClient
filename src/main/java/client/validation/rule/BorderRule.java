@@ -1,9 +1,9 @@
-package client.mapgeneration.rule;
-
+package client.validation.rule;
 import client.data.ETerrain;
 import client.data.XYPair;
 import client.data.fromclient.HalfMap;
-import client.mapgeneration.validation.IHalfMapValidationRule;
+import client.validation.Notification;
+import client.validation.exception.BorderRuleException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,22 +22,23 @@ public class BorderRule implements IHalfMapValidationRule {
     private static final XYPair BOTTOM_RIGHT_CORNER = new XYPair(HALF_MAP_SIZE.x() - 1, HALF_MAP_SIZE.y() - 1);
 
     @Override
-    public boolean isValid(HalfMap halfMap) {
+    public void validate(HalfMap halfMap, Notification notification) {
         Objects.requireNonNull(halfMap, "halfMap must not be null");
 
-        if (!validBorder(halfMap, TOP_LEFT_CORNER, TOP_RIGHT_CORNER, REQUIRED_SIDE.x()))
-            return false;
+        if (invalidBorder(halfMap, TOP_LEFT_CORNER, TOP_RIGHT_CORNER, REQUIRED_SIDE.x()))
+            notification.addError(new BorderRuleException("BorderRule: Top border (y=0) is not >= 51% traversable (6 nodes)"));
 
-        if (!validBorder(halfMap, BOTTOM_LEFT_CORNER, BOTTOM_RIGHT_CORNER, REQUIRED_SIDE.x()))
-            return false;
+        if (invalidBorder(halfMap, BOTTOM_LEFT_CORNER, BOTTOM_RIGHT_CORNER, REQUIRED_SIDE.x()))
+            notification.addError(new BorderRuleException("BorderRule: Bottom border (y=4) is not >= 51% traversable (6 nodes)"));
 
-        if (!validBorder(halfMap, TOP_LEFT_CORNER, BOTTOM_LEFT_CORNER, REQUIRED_SIDE.y()))
-            return false;
+        if (invalidBorder(halfMap, TOP_LEFT_CORNER, BOTTOM_LEFT_CORNER, REQUIRED_SIDE.y()))
+            notification.addError(new BorderRuleException("BorderRule: Left border (x=0) is not >= 51% traversable (3 nodes)"));
 
-        return validBorder(halfMap, TOP_RIGHT_CORNER, BOTTOM_RIGHT_CORNER, REQUIRED_SIDE.y());
+        if (invalidBorder(halfMap, TOP_RIGHT_CORNER, BOTTOM_RIGHT_CORNER, REQUIRED_SIDE.y()))
+            notification.addError(new BorderRuleException("BorderRule: Right border (x=9) is not >= 51% traversable (3 nodes)"));
     }
 
-    private boolean validBorder(HalfMap halfMap, XYPair start, XYPair end, int requiredCount) {
+    private boolean invalidBorder(HalfMap halfMap, XYPair start, XYPair end, int requiredCount) {
         Objects.requireNonNull(halfMap, "halfMap must not be null");
         Objects.requireNonNull(start, "start must not be null");
         Objects.requireNonNull(end, "end must not be null");
@@ -50,6 +51,6 @@ public class BorderRule implements IHalfMapValidationRule {
                     ++traversableCount;
             }
 
-        return traversableCount >= requiredCount;
+        return traversableCount < requiredCount;
     }
 }
