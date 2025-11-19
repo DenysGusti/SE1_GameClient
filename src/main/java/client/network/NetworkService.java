@@ -35,9 +35,6 @@ public class NetworkService {
     private final WebClient gameWebClient;
     private final FromClientConverter fromClientConverter;
     private final FromServerConverter fromServerConverter;
-    private final FullMapAccumulator fullMapAccumulator;
-
-    private UniquePlayerIdentifier myPlayer = null; // session player token
 
     public static Mono<UniqueGameIdentifier> createNewGame(String serverBaseURL, boolean debugMode, boolean dummyCompetition) {
         Objects.requireNonNull(serverBaseURL, "serverBaseURL must not be null");
@@ -68,15 +65,14 @@ public class NetworkService {
     }
 
     public NetworkService(WebClient gameWebClient, FromClientConverter fromClientConverter,
-                          FromServerConverter fromServerConverter, FullMapAccumulator fullMapAccumulator) {
+                          FromServerConverter fromServerConverter) {
         this.gameWebClient = Objects.requireNonNull(gameWebClient, "gameWebClient must not be null");
         this.fromClientConverter = Objects.requireNonNull(fromClientConverter, "fromClientConverter must not be null");
         this.fromServerConverter = Objects.requireNonNull(fromServerConverter, "fromServerConverter must not be null");
-        this.fullMapAccumulator = Objects.requireNonNull(fullMapAccumulator, "fullMapAccumulator must not be null");
         logger.info("NetworkService initialized.");
     }
 
-    public Mono<Void> registerPlayer(PlayerInformation playerInformation) {
+    public Mono<UniquePlayerIdentifier> registerPlayer(PlayerInformation playerInformation) {
         Objects.requireNonNull(playerInformation, "playerInformation must not be null");
         logger.info("Registering player...");
         PlayerRegistration playerRegistration = fromClientConverter.convertPlayerInformation(playerInformation);
@@ -96,19 +92,15 @@ public class NetworkService {
                     }
                     sink.next(response.getData().orElseThrow());
                 })
-                .doOnNext(uniquePlayerIdentifier -> {
-                            this.myPlayer = fromServerConverter.convertPlayerID(uniquePlayerIdentifier);
-                            logger.info("Player registered with uniqueGameID: {}", this.myPlayer.uniquePlayerID());
-                        }
-                ).then();
+                .map(fromServerConverter::convertPlayerID);
     }
 
-    public Mono<GameState> receiveGameState() {
-        Objects.requireNonNull(myPlayer, "sessionToken must not be null");
+    public Mono<GameState> receiveGameState(UniquePlayerIdentifier uniquePlayerIdentifier) {
+        Objects.requireNonNull(uniquePlayerIdentifier, "uniquePlayerIdentifier must not be null");
 
         return gameWebClient
                 .method(HttpMethod.GET)
-                .uri("/states/" + myPlayer.uniquePlayerID())
+                .uri("/states/" + uniquePlayerIdentifier.uniquePlayerID())
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<ResponseEnvelope<messagesbase.messagesfromserver.GameState>>() {
                 })
@@ -120,23 +112,15 @@ public class NetworkService {
                     }
                     sink.next(response.getData().orElseThrow());
                 })
-                .map(serverGameState -> {
-                    GameState clientGameState = fromServerConverter.convertGameState(myPlayer, serverGameState);
-
-                    boolean hasCollectedTreasure = clientGameState.myPlayerHasCollectedTreasure();
-
-                    this.fullMapAccumulator.accumulateFullMap(clientGameState.fullMap(), hasCollectedTreasure);
-
-                    return clientGameState.withFullMap(this.fullMapAccumulator.getFullMap());
-                });
+                .map(serverGameState -> fromServerConverter.convertGameState(uniquePlayerIdentifier, serverGameState));
     }
 
-    public Mono<Void> sendHalfMap(HalfMap halfMap) {
+    public Mono<Void> sendHalfMap(UniquePlayerIdentifier uniquePlayerIdentifier, HalfMap halfMap) {
+        Objects.requireNonNull(uniquePlayerIdentifier, "uniquePlayerIdentifier must not be null");
         Objects.requireNonNull(halfMap, "halfMap must not be null");
-        Objects.requireNonNull(myPlayer, "sessionToken must not be null");
         logger.info("Sending map to server...");
 
-        PlayerHalfMap playerHalfMap = this.fromClientConverter.convertHalfMap(myPlayer, halfMap);
+        PlayerHalfMap playerHalfMap = this.fromClientConverter.convertHalfMap(uniquePlayerIdentifier, halfMap);
 
         return this.gameWebClient
                 .method(HttpMethod.POST)
@@ -156,12 +140,12 @@ public class NetworkService {
                 .then();
     }
 
-    public Mono<Void> sendMove(EMove move) {
+    public Mono<Void> sendMove(UniquePlayerIdentifier uniquePlayerIdentifier, EMove move) {
+        Objects.requireNonNull(uniquePlayerIdentifier, "uniquePlayerIdentifier must not be null");
         Objects.requireNonNull(move, "move must not be null");
-        Objects.requireNonNull(myPlayer, "sessionToken must not be null, register player first.");
         logger.info("Sending move: {}", move);
 
-        PlayerMove playerMove = this.fromClientConverter.convertMove(myPlayer, move);
+        PlayerMove playerMove = this.fromClientConverter.convertMove(uniquePlayerIdentifier, move);
 
         return gameWebClient
                 .method(HttpMethod.POST)
