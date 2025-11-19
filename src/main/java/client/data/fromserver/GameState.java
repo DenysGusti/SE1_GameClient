@@ -40,6 +40,14 @@ public record GameState(String gameStateID, FullMap fullMap, PlayerState myPlaye
         return myPlayer.lost();
     }
 
+    public boolean gameEnded() {
+        return myPlayer.won() || myPlayer.lost();
+    }
+
+    public EPlayerGameState myPlayerGameState() {
+        return myPlayer.state();
+    }
+
     public boolean myPlayerHasCollectedTreasure() {
         return myPlayer.hasCollectedTreasure();
     }
