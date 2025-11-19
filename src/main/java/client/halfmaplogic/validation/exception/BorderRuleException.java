@@ -1,4 +1,4 @@
-package client.validation.exception;
+package client.halfmaplogic.validation.exception;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

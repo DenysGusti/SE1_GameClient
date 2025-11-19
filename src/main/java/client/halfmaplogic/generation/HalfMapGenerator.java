@@ -1,4 +1,4 @@
-package client.generation;
+package client.halfmaplogic.generation;
 
 import client.data.ETerrain;
 import client.data.XYPair;

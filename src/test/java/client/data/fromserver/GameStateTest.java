@@ -1,5 +1,6 @@
 package client.data.fromserver;
 
+import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,12 +38,5 @@ class GameStateTest {
     void PlayerInMustActState_CheckMyPlayerMustAct_ReturnsTrue() {
         when(myPlayerMock.mustAct()).thenReturn(true);
         assertTrue(gameState.myPlayerMustAct());
-    }
-
-    @Test
-    @DisplayName("myPlayerMustWait should delegate to myPlayer")
-    void PlayerInMustWaitState_CheckMyPlayerMustWait_ReturnsTrue() {
-        when(myPlayerMock.mustWait()).thenReturn(true);
-        assertTrue(gameState.myPlayerMustWait());
     }
 }

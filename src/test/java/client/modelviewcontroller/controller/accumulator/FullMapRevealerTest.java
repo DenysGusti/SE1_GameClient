@@ -1,9 +1,10 @@
-package client.network.accumulator;
+package client.modelviewcontroller.controller.accumulator;
 
 import client.data.ETerrain;
 import client.data.XYPair;
 import client.data.fromserver.FullMap;
 import client.data.fromserver.FullMapNode;
+import client.modelviewcontroller.controller.accumulator.FullMapRevealer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

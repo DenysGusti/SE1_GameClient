@@ -1,4 +1,4 @@
-package client.mvc.observer;
+package client.modelviewcontroller.observer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +17,7 @@ public class Publisher<T> {
         subscribers.add(subscriber);
     }
 
-    public void update(T data) {
+    public void notify(T data) {
         Objects.requireNonNull(data, "data must not be null");
         subscribers.forEach(listener -> listener.update(data));
     }

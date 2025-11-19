@@ -1,6 +1,6 @@
-package client.validation;
+package client.halfmaplogic.validation;
 
-import client.validation.exception.HalfMapGenerationException;
+import client.halfmaplogic.validation.exception.HalfMapGenerationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,8 +1,8 @@
-package client.validation;
+package client.halfmaplogic.validation;
 
 import client.data.fromclient.HalfMap;
 
-import client.validation.rule.IHalfMapValidationRule;
+import client.halfmaplogic.validation.rule.IHalfMapValidationRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

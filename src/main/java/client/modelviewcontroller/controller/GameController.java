@@ -1,16 +1,17 @@
-package client.mvc;
+package client.modelviewcontroller.controller;
 
 import client.data.PlayerInformation;
 import client.data.UniquePlayerIdentifier;
 import client.data.fromclient.EMove;
 import client.data.fromclient.HalfMap;
 import client.data.fromserver.GameState;
-import client.generation.HalfMapGenerator;
-import client.validation.HalfMapValidator;
-import client.validation.exception.HalfMapGenerationException;
+import client.halfmaplogic.generation.HalfMapGenerator;
+import client.halfmaplogic.validation.HalfMapValidator;
+import client.halfmaplogic.validation.exception.HalfMapGenerationException;
+import client.modelviewcontroller.model.GameModel;
 import client.network.NetworkService;
-import client.network.accumulator.FullMapAccumulator;
-import client.validation.Notification;
+import client.modelviewcontroller.controller.accumulator.FullMapAccumulator;
+import client.halfmaplogic.validation.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;

@@ -11,7 +11,6 @@ import client.network.exception.*;
 
 import client.network.fromclient.FromClientConverter;
 import client.network.fromserver.FromServerConverter;
-import client.network.accumulator.FullMapAccumulator;
 import messagesbase.*;
 import messagesbase.messagesfromclient.*;
 

@@ -1,9 +1,9 @@
-package client.validation.rule;
+package client.halfmaplogic.validation.rule;
 import client.data.ETerrain;
 import client.data.XYPair;
 import client.data.fromclient.HalfMap;
-import client.validation.Notification;
-import client.validation.exception.BorderRuleException;
+import client.halfmaplogic.validation.Notification;
+import client.halfmaplogic.validation.exception.BorderRuleException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

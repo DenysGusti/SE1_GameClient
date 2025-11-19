@@ -1,7 +1,7 @@
-package client.validation.rule;
+package client.halfmaplogic.validation.rule;
 
 import client.data.fromclient.HalfMap;
-import client.validation.Notification;
+import client.halfmaplogic.validation.Notification;
 
 public interface IHalfMapValidationRule {
     void validate(HalfMap halfMap, Notification notification);

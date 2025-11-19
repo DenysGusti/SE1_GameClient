@@ -1,4 +1,4 @@
-package client.network.accumulator;
+package client.modelviewcontroller.controller.accumulator;
 
 import client.data.XYPair;
 import client.data.fromserver.FullMap;

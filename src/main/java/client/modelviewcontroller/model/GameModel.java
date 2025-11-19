@@ -1,12 +1,12 @@
-package client.mvc;
+package client.modelviewcontroller.model;
 
 import client.data.fromclient.HalfMap;
 import client.data.fromserver.EPlayerGameState;
 import client.data.fromserver.FullMap;
 import client.data.fromserver.PlayerState;
-import client.mvc.observer.Publisher;
-import client.mvc.observer.Subscriber;
-import client.validation.exception.HalfMapGenerationException;
+import client.modelviewcontroller.observer.Publisher;
+import client.modelviewcontroller.observer.Subscriber;
+import client.halfmaplogic.validation.exception.HalfMapGenerationException;
 
 import java.util.Collection;
 
@@ -25,7 +25,7 @@ public class GameModel {
     }
 
     public void updateFullMap(FullMap fullMap) {
-        onFullMapUpdated.update(fullMap);
+        onFullMapUpdated.notify(fullMap);
     }
 
     public void subscribeOnHalfMapValidationErrors(Subscriber<Collection<HalfMapGenerationException>> view) {
@@ -33,7 +33,7 @@ public class GameModel {
     }
 
     public void updateHalfMapValidationErrors(Collection<HalfMapGenerationException> errors) {
-        onHalfMapValidationErrors.update(errors);
+        onHalfMapValidationErrors.notify(errors);
     }
 
     public void subscribeOnHalfMapGenerated(Subscriber<HalfMap> view) {
@@ -41,7 +41,7 @@ public class GameModel {
     }
 
     public void updateHalfMap(HalfMap halfMap) {
-        onHalfMapGenerated.update(halfMap);
+        onHalfMapGenerated.notify(halfMap);
     }
 
     public void subscribeOnMyPlayerStateUpdated(Subscriber<PlayerState> view) {
@@ -49,7 +49,7 @@ public class GameModel {
     }
 
     public void updateMyPlayerState(PlayerState playerState) {
-        onMyPlayerStateUpdated.update(playerState);
+        onMyPlayerStateUpdated.notify(playerState);
     }
 
     public void subscribeOnEnemyPlayerStateUpdated(Subscriber<PlayerState> view) {
@@ -58,7 +58,7 @@ public class GameModel {
 
 
     public void updateEnemyPlayerState(PlayerState playerState) {
-        onEnemyPlayerStateUpdated.update(playerState);
+        onEnemyPlayerStateUpdated.notify(playerState);
     }
 
     public void subscribeOnGameEnded(Subscriber<EPlayerGameState> view) {
@@ -66,6 +66,6 @@ public class GameModel {
     }
 
     public void updateGameEnd(EPlayerGameState playerGameState) {
-        onGameEnded.update(playerGameState);
+        onGameEnded.notify(playerGameState);
     }
 }
