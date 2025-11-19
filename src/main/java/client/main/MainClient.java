@@ -5,8 +5,9 @@ import client.data.UniqueGameIdentifier;
 import client.halfmaplogic.generation.HalfMapGenerator;
 import client.main.exception.CommandLineArgumentsException;
 import client.modelviewcontroller.controller.GameController;
-import client.modelviewcontroller.model.GameModel;
 import client.modelviewcontroller.controller.accumulator.FullMapAccumulator;
+import client.modelviewcontroller.model.MapModel;
+import client.modelviewcontroller.model.PlayerModel;
 import client.network.NetworkService;
 
 import client.network.fromclient.FromClientConverter;
@@ -120,9 +121,10 @@ public class MainClient {
         HalfMapValidator halfMapValidator = createHalfMapValidator();
         FullMapAccumulator fullMapAccumulator = createFullMapAccumulator();
 
-        var gameModel = new GameModel();
+        var playerModel = new PlayerModel();
+        var mapModel = new MapModel();
         var gameController =
-                new GameController(gameModel, networkService, halfMapGenerator, halfMapValidator, fullMapAccumulator);
+                new GameController(playerModel, mapModel, networkService, halfMapGenerator, halfMapValidator, fullMapAccumulator);
 
         gameController.runGame(playerInformation);
     }

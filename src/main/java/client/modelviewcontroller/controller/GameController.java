@@ -8,7 +8,8 @@ import client.data.fromserver.GameState;
 import client.halfmaplogic.generation.HalfMapGenerator;
 import client.halfmaplogic.validation.HalfMapValidator;
 import client.halfmaplogic.validation.exception.HalfMapGenerationException;
-import client.modelviewcontroller.model.GameModel;
+import client.modelviewcontroller.model.MapModel;
+import client.modelviewcontroller.model.PlayerModel;
 import client.network.NetworkService;
 import client.modelviewcontroller.controller.accumulator.FullMapAccumulator;
 import client.halfmaplogic.validation.Notification;
@@ -24,7 +25,9 @@ public class GameController {
     private static final Logger logger = LoggerFactory.getLogger(GameController.class);
     private static final long POLL_DELAY_MS = 400;
 
-    private final GameModel gameModel;
+    private final PlayerModel playerModel;
+    private final MapModel mapModel;
+
     private final NetworkService networkService;
     private final HalfMapGenerator halfMapGenerator;
     private final HalfMapValidator halfMapValidator;
@@ -33,9 +36,11 @@ public class GameController {
     private UniquePlayerIdentifier myPlayerIdentifier = null;
     private String lastGameStateID = null;
 
-    public GameController(GameModel gameModel, NetworkService networkService, HalfMapGenerator halfMapGenerator,
+    public GameController(PlayerModel playerModel, MapModel mapModel,
+                          NetworkService networkService, HalfMapGenerator halfMapGenerator,
                           HalfMapValidator halfMapValidator, FullMapAccumulator fullMapAccumulator) {
-        this.gameModel = Objects.requireNonNull(gameModel, "gameModel must not be null");
+        this.playerModel = Objects.requireNonNull(playerModel, "playerModel must not be null");
+        this.mapModel = Objects.requireNonNull(mapModel, "mapModel must not be null");
         this.networkService = Objects.requireNonNull(networkService, "networkService must not be null");
         this.halfMapGenerator = Objects.requireNonNull(halfMapGenerator, "halfMapGenerator must not be null");
         this.halfMapValidator = Objects.requireNonNull(halfMapValidator, "halfMapValidator must not be null");
@@ -59,7 +64,7 @@ public class GameController {
 
             if (currentState.myPlayerWonOrLost()) {
                 logger.info("Game has ended.");
-                gameModel.updateGameEnd(currentState.myPlayerGameState());
+                playerModel.updateGameEnd(currentState.myPlayerGameState());
                 break;
             }
 
@@ -74,9 +79,9 @@ public class GameController {
     }
 
     private void updateModels(GameState gameState) {
-        gameModel.updateMyPlayerState(gameState.myPlayer());
-        gameState.getOptionalEnemyPlayer().ifPresent(gameModel::updateEnemyPlayerState);
-        gameModel.updateFullMap(gameState.fullMap());
+        playerModel.updateMyPlayerState(gameState.myPlayer());
+        gameState.getOptionalEnemyPlayer().ifPresent(playerModel::updateEnemyPlayerState);
+        mapModel.updateFullMap(gameState.fullMap());
     }
 
     private Mono<UniquePlayerIdentifier> registerPlayer(PlayerInformation playerInformation) {
@@ -108,10 +113,10 @@ public class GameController {
 
             if (!notification.hasErrors()) {
                 logger.info("Generated a valid map in {} attempts.", attempt);
-                gameModel.updateHalfMap(halfMap);
+                mapModel.updateHalfMap(halfMap);
                 return halfMap;
             }
-            gameModel.updateHalfMapValidationErrors(notification.getErrors());
+            mapModel.updateHalfMapValidationErrors(notification.getErrors());
         }
 
         logger.error("Failed to generate a valid map after 100 attempts!");
