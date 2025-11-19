@@ -98,7 +98,7 @@ public record FullMap(Map<XYPair, FullMapNode> nodes, XYPair topLeftCoordinate, 
         return Optional.ofNullable(enemyFortPosition);
     }
 
-    Optional<XYPair> getOptionalMyTreasurePosition() {
+    public Optional<XYPair> getOptionalMyTreasurePosition() {
         return Optional.ofNullable(myTreasurePosition);
     }
 }
