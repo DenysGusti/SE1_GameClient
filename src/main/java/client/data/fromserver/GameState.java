@@ -32,7 +32,7 @@ public record GameState(String gameStateID, FullMap fullMap, PlayerState myPlaye
         return myPlayer.mustAct();
     }
 
-    public boolean gameEnded() {
+    public boolean myPlayerWonOrLost() {
         return myPlayer.won() || myPlayer.lost();
     }
 

@@ -56,8 +56,9 @@ public class GameController {
             currentState = pollForNewState().filter(GameState::myPlayerMustNotWait).next().blockOptional().orElseThrow();
             updateModels(currentState);
 
-            if (currentState.gameEnded()) {
-                handleGameEnd(currentState);
+            if (currentState.myPlayerWonOrLost()) {
+                logger.info("Game has ended.");
+                gameModel.updateGameEnd(currentState.myPlayerGameState());
                 break;
             }
 
@@ -75,11 +76,6 @@ public class GameController {
         gameModel.updateMyPlayerState(gameState.myPlayer());
         gameState.getOptionalEnemyPlayer().ifPresent(gameModel::updateEnemyPlayerState);
         gameModel.updateFullMap(gameState.fullMap());
-    }
-
-    private void handleGameEnd(GameState gameState) {
-        logger.info("Game has ended.");
-        gameModel.updateGameEnd(gameState.myPlayerGameState());
     }
 
     private Mono<UniquePlayerIdentifier> registerPlayer(PlayerInformation playerInformation) {
