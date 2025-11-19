@@ -2,9 +2,6 @@ package client.main;
 
 import client.data.PlayerInformation;
 import client.data.UniqueGameIdentifier;
-import client.data.fromclient.HalfMap;
-import client.data.fromserver.GameState;
-import client.data.fromserver.PlayerState;
 import client.main.exception.CommandLineArgumentsException;
 import client.generation.*;
 import client.mvc.GameController;
