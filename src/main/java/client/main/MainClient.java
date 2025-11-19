@@ -4,10 +4,11 @@ import client.data.PlayerInformation;
 import client.data.UniqueGameIdentifier;
 import client.data.fromclient.HalfMap;
 import client.data.fromserver.GameState;
+import client.data.fromserver.PlayerState;
 import client.main.exception.CommandLineArgumentsException;
-import client.mapgeneration.*;
-import client.mapgeneration.rule.*;
-import client.mapgeneration.validation.*;
+import client.generation.*;
+import client.mvc.GameController;
+import client.mvc.GameModel;
 import client.network.accumulator.FullMapAccumulator;
 import client.network.NetworkService;
 
@@ -15,11 +16,18 @@ import client.network.fromclient.FromClientConverter;
 import client.network.fromserver.FromServerConverter;
 import client.network.fromserver.FullMapConverter;
 import client.network.accumulator.FullMapRevealer;
+import client.validation.HalfMapValidator;
+import client.validation.rule.IHalfMapValidationRule;
+import client.validation.rule.BorderRule;
+import client.validation.rule.ConnectivityRule;
+import client.validation.rule.FortRule;
+import client.validation.rule.TerrainRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -64,22 +72,27 @@ public class MainClient {
         var fromClientConverter = new FromClientConverter();
         var fullMapConverter = new FullMapConverter();
         var fromServerConverter = new FromServerConverter(fullMapConverter);
+        return new NetworkService(gameWebClient, fromClientConverter, fromServerConverter);
+    }
+
+    private static FullMapAccumulator createFullMapAccumulator() {
         var fullMapRevealer = new FullMapRevealer();
-        var fullMapAccumulator = new FullMapAccumulator(fullMapRevealer);
-        return new NetworkService(gameWebClient, fromClientConverter, fromServerConverter, fullMapAccumulator);
+        return new FullMapAccumulator(fullMapRevealer);
     }
 
     private static HalfMapGenerator createHalfMapGenerator() {
-        Collection<IHalfMapValidationRule> rules = List.of(
-                new TerrainRule(), new BorderRule(), new FortRule(), new ConnectivityRule()
-        );
-        var halfMapValidator = new HalfMapValidator(rules);
         long seed = new Random().nextLong();
         logger.info("Creating HalfMapGenerator with seed {}", seed);
         var random = new Random(seed);
-        return new HalfMapGenerator(random, halfMapValidator);
+        return new HalfMapGenerator(random);
     }
 
+    private static HalfMapValidator createHalfMapValidator() {
+        Collection<IHalfMapValidationRule> rules = List.of(
+                new TerrainRule(), new BorderRule(), new FortRule(), new ConnectivityRule()
+        );
+        return new HalfMapValidator(rules);
+    }
 
     public static void main(String[] args) {
         try {
@@ -101,37 +114,21 @@ public class MainClient {
         }
 
         String serverBaseURL = args[1];
-        UniqueGameIdentifier gameID;
+        UniqueGameIdentifier uniqueGameIdentifier;
         if (args.length > 2)
-            gameID = new UniqueGameIdentifier(args[2]);
+            uniqueGameIdentifier = new UniqueGameIdentifier(args[2]);
         else
-            gameID = NetworkService.createNewGame(serverBaseURL, true, true).block();
-        NetworkService networkService = createNetworkService(serverBaseURL, gameID);
+            uniqueGameIdentifier = NetworkService.createNewGame(serverBaseURL, true, true).block();
 
-        networkService.registerPlayer(playerInformation).block();
-        logger.info("Player registration complete.");
-
-        GameState firstState = networkService.receiveGameState()
-                .doOnSubscribe(subscription -> logger.debug("Polling for game state..."))
-                .repeatWhen(companion -> companion.delayElements(Duration.ofMillis(POLL_DELAY_MS)))
-                .filter(GameState::myPlayerMustAct)
-                .next()
-                .blockOptional().orElseThrow();
-
-        logger.debug(firstState.toString());
-
+        NetworkService networkService = createNetworkService(serverBaseURL, uniqueGameIdentifier);
         HalfMapGenerator halfMapGenerator = createHalfMapGenerator();
-        HalfMap halfMap = halfMapGenerator.generateHalfMap();
-        networkService.sendHalfMap(halfMap).block();
+        HalfMapValidator halfMapValidator = createHalfMapValidator();
+        FullMapAccumulator fullMapAccumulator = createFullMapAccumulator();
 
-        GameState gameState = networkService.receiveGameState()
-                .doOnSubscribe(subscription -> logger.debug("Polling for game state..."))
-                .repeatWhen(companion -> companion.delayElements(Duration.ofMillis(POLL_DELAY_MS)))
-                .filter(state -> !state.gameStateID().equals(firstState.gameStateID()))
-                .filter(state -> !state.myPlayerMustWait())
-                .next()
-                .blockOptional().orElseThrow();
+        var gameModel = new GameModel();
+        var gameController =
+                new GameController(gameModel, networkService, halfMapGenerator, halfMapValidator, fullMapAccumulator);
 
-        logger.debug(gameState.toString());
+        gameController.runGame(playerInformation);
     }
 }
