@@ -4,6 +4,8 @@ import client.data.fromclient.HalfMap;
 import client.data.fromserver.EPlayerGameState;
 import client.data.fromserver.FullMap;
 import client.data.fromserver.PlayerState;
+import client.mvc.observer.Publisher;
+import client.mvc.observer.Subscriber;
 import client.validation.exception.HalfMapGenerationException;
 
 import java.util.Collection;

@@ -6,6 +6,7 @@ import client.main.exception.CommandLineArgumentsException;
 import client.generation.*;
 import client.mvc.GameController;
 import client.mvc.GameModel;
+import client.mvc.GameView;
 import client.network.accumulator.FullMapAccumulator;
 import client.network.NetworkService;
 
@@ -24,12 +25,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.Duration;
 import java.util.*;
 
 public class MainClient {
@@ -123,6 +122,7 @@ public class MainClient {
         FullMapAccumulator fullMapAccumulator = createFullMapAccumulator();
 
         var gameModel = new GameModel();
+        var gameView = new GameView(gameModel);
         var gameController =
                 new GameController(gameModel, networkService, halfMapGenerator, halfMapValidator, fullMapAccumulator);
 

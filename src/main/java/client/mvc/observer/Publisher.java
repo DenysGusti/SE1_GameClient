@@ -1,4 +1,4 @@
-package client.mvc;
+package client.mvc.observer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
