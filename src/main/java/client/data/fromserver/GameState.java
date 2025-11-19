@@ -24,20 +24,12 @@ public record GameState(String gameStateID, FullMap fullMap, PlayerState myPlaye
         return Optional.ofNullable(enemyPlayer);
     }
 
-    public boolean myPlayerMustWait() {
-        return myPlayer.mustWait();
+    public boolean myPlayerMustNotWait() {
+        return !myPlayer.mustWait();
     }
 
     public boolean myPlayerMustAct() {
         return myPlayer.mustAct();
-    }
-
-    public boolean myPlayerWon() {
-        return myPlayer.won();
-    }
-
-    public boolean myPlayerLost() {
-        return myPlayer.lost();
     }
 
     public boolean gameEnded() {
