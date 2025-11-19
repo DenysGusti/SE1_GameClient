@@ -7,27 +7,28 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
-public record PlayerState(PlayerInformation playerInformation, boolean hasCollectedTreasure, EPlayerGameState state) {
+public record PlayerState(PlayerInformation playerInformation, boolean hasCollectedTreasure,
+                          EPlayerGameState gameState) {
     private static final Logger logger = LoggerFactory.getLogger(PlayerState.class);
 
     public PlayerState {
         Objects.requireNonNull(playerInformation, "playerInformation must not be null");
-        Objects.requireNonNull(state, "state must not be null");
+        Objects.requireNonNull(gameState, "gameState must not be null");
     }
 
     public boolean mustWait() {
-        return state == EPlayerGameState.MustWait;
+        return gameState == EPlayerGameState.MustWait;
     }
 
     public boolean mustAct() {
-        return state == EPlayerGameState.MustAct;
+        return gameState == EPlayerGameState.MustAct;
     }
 
     public boolean won() {
-        return state == EPlayerGameState.Won;
+        return gameState == EPlayerGameState.Won;
     }
 
     public boolean lost() {
-        return state == EPlayerGameState.Lost;
+        return gameState == EPlayerGameState.Lost;
     }
 }

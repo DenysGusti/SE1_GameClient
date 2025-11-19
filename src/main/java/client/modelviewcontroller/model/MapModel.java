@@ -6,9 +6,14 @@ import client.halfmaplogic.validation.exception.HalfMapGenerationException;
 import client.modelviewcontroller.observer.Publisher;
 import client.modelviewcontroller.observer.Subscriber;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Collection;
 
 public class MapModel {
+    private static final Logger logger = LoggerFactory.getLogger(MapModel.class);
+
     private final Publisher<FullMap> onFullMapUpdated = new Publisher<>();
     private final Publisher<Collection<HalfMapGenerationException>> onHalfMapValidationErrors = new Publisher<>();
     private final Publisher<HalfMap> onHalfMapGenerated = new Publisher<>();

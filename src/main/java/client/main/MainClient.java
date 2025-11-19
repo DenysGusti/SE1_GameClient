@@ -8,6 +8,7 @@ import client.modelviewcontroller.controller.GameController;
 import client.modelviewcontroller.controller.accumulator.FullMapAccumulator;
 import client.modelviewcontroller.model.MapModel;
 import client.modelviewcontroller.model.PlayerModel;
+import client.modelviewcontroller.view.PlayerView;
 import client.network.NetworkService;
 
 import client.network.fromclient.FromClientConverter;
@@ -123,9 +124,11 @@ public class MainClient {
 
         var playerModel = new PlayerModel();
         var mapModel = new MapModel();
+
+        var playerView = new PlayerView(playerModel);
+
         var gameController =
                 new GameController(playerModel, mapModel, networkService, halfMapGenerator, halfMapValidator, fullMapAccumulator);
-
         gameController.runGame(playerInformation);
     }
 }

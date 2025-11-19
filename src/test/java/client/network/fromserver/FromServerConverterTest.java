@@ -78,7 +78,7 @@ class FromServerConverterTest {
         var myPlayerState = fromServerConverter.convertGameState(myPlayer, serverGameState).myPlayer();
         assertAll(
                 () -> assertThat(myPlayerState.playerInformation().firstName(), is("My")),
-                () -> assertThat(myPlayerState.state(), is(EPlayerGameState.MustAct)),
+                () -> assertThat(myPlayerState.gameState(), is(EPlayerGameState.MustAct)),
                 () -> assertThat(myPlayerState.hasCollectedTreasure(), is(false))
         );
     }
@@ -90,7 +90,7 @@ class FromServerConverterTest {
                 .getOptionalEnemyPlayer().orElseThrow();
         assertAll(
                 () -> assertThat(enemyPlayer.playerInformation().firstName(), is("Enemy")),
-                () -> assertThat(enemyPlayer.state(), is(EPlayerGameState.MustWait)),
+                () -> assertThat(enemyPlayer.gameState(), is(EPlayerGameState.MustWait)),
                 () -> assertThat(enemyPlayer.hasCollectedTreasure(), is(true))
         );
     }

@@ -5,7 +5,12 @@ import client.data.fromserver.PlayerState;
 import client.modelviewcontroller.observer.Publisher;
 import client.modelviewcontroller.observer.Subscriber;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class PlayerModel {
+    private static final Logger logger = LoggerFactory.getLogger(PlayerModel.class);
+
     private final Publisher<PlayerState> onMyPlayerStateUpdated = new Publisher<>();
     private final Publisher<PlayerState> onEnemyPlayerStateUpdated = new Publisher<>();
     private final Publisher<EPlayerGameState> onGameEnded = new Publisher<>();

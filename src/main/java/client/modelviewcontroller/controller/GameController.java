@@ -52,7 +52,7 @@ public class GameController {
         logger.info("Player registration complete.");
 
         GameState currentState = pollForNewState().filter(GameState::myPlayerMustAct).next().blockOptional().orElseThrow();
-        logger.debug("First active state received: {}", currentState);
+        logger.debug("First active game state received: {}", currentState);
 
         HalfMap halfMap = generateHalfMap();
         sendHalfMap(halfMap).block();

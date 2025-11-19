@@ -37,7 +37,7 @@ public record GameState(String gameStateID, FullMap fullMap, PlayerState myPlaye
     }
 
     public EPlayerGameState myPlayerGameState() {
-        return myPlayer.state();
+        return myPlayer.gameState();
     }
 
     public boolean myPlayerHasCollectedTreasure() {
