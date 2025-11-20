@@ -29,24 +29,30 @@ public class FullMapRevealer {
         return fullMap.withNodes(newNodes);
     }
 
-    public FullMap revealMyTreasureFromMyPlayer(FullMap fullMap) {
-        Objects.requireNonNull(fullMap, "fullMap must not be null");
-        return fullMap.withMyTreasurePosition(fullMap.myPlayerPosition());
+    public FullMap combineRevealedMyTreasure(FullMap oldFullMap, FullMap newFullMap) {
+        Objects.requireNonNull(oldFullMap, "oldFullMap must not be null");
+        Objects.requireNonNull(newFullMap, "newFullMap must not be null");
+
+        XYPair myTreasurePosition = oldFullMap.getOptionalMyTreasurePosition().orElse(newFullMap.myTreasurePosition());
+
+        // other fields are from new full map
+        return newFullMap.withMyTreasurePosition(myTreasurePosition);
     }
 
-    // other fields are from lhs
-    public FullMap combineRevealedNodes(FullMap lhs, FullMap rhs) {
-        Objects.requireNonNull(lhs, "lhs must not be null");
-        Objects.requireNonNull(rhs, "rhs must not be null");
+    public FullMap combineRevealedNodes(FullMap oldFullMap, FullMap newFullMap) {
+        Objects.requireNonNull(oldFullMap, "oldFullMap must not be null");
+        Objects.requireNonNull(newFullMap, "newFullMap must not be null");
 
-        Map<XYPair, FullMapNode> newNodes = new HashMap<>();
+        Map<XYPair, FullMapNode> newNodes = new HashMap<>(newFullMap.nodes());
 
-        lhs.nodes().forEach((coordinate, lhsNode) -> {
-            boolean isRevealed = lhsNode.isRevealed() || rhs.nodes().get(coordinate).isRevealed();
-            newNodes.put(coordinate, lhsNode.withIsRevealed(isRevealed));
+        // old full map can be smaller
+        oldFullMap.nodes().forEach((coordinate, oldNode) -> {
+            boolean isRevealed = oldNode.isRevealed() || newFullMap.nodes().get(coordinate).isRevealed();
+            newNodes.replace(coordinate, oldNode.withIsRevealed(isRevealed));
         });
 
-        return lhs.withNodes(newNodes);
+        // other fields are from new full map
+        return newFullMap.withNodes(newNodes);
     }
 
     private Set<XYPair> getCoordinatesToRevealFromMyPlayer(FullMap fullMap) {

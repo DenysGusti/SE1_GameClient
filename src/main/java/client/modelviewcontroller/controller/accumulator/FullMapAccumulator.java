@@ -13,25 +13,31 @@ public class FullMapAccumulator {
     private final FullMapRevealer fullMapRevealer;
 
     private FullMap fullMap = null;
-    private boolean isTreasureRevealed = false;
 
     public FullMapAccumulator(FullMapRevealer fullMapRevealer) {
         this.fullMapRevealer = fullMapRevealer;
     }
 
-    public void accumulateFullMap(FullMap newTurnFullMap, boolean hasCollectedTreasure) {
+    public void accumulateFullMap(FullMap newTurnFullMap) {
         Objects.requireNonNull(newTurnFullMap, "newTurnFullMap must not be null");
         FullMap mapToAccumulate = fullMapRevealer.revealCoordinatesFromMyPlayer(newTurnFullMap);
 
-        if (!isTreasureRevealed && hasCollectedTreasure) {
-            isTreasureRevealed = true;
-            mapToAccumulate = fullMapRevealer.revealMyTreasureFromMyPlayer(mapToAccumulate);
+        if (fullMap == null) {
+            if (newTurnFullMap.isMyTreasureCollected()) {
+                mapToAccumulate = mapToAccumulate.withMyTreasurePosition(mapToAccumulate.myPlayerPosition());
+                logger.warn("Probably impossible case!");
+            }
+
+            fullMap = mapToAccumulate;
+            return;
         }
 
-        if (fullMap == null)
-            fullMap = mapToAccumulate;
-        else
-            fullMap = fullMapRevealer.combineRevealedNodes(fullMap, mapToAccumulate);
+        mapToAccumulate = fullMapRevealer.combineRevealedMyTreasure(fullMap, mapToAccumulate);
+
+        if (!fullMap.isMyTreasureCollected() && newTurnFullMap.isMyTreasureCollected())
+            mapToAccumulate = mapToAccumulate.withMyTreasurePosition(mapToAccumulate.myPlayerPosition());
+
+        fullMap = fullMapRevealer.combineRevealedNodes(fullMap, mapToAccumulate);
     }
 
     public FullMap getFullMap() {

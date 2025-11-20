@@ -46,7 +46,7 @@ public class FromServerConverter {
 
         return new GameState(
                 gameState.getGameStateId(),
-                fullMapConverter.convertFullMap(gameState.getMap()),
+                fullMapConverter.convertFullMap(gameState.getMap(), myPlayerState.hasCollectedTreasure()),
                 myPlayerState,
                 enemyPlayerState
         );

@@ -10,17 +10,17 @@ import java.util.*;
 public record FullMap(Map<XYPair, FullMapNode> nodes, XYPair topLeftCoordinate, XYPair bottomRightCoordinate,
                       XYPair myPlayerPosition, XYPair enemyPlayerPosition,
                       XYPair myFortPosition, XYPair enemyFortPosition,
-                      XYPair myTreasurePosition) {
+                      XYPair myTreasurePosition, boolean isMyTreasureCollected) {
     private static final Logger logger = LoggerFactory.getLogger(FullMap.class);
 
     public static FullMap emptyFullMap() {
-        return new FullMap(Map.of(), null, null, null, null, null, null, null);
+        return new FullMap(Map.of(), null, null, null, null, null, null, null, false);
     }
 
     public FullMap(Map<XYPair, FullMapNode> nodes, XYPair topLeftCoordinate, XYPair bottomRightCoordinate,
                    XYPair myPlayerPosition, XYPair enemyPlayerPosition,
                    XYPair myFortPosition, XYPair enemyFortPosition,
-                   XYPair myTreasurePosition) {
+                   XYPair myTreasurePosition, boolean isMyTreasureCollected) {
         this.nodes = Map.copyOf(Objects.requireNonNull(nodes, "nodes must not be null"));
         this.topLeftCoordinate = topLeftCoordinate;
         this.bottomRightCoordinate = bottomRightCoordinate;
@@ -29,6 +29,7 @@ public record FullMap(Map<XYPair, FullMapNode> nodes, XYPair topLeftCoordinate, 
         this.myFortPosition = myFortPosition;
         this.enemyFortPosition = enemyFortPosition;
         this.myTreasurePosition = myTreasurePosition;
+        this.isMyTreasureCollected = isMyTreasureCollected;
     }
 
     public FullMap withNodes(Map<XYPair, FullMapNode> newNodes) {
@@ -36,42 +37,38 @@ public record FullMap(Map<XYPair, FullMapNode> nodes, XYPair topLeftCoordinate, 
         return new FullMap(newNodes, topLeftCoordinate, bottomRightCoordinate,
                 myPlayerPosition, enemyPlayerPosition,
                 myFortPosition, enemyFortPosition,
-                myTreasurePosition);
+                myTreasurePosition, isMyTreasureCollected);
     }
 
     public FullMap withMyPlayerPosition(XYPair myPlayerPosition) {
         return new FullMap(nodes, topLeftCoordinate, bottomRightCoordinate,
                 myPlayerPosition, enemyPlayerPosition,
                 myFortPosition, enemyFortPosition,
-                myTreasurePosition);
+                myTreasurePosition, isMyTreasureCollected);
     }
 
     public FullMap withMyTreasurePosition(XYPair newMyTreasurePosition) {
         return new FullMap(nodes, topLeftCoordinate, bottomRightCoordinate,
                 myPlayerPosition, enemyPlayerPosition,
                 myFortPosition, enemyFortPosition,
-                newMyTreasurePosition);
+                newMyTreasurePosition, isMyTreasureCollected);
     }
 
     public FullMap withMyFortPosition(XYPair newMyFortPosition) {
         return new FullMap(nodes, topLeftCoordinate, bottomRightCoordinate,
                 myPlayerPosition, enemyPlayerPosition,
                 newMyFortPosition, enemyFortPosition,
-                myTreasurePosition);
+                myTreasurePosition, isMyTreasureCollected);
     }
 
     public XYPair size() {
-        if (isEmpty())
+        if (nodes.isEmpty())
             return new XYPair(0, 0);
 
         Objects.requireNonNull(bottomRightCoordinate, "bottomRightCoordinate must not be null");
         Objects.requireNonNull(topLeftCoordinate, "topLeftCoordinate must not be null");
         return new XYPair(bottomRightCoordinate.x() - topLeftCoordinate.x() + 1,
                 bottomRightCoordinate.y() - topLeftCoordinate.y() + 1);
-    }
-
-    public boolean isEmpty() {
-        return nodes.isEmpty();
     }
 
     public Optional<XYPair> getOptionalTopLeftCoordinate() {

@@ -21,7 +21,7 @@ public class FullMapConverter {
                     messagesbase.messagesfromclient.ETerrain.Water, ETerrain.Water
             );
 
-    public FullMap convertFullMap(messagesbase.messagesfromserver.FullMap fullMap) {
+    public FullMap convertFullMap(messagesbase.messagesfromserver.FullMap fullMap, boolean isMyTreasureCollected) {
         Objects.requireNonNull(fullMap, "fullMap must not be null");
 
         if (fullMap.isEmpty())
@@ -62,7 +62,7 @@ public class FullMapConverter {
         return new FullMap(nodes, topLeft, bottomRight,
                 myPlayerPosition, enemyPlayerPosition,
                 myFortPosition, enemyFortPosition,
-                myTreasurePosition
+                myTreasurePosition, isMyTreasureCollected
         );
     }
 
