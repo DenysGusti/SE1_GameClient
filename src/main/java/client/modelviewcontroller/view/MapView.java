@@ -39,9 +39,9 @@ public class MapView {
     private static final XYPair TILE_DIMENSIONS = new XYPair(EXPECTED_EMOJI_WIDTH * TILE_SIZE, TILE_SIZE);
 
     public void renderFullMap(FullMap fullMap) {
-        logger.debug(fullMap.toString());
         Objects.requireNonNull(fullMap, "fullMap must not be null");
         XYPair size = fullMap.size();
+        XYPair topLeft = fullMap.getOptionalTopLeftCoordinate().orElse(new XYPair(0, 0));
         if (fullMap.nodes().size() == 50) {
             logger.warn(fullMap.topLeftCoordinate().toString());
             logger.warn(fullMap.bottomRightCoordinate().toString());
@@ -54,56 +54,66 @@ public class MapView {
             screenBuffer[i] = new StringBuilder(blankRow);
 
         fullMap.nodes().forEach((coordinate, node) -> {
-            var offset = new XYPair((coordinate.x() + 1) * TILE_DIMENSIONS.x(), (coordinate.y() + 1) * TILE_DIMENSIONS.y());
+            var offset = new XYPair(
+                    (coordinate.x() - topLeft.x() + 1) * TILE_DIMENSIONS.x(),
+                    (coordinate.y() - topLeft.y() + 1) * TILE_DIMENSIONS.y()
+            );
 
             String[] tile = stringifyFullMapTile(fullMap, coordinate);
             for (int i = 0; i < tile.length; ++i)
                 screenBuffer[offset.y() + i].replace(offset.x(), offset.x() + tile[i].length(), tile[i]);
         });
-        for (int xCoordinate = 0; xCoordinate < size.x(); ++xCoordinate) {
-            var offsetTop = new XYPair((xCoordinate + 1) * TILE_DIMENSIONS.x(), 0);
-            var offsetBottom = new XYPair((xCoordinate + 1) * TILE_DIMENSIONS.x(), (size.y() + 1) * TILE_DIMENSIONS.y());
 
-            String[] tile = stringifyNumberTile(xCoordinate);
+        for (int xIndex = 0; xIndex < size.x(); ++xIndex) {
+            var offsetTop = new XYPair((xIndex + 1) * TILE_DIMENSIONS.x(), 0);
+            var offsetBottom = new XYPair((xIndex + 1) * TILE_DIMENSIONS.x(), (size.y() + 1) * TILE_DIMENSIONS.y());
+
+            String[] tile = stringifyNumberTile(xIndex + topLeft.x());
             for (int i = 0; i < tile.length; ++i) {
                 screenBuffer[offsetTop.y() + i].replace(offsetTop.x(), offsetTop.x() + tile[i].length(), tile[i]);
                 screenBuffer[offsetBottom.y() + i].replace(offsetBottom.x(), offsetBottom.x() + tile[i].length(), tile[i]);
             }
         }
-        for (int yCoordinate = 0; yCoordinate < size.y(); ++yCoordinate) {
-            var offsetLeft = new XYPair(0, (yCoordinate + 1) * TILE_DIMENSIONS.y());
-            var offsetRight = new XYPair((size.x() + 1) * TILE_DIMENSIONS.x(), (yCoordinate + 1) * TILE_DIMENSIONS.y());
 
-            String[] tile = stringifyNumberTile(yCoordinate);
+        for (int yIndex = 0; yIndex < size.y(); ++yIndex) {
+            var offsetLeft = new XYPair(0, (yIndex + 1) * TILE_DIMENSIONS.y());
+            var offsetRight = new XYPair((size.x() + 1) * TILE_DIMENSIONS.x(), (yIndex + 1) * TILE_DIMENSIONS.y());
+
+            String[] tile = stringifyNumberTile(yIndex + topLeft.y());
             for (int i = 0; i < tile.length; ++i) {
                 screenBuffer[offsetLeft.y() + i].replace(offsetLeft.x(), offsetLeft.x() + tile[i].length(), tile[i]);
                 screenBuffer[offsetRight.y() + i].replace(offsetRight.x(), offsetRight.x() + tile[i].length(), tile[i]);
             }
         }
+
         {
             var offset = new XYPair(0, 0);
             String[] tile = cornerTile();
             for (int i = 0; i < tile.length; ++i)
                 screenBuffer[offset.y() + i].replace(offset.x(), offset.x() + tile[i].length(), tile[i]);
         }
+
         {
             var offset = new XYPair((size.x() + 1) * TILE_DIMENSIONS.x(), 0);
             String[] tile = cornerTile();
             for (int i = 0; i < tile.length; ++i)
                 screenBuffer[offset.y() + i].replace(offset.x(), offset.x() + tile[i].length(), tile[i]);
         }
+
         {
             var offset = new XYPair(0, (size.y() + 1) * TILE_DIMENSIONS.y());
             String[] tile = cornerTile();
             for (int i = 0; i < tile.length; ++i)
                 screenBuffer[offset.y() + i].replace(offset.x(), offset.x() + tile[i].length(), tile[i]);
         }
+
         {
             var offset = new XYPair((size.x() + 1) * TILE_DIMENSIONS.x(), (size.y() + 1) * TILE_DIMENSIONS.y());
             String[] tile = cornerTile();
             for (int i = 0; i < tile.length; ++i)
                 screenBuffer[offset.y() + i].replace(offset.x(), offset.x() + tile[i].length(), tile[i]);
         }
+
         System.out.println(String.join("\n", screenBuffer).replaceAll(" ", ""));
     }
 

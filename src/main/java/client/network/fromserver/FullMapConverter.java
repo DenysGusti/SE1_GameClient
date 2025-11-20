@@ -23,6 +23,7 @@ public class FullMapConverter {
 
     public FullMap convertFullMap(messagesbase.messagesfromserver.FullMap fullMap, boolean isMyTreasureCollected) {
         Objects.requireNonNull(fullMap, "fullMap must not be null");
+        logger.trace("{} nodes found", fullMap.getMapNodes().size());
 
         if (fullMap.isEmpty())
             return FullMap.emptyFullMap();

@@ -52,6 +52,7 @@ public class GameController {
         logger.info("Player registration complete.");
 
         GameState currentState = pollForNewState().filter(GameState::myPlayerMustAct).next().blockOptional().orElseThrow();
+        updateModels(currentState);
         logger.debug("First active game state received: {}", currentState);
 
         HalfMap halfMap = generateHalfMap();
@@ -94,8 +95,8 @@ public class GameController {
         Objects.requireNonNull(myPlayerIdentifier, "myPlayerIdentifier must not be null");
 
         return Flux.interval(Duration.ofMillis(POLL_DELAY_MS))
+                .doOnNext(subscription -> logger.debug("Polling for game state..."))
                 .flatMap(tick -> networkService.receiveGameState(myPlayerIdentifier))
-                .doOnSubscribe(subscription -> logger.debug("Polling for game state..."))
                 .filter(state -> !state.gameStateID().equals(lastGameStateID))
                 // Command
                 .doOnNext(gameState -> {
