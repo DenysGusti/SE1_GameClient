@@ -3,18 +3,16 @@ package client.data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public record XYPair(int x, int y) {
     private static final Logger logger = LoggerFactory.getLogger(XYPair.class);
 
     // grid starts from (0, 0)
-    public Set<XYPair> getAdjacentNeighbors(XYPair gridSize) {
+    public List<XYPair> getAdjacentNeighbors(XYPair gridSize) {
         Objects.requireNonNull(gridSize, "gridSize must not be null");
 
-        var gridNeighbors = new HashSet<XYPair>();
+        var gridNeighbors = new ArrayList<XYPair>();
 
         if (x > 0)
             gridNeighbors.add(new XYPair(x - 1, y));
@@ -29,10 +27,10 @@ public record XYPair(int x, int y) {
     }
 
     // grid starts from (0, 0)
-    public Set<XYPair> getDiagonalNeighbors(XYPair gridSize) {
+    public List<XYPair> getDiagonalNeighbors(XYPair gridSize) {
         Objects.requireNonNull(gridSize, "gridSize must not be null");
 
-        var gridNeighbors = new HashSet<XYPair>();
+        var gridNeighbors = new ArrayList<XYPair>();
 
         if (x > 0 && y > 0)
             gridNeighbors.add(new XYPair(x - 1, y - 1));
@@ -47,19 +45,19 @@ public record XYPair(int x, int y) {
     }
 
     // grid starts from (0, 0)
-    public Set<XYPair> getAllNeighbors(XYPair gridSize) {
+    public List<XYPair> getAllNeighbors(XYPair gridSize) {
         Objects.requireNonNull(gridSize, "gridSize must not be null");
 
-        Set<XYPair> gridNeighbors = getAdjacentNeighbors(gridSize);
+        List<XYPair> gridNeighbors = getAdjacentNeighbors(gridSize);
         gridNeighbors.addAll(getDiagonalNeighbors(gridSize));
         return gridNeighbors;
     }
 
     // grid starts from (0, 0)
-    public Set<XYPair> getAllNeighborsWithThis(XYPair gridSize) {
+    public List<XYPair> getAllNeighborsWithThis(XYPair gridSize) {
         Objects.requireNonNull(gridSize, "gridSize must not be null");
 
-        Set<XYPair> gridNeighbors = getAllNeighbors(gridSize);
+        List<XYPair> gridNeighbors = getAllNeighbors(gridSize);
         gridNeighbors.add(this);
         return gridNeighbors;
     }
