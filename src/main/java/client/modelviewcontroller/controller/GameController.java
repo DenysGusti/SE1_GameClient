@@ -93,14 +93,14 @@ public class GameController {
     private Flux<GameState> pollForNewState() {
         Objects.requireNonNull(myPlayerIdentifier, "myPlayerIdentifier must not be null");
 
-        return networkService.receiveGameState(myPlayerIdentifier)
+        return Flux.interval(Duration.ofMillis(POLL_DELAY_MS))
+                .flatMap(tick -> networkService.receiveGameState(myPlayerIdentifier))
                 .doOnSubscribe(subscription -> logger.debug("Polling for game state..."))
-                .repeatWhen(companion -> companion.delayElements(Duration.ofMillis(POLL_DELAY_MS)))
                 .filter(state -> !state.gameStateID().equals(lastGameStateID))
                 // Command
                 .doOnNext(gameState -> {
                     lastGameStateID = gameState.gameStateID();
-                    fullMapAccumulator.accumulateFullMap(gameState.fullMap(), gameState.myPlayerHasCollectedTreasure());
+                    fullMapAccumulator.accumulateFullMap(gameState.fullMap());
                 })
                 // Query
                 .map(gameState -> gameState.withFullMap(fullMapAccumulator.getFullMap()));
