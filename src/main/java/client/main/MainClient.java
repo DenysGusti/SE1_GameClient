@@ -8,6 +8,7 @@ import client.modelviewcontroller.controller.GameController;
 import client.modelviewcontroller.controller.accumulator.FullMapAccumulator;
 import client.modelviewcontroller.model.MapModel;
 import client.modelviewcontroller.model.PlayerModel;
+import client.modelviewcontroller.view.MapView;
 import client.modelviewcontroller.view.PlayerView;
 import client.network.NetworkService;
 
@@ -35,7 +36,6 @@ import java.util.*;
 public class MainClient {
     private static final Logger logger = LoggerFactory.getLogger(MainClient.class);
     private static final String CONFIG_FILE_NAME = "config.properties";
-    private static final long POLL_DELAY_MS = 400; // 400ms delay
 
     public static void validateArguments(String[] args) throws CommandLineArgumentsException {
         Objects.requireNonNull(args, "args must not be null");
@@ -123,9 +123,13 @@ public class MainClient {
         FullMapAccumulator fullMapAccumulator = createFullMapAccumulator();
 
         var playerModel = new PlayerModel();
-        var mapModel = new MapModel();
+        var playerView = new PlayerView();
+        playerModel.subscribeOnMyPlayerStateUpdated(playerView::renderMyPlayerState);
+        playerModel.subscribeOnEnemyPlayerStateUpdated(playerView::renderEnemyPlayerState);
 
-        var playerView = new PlayerView(playerModel);
+        var mapModel = new MapModel();
+        var mapView = new MapView();
+        mapModel.subscribeOnFullMapUpdated(mapView::renderFullMap);
 
         var gameController =
                 new GameController(playerModel, mapModel, networkService, halfMapGenerator, halfMapValidator, fullMapAccumulator);
