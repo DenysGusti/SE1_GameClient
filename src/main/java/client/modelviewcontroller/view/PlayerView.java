@@ -9,46 +9,53 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.Objects;
 
 public class PlayerView {
     private static final Logger logger = LoggerFactory.getLogger(PlayerView.class);
 
-    private static final Map<EPlayerGameState, String> playerGameStateEmoji =
+    private static final Map<EPlayerGameState, String> playerGameStateEmojiConverter =
             Map.of(
-                    EPlayerGameState.MustWait, "😴",
+                    EPlayerGameState.MustWait, "⏳",
                     EPlayerGameState.MustAct, "🤔",
                     EPlayerGameState.Won, "🥳",
-                    EPlayerGameState.Lost, "😵"
+                    EPlayerGameState.Lost, "😭"
             );
 
-    private static final Map<Boolean, String> playerHasCollectedTreasureEmoji =
+    private static final Map<Boolean, String> playerHasCollectedTreasureEmojiConverter =
             Map.of(
                     false, "😐",
                     true, "🤑"
             );
 
-    public PlayerView(PlayerModel playerModel) {
-        playerModel.subscribeOnMyPlayerStateUpdated(this::renderMyPlayerState);
-        playerModel.subscribeOnEnemyPlayerStateUpdated(this::renderEnemyPlayerState);
-    }
+    private static final int PLAYER_INFO_WIDTH = 80;
 
     public void renderMyPlayerState(PlayerState playerState) {
-        System.out.print("My Player: ");
+        Objects.requireNonNull(playerState, "playerState must not be null");
+        System.out.println("My Player");
         renderPlayerState(playerState);
     }
 
     public void renderEnemyPlayerState(PlayerState playerState) {
-        System.out.print("Enemy Player: ");
+        Objects.requireNonNull(playerState, "playerState must not be null");
+        System.out.println("Enemy Player");
         renderPlayerState(playerState);
     }
 
     private void renderPlayerState(PlayerState playerState) {
+        Objects.requireNonNull(playerState, "playerState must not be null");
         renderPlayerInformation(playerState.playerInformation());
-        System.out.print(" " + playerHasCollectedTreasureEmoji.get(playerState.hasCollectedTreasure()));
-        System.out.println(" " + playerGameStateEmoji.get(playerState.gameState()));
+        System.out.print(" " + playerHasCollectedTreasureEmojiConverter.get(playerState.hasCollectedTreasure()));
+        System.out.println(" " + playerGameStateEmojiConverter.get(playerState.gameState()));
     }
 
     private void renderPlayerInformation(PlayerInformation playerInformation) {
-        System.out.print(playerInformation.firstName() + " " + playerInformation.lastName() + " " + playerInformation.uaccount());
+        Objects.requireNonNull(playerInformation, "playerInformation must not be null");
+
+        String info = playerInformation.firstName() + " "
+                + playerInformation.lastName() + " "
+                + playerInformation.uaccount();
+
+        System.out.printf("%-" + PLAYER_INFO_WIDTH + "s", info);
     }
 }
