@@ -1,7 +1,11 @@
 package client.modelviewcontroller.controller;
 
+import client.ai.FullMapGraph;
+import client.ai.FullMapService;
+import client.data.ETerrain;
 import client.data.PlayerInformation;
 import client.data.UniquePlayerIdentifier;
+import client.data.XYPair;
 import client.data.fromclient.EMove;
 import client.data.fromclient.HalfMap;
 import client.data.fromserver.GameState;
@@ -19,7 +23,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
-import java.util.Objects;
+import java.util.*;
 
 public class GameController {
     private static final Logger logger = LoggerFactory.getLogger(GameController.class);
@@ -69,9 +73,38 @@ public class GameController {
                 break;
             }
 
+            var fullMapGraph = new FullMapGraph(currentState.fullMap());
+            var fullMapService = new FullMapService();
+
+            GameState finalCurrentState = currentState;
+
+            XYPair goal = currentState.myPlayer().hasCollectedTreasure() ?
+                    currentState.fullMap().nodes().entrySet().stream()
+                            .filter(e -> !fullMapService.isOnMySide(finalCurrentState.fullMap(), e.getKey()))
+                            .filter(e -> e.getValue().terrain() == ETerrain.Grass && !e.getValue().isRevealed())
+                            .map(Map.Entry::getKey)
+                            .findFirst().orElseThrow() :
+                    finalCurrentState.fullMap().nodes().entrySet().stream()
+                            .filter(e -> fullMapService.isOnMySide(finalCurrentState.fullMap(), e.getKey()))
+                            .filter(e -> e.getValue().terrain() == ETerrain.Grass && !e.getValue().isRevealed())
+                            .map(Map.Entry::getKey)
+                            .findFirst().orElseThrow();
+
+            XYPair next = fullMapGraph.getAllPaths(currentState.fullMap().myPlayerPosition(), goal).getFirst().get(1);
+
+            EMove move = switch (new XYPair(
+                    next.x() - currentState.fullMap().myPlayerPosition().x(),
+                    next.y() - currentState.fullMap().myPlayerPosition().y()
+            )) {
+                case XYPair(int dx, int dy) when dx == 0 && dy == 1 -> EMove.Down;
+                case XYPair(int dx, int dy) when dx == 0 && dy == -1 -> EMove.Up;
+                case XYPair(int dx, int dy) when dx == 1 && dy == 0 -> EMove.Right;
+                case XYPair(int dx, int dy) when dx == -1 && dy == 0 -> EMove.Left;
+                default -> throw new IllegalStateException("Next path node is not an adjacent neighbor: " + next);
+            };
+
             if (currentState.myPlayerMustAct()) {
                 logger.info("My turn! Deciding move...");
-                EMove move = EMove.Down;
                 sendMove(move).block();
             }
         }
