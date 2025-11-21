@@ -39,7 +39,9 @@ public class MapView {
     private static final XYPair TILE_DIMENSIONS = new XYPair(EXPECTED_EMOJI_WIDTH * TILE_SIZE, TILE_SIZE);
 
     public void renderFullMap(FullMap fullMap) {
-        Objects.requireNonNull(fullMap, "fullMap must not be null");
+        if (fullMap == null)
+            throw new IllegalArgumentException("fullMap must not be null");
+
         XYPair size = fullMap.size();
         XYPair topLeft = fullMap.getOptionalTopLeftCoordinate().orElse(new XYPair(0, 0));
         if (fullMap.nodes().size() == 50) {
@@ -118,8 +120,10 @@ public class MapView {
     }
 
     private String[] stringifyHalfMapTile(HalfMap halfMap, XYPair coordinate) {
-        Objects.requireNonNull(halfMap, "halfMap must not be null");
-        Objects.requireNonNull(coordinate, "coordinate must not be null");
+        if (halfMap == null)
+            throw new IllegalArgumentException("halfMap must not be null");
+        if (coordinate == null)
+            throw new IllegalArgumentException("coordinate must not be null");
 
         ETerrain terrain = halfMap.nodes().get(coordinate);
 
@@ -156,11 +160,13 @@ public class MapView {
     }
 
     private String[] stringifyFullMapTile(FullMap fullMap, XYPair coordinate) {
-        Objects.requireNonNull(fullMap, "fullMap must not be null");
-        Objects.requireNonNull(coordinate, "coordinate must not be null");
+        if (fullMap == null)
+            throw new IllegalArgumentException("fullMap must not be null");
+        if (coordinate == null)
+            throw new IllegalArgumentException("coordinate must not be null");
 
         FullMapNode fullMapNode = fullMap.nodes().get(coordinate);
-        Objects.requireNonNull(fullMap, "fullMapNode must not be null");
+        Objects.requireNonNull(fullMapNode, "fullMapNode must not be null");
 
         String terrainEmoji = terrainEmojiConverter.get(fullMapNode.terrain());
         String corner = fullMapNode.isRevealed() ? isRevealedEmoji : terrainEmoji;
@@ -185,6 +191,7 @@ public class MapView {
             if (!fullMap.isMyTreasureCollected())
                 center = myTreasureEmoji;
         }
+
         return new String[]{
                 corner + side + corner,
                 side + center + side,

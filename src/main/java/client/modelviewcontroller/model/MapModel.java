@@ -19,26 +19,44 @@ public class MapModel {
     private final Publisher<HalfMap> onHalfMapGenerated = new Publisher<>();
 
     public void subscribeOnFullMapUpdated(Subscriber<FullMap> view) {
+        if (view == null)
+            throw new IllegalArgumentException("view must not be null");
+
         onFullMapUpdated.subscribe(view);
     }
 
     public void updateFullMap(FullMap fullMap) {
+        if (fullMap == null)
+            throw new IllegalArgumentException("fullMap must not be null");
+
         onFullMapUpdated.notify(fullMap);
     }
 
     public void subscribeOnHalfMapValidationErrors(Subscriber<Collection<HalfMapGenerationException>> view) {
+        if (view == null)
+            throw new IllegalArgumentException("view must not be null");
+
         onHalfMapValidationErrors.subscribe(view);
     }
 
     public void updateHalfMapValidationErrors(Collection<HalfMapGenerationException> errors) {
+        if (errors == null)
+            throw new IllegalArgumentException("errors must not be null");
+
         onHalfMapValidationErrors.notify(errors);
     }
 
     public void subscribeOnHalfMapGenerated(Subscriber<HalfMap> view) {
+        if (view == null)
+            throw new IllegalArgumentException("view must not be null");
+
         onHalfMapGenerated.subscribe(view);
     }
 
     public void updateHalfMap(HalfMap halfMap) {
+        if (halfMap == null)
+            throw new IllegalArgumentException("halfMap must not be null");
+
         onHalfMapGenerated.notify(halfMap);
     }
 }

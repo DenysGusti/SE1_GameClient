@@ -10,9 +10,12 @@ public class FullMapService {
 
     // is coordinate on the same side as my fort
     public boolean isOnMySide(FullMap fullMap, XYPair coordinate) {
-        Objects.requireNonNull(fullMap, "fullMap must not be null");
+        if (fullMap == null)
+            throw new IllegalArgumentException("fullMap must not be null");
+        if (coordinate == null)
+            throw new IllegalArgumentException("coordinate must not be null");
+
         Objects.requireNonNull(fullMap.myFortPosition(), "fullMap.myFortPosition() must not be null");
-        Objects.requireNonNull(coordinate, "coordinate must not be null");
 
         boolean isWideMap = fullMap.bottomRightCoordinate().x() >= HALF_MAP_SIZE.x();
 
@@ -28,6 +31,11 @@ public class FullMapService {
     }
 
     public boolean isOnEnemySide(FullMap fullMap, XYPair coordinate) {
+        if (fullMap == null)
+            throw new IllegalArgumentException("fullMap must not be null");
+        if (coordinate == null)
+            throw new IllegalArgumentException("coordinate must not be null");
+
         return !isOnMySide(fullMap, coordinate);
     }
 }

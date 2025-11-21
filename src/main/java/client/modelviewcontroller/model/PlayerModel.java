@@ -16,27 +16,45 @@ public class PlayerModel {
     private final Publisher<EPlayerGameState> onGameEnded = new Publisher<>();
 
     public void subscribeOnMyPlayerStateUpdated(Subscriber<PlayerState> view) {
+        if (view == null)
+            throw new IllegalArgumentException("view must not be null");
+
         onMyPlayerStateUpdated.subscribe(view);
     }
 
     public void updateMyPlayerState(PlayerState playerState) {
+        if (playerState == null)
+            throw new IllegalArgumentException("playerState must not be null");
+
         onMyPlayerStateUpdated.notify(playerState);
     }
 
     public void subscribeOnEnemyPlayerStateUpdated(Subscriber<PlayerState> view) {
+        if (view == null)
+            throw new IllegalArgumentException("view must not be null");
+
         onEnemyPlayerStateUpdated.subscribe(view);
     }
 
 
     public void updateEnemyPlayerState(PlayerState playerState) {
+        if (playerState == null)
+            throw new IllegalArgumentException("playerState must not be null");
+
         onEnemyPlayerStateUpdated.notify(playerState);
     }
 
     public void subscribeOnGameEnded(Subscriber<EPlayerGameState> view) {
+        if (view == null)
+            throw new IllegalArgumentException("view must not be null");
+
         onGameEnded.subscribe(view);
     }
 
     public void updateGameEnd(EPlayerGameState playerGameState) {
+        if (playerGameState == null)
+            throw new IllegalArgumentException("playerGameState must not be null");
+
         onGameEnded.notify(playerGameState);
     }
 }

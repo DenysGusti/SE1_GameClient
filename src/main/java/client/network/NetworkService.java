@@ -36,7 +36,9 @@ public class NetworkService {
     private final FromServerConverter fromServerConverter;
 
     public static Mono<UniqueGameIdentifier> createNewGame(String serverBaseURL, boolean debugMode, boolean dummyCompetition) {
-        Objects.requireNonNull(serverBaseURL, "serverBaseURL must not be null");
+        if (serverBaseURL == null)
+            throw new IllegalArgumentException("serverBaseURL must not be null");
+
         logger.info("Attempting to create a new game, debugMode={}, dummyCompetition={}", debugMode, dummyCompetition);
 
         var webClient = WebClient
@@ -65,14 +67,23 @@ public class NetworkService {
 
     public NetworkService(WebClient gameWebClient, FromClientConverter fromClientConverter,
                           FromServerConverter fromServerConverter) {
-        this.gameWebClient = Objects.requireNonNull(gameWebClient, "gameWebClient must not be null");
-        this.fromClientConverter = Objects.requireNonNull(fromClientConverter, "fromClientConverter must not be null");
-        this.fromServerConverter = Objects.requireNonNull(fromServerConverter, "fromServerConverter must not be null");
+        if (gameWebClient == null)
+            throw new IllegalArgumentException("gameWebClient must not be null");
+        if (fromClientConverter == null)
+            throw new IllegalArgumentException("fromClientConverter must not be null");
+        if (fromServerConverter == null)
+            throw new IllegalArgumentException("fromServerConverter must not be null");
+
+        this.gameWebClient = gameWebClient;
+        this.fromClientConverter = fromClientConverter;
+        this.fromServerConverter = fromServerConverter;
         logger.info("NetworkService initialized.");
     }
 
     public Mono<UniquePlayerIdentifier> registerPlayer(PlayerInformation playerInformation) {
-        Objects.requireNonNull(playerInformation, "playerInformation must not be null");
+        if (playerInformation == null)
+            throw new IllegalArgumentException("playerInformation must not be null");
+
         logger.info("Registering player...");
         PlayerRegistration playerRegistration = fromClientConverter.convertPlayerInformation(playerInformation);
 
@@ -95,7 +106,8 @@ public class NetworkService {
     }
 
     public Mono<GameState> receiveGameState(UniquePlayerIdentifier uniquePlayerIdentifier) {
-        Objects.requireNonNull(uniquePlayerIdentifier, "uniquePlayerIdentifier must not be null");
+        if (uniquePlayerIdentifier == null)
+            throw new IllegalArgumentException("uniquePlayerIdentifier must not be null");
 
         return gameWebClient
                 .method(HttpMethod.GET)
@@ -115,8 +127,11 @@ public class NetworkService {
     }
 
     public Mono<Void> sendHalfMap(UniquePlayerIdentifier uniquePlayerIdentifier, HalfMap halfMap) {
-        Objects.requireNonNull(uniquePlayerIdentifier, "uniquePlayerIdentifier must not be null");
-        Objects.requireNonNull(halfMap, "halfMap must not be null");
+        if (uniquePlayerIdentifier == null)
+            throw new IllegalArgumentException("uniquePlayerIdentifier must not be null");
+        if (halfMap == null)
+            throw new IllegalArgumentException("halfMap must not be null");
+
         logger.info("Sending map to server...");
 
         PlayerHalfMap playerHalfMap = this.fromClientConverter.convertHalfMap(uniquePlayerIdentifier, halfMap);
@@ -140,8 +155,11 @@ public class NetworkService {
     }
 
     public Mono<Void> sendMove(UniquePlayerIdentifier uniquePlayerIdentifier, EMove move) {
-        Objects.requireNonNull(uniquePlayerIdentifier, "uniquePlayerIdentifier must not be null");
-        Objects.requireNonNull(move, "move must not be null");
+        if (uniquePlayerIdentifier == null)
+            throw new IllegalArgumentException("uniquePlayerIdentifier must not be null");
+        if (move == null)
+            throw new IllegalArgumentException("move must not be null");
+
         logger.info("Sending move: {}", move);
 
         PlayerMove playerMove = this.fromClientConverter.convertMove(uniquePlayerIdentifier, move);

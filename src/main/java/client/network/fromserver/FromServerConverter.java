@@ -25,16 +25,24 @@ public class FromServerConverter {
     private final FullMapConverter fullMapConverter;
 
     public FromServerConverter(FullMapConverter fullMapConverter) {
-        this.fullMapConverter = Objects.requireNonNull(fullMapConverter, "fullMapConverter must not be null");
+        if (fullMapConverter == null)
+            throw new IllegalArgumentException("fullMapConverter must not be null");
+
+        this.fullMapConverter = fullMapConverter;
     }
 
     public UniquePlayerIdentifier convertPlayerID(messagesbase.UniquePlayerIdentifier uniquePlayerIdentifier) {
+        if (uniquePlayerIdentifier == null)
+            throw new IllegalArgumentException("uniquePlayerIdentifier must not be null");
+
         return new UniquePlayerIdentifier(uniquePlayerIdentifier.getUniquePlayerID());
     }
 
     public GameState convertGameState(UniquePlayerIdentifier uniquePlayerIdentifier, messagesbase.messagesfromserver.GameState gameState) {
-        Objects.requireNonNull(uniquePlayerIdentifier, "uniquePlayerIdentifier must not be null");
-        Objects.requireNonNull(gameState, "gameState must not be null");
+        if (uniquePlayerIdentifier == null)
+            throw new IllegalArgumentException("uniquePlayerIdentifier must not be null");
+        if (gameState == null)
+            throw new IllegalArgumentException("gameState must not be null");
 
         PlayerState myPlayerState = gameState.getPlayers().stream()
                 .filter(player -> player.equals(messagesbase.UniquePlayerIdentifier.of(uniquePlayerIdentifier.uniquePlayerID())))
@@ -53,7 +61,8 @@ public class FromServerConverter {
     }
 
     private PlayerState convertPlayerState(messagesbase.messagesfromserver.PlayerState playerState) {
-        Objects.requireNonNull(playerState, "playerState must not be null");
+        if (playerState == null)
+            throw new IllegalArgumentException("playerState must not be null");
 
         var playerInformation = new PlayerInformation(
                 playerState.getFirstName(),

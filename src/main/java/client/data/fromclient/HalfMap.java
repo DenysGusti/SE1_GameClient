@@ -12,7 +12,12 @@ public record HalfMap(Map<XYPair, ETerrain> nodes, Set<XYPair> potentialForts) {
     private static final Logger logger = LoggerFactory.getLogger(HalfMap.class);
 
     public HalfMap(Map<XYPair, ETerrain> nodes, Set<XYPair> potentialForts) {
-        this.nodes = Map.copyOf(Objects.requireNonNull(nodes, "nodes map must not be null"));
-        this.potentialForts = Set.copyOf(Objects.requireNonNull(potentialForts, "potentialForts set must not be null"));
+        if (nodes == null)
+            throw new IllegalArgumentException("nodes must not be null");
+        if (potentialForts == null)
+            throw new IllegalArgumentException("potentialForts must not be null");
+
+        this.nodes = Map.copyOf(nodes);
+        this.potentialForts = Set.copyOf(potentialForts);
     }
 }

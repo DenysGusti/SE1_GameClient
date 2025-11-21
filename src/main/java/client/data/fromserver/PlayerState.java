@@ -12,8 +12,10 @@ public record PlayerState(PlayerInformation playerInformation, boolean hasCollec
     private static final Logger logger = LoggerFactory.getLogger(PlayerState.class);
 
     public PlayerState {
-        Objects.requireNonNull(playerInformation, "playerInformation must not be null");
-        Objects.requireNonNull(gameState, "gameState must not be null");
+        if (playerInformation == null)
+            throw new IllegalArgumentException("playerInformation must not be null");
+        if (gameState == null)
+            throw new IllegalArgumentException("gameState must not be null");
     }
 
     public boolean mustWait() {

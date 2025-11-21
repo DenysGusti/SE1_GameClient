@@ -10,7 +10,8 @@ public record FullMapNode(ETerrain terrain, boolean isRevealed) {
     private static final Logger logger = LoggerFactory.getLogger(FullMapNode.class);
 
     public FullMapNode {
-        Objects.requireNonNull(terrain, "Terrain must not be null");
+        if (terrain == null)
+            throw new IllegalArgumentException("terrain must not be null");
     }
 
     public FullMapNode withIsRevealed(boolean isRevealed) {

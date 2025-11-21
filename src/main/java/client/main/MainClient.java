@@ -38,7 +38,8 @@ public class MainClient {
     private static final String CONFIG_FILE_NAME = "config.properties";
 
     public static void validateArguments(String[] args) throws CommandLineArgumentsException {
-        Objects.requireNonNull(args, "args must not be null");
+        if (args == null)
+            throw new IllegalArgumentException("args must not be null");
 
         if (args.length != 2 && args.length != 3)
             throw new CommandLineArgumentsException("Wrong number of arguments!");
@@ -58,8 +59,10 @@ public class MainClient {
     }
 
     private static NetworkService createNetworkService(String serverBaseURL, UniqueGameIdentifier uniqueGameIdentifier) {
-        Objects.requireNonNull(serverBaseURL, "serverBaseURL must not be null");
-        Objects.requireNonNull(uniqueGameIdentifier, "uniqueGameIdentifier must not be null");
+        if (serverBaseURL == null)
+            throw new IllegalArgumentException("serverBaseURL must not be null");
+        if (uniqueGameIdentifier == null)
+            throw new IllegalArgumentException("uniqueGameIdentifier must not be null");
 
         var gameWebClient = WebClient.builder()
                 .baseUrl(serverBaseURL + "/games/" + uniqueGameIdentifier.uniqueGameID())

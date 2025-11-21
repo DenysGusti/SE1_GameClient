@@ -23,7 +23,10 @@ public class BorderRule implements IHalfMapValidationRule {
 
     @Override
     public void validate(HalfMap halfMap, Notification notification) {
-        Objects.requireNonNull(halfMap, "halfMap must not be null");
+        if (halfMap == null)
+            throw new IllegalArgumentException("halfMap must not be null");
+        if (notification == null)
+            throw new IllegalArgumentException("notification must not be null");
 
         if (invalidBorder(halfMap, TOP_LEFT_CORNER, TOP_RIGHT_CORNER, REQUIRED_SIDE.x()))
             notification.addError(new BorderRuleException("BorderRule: Top border (y=0) is not >= 51% traversable (6 nodes)"));

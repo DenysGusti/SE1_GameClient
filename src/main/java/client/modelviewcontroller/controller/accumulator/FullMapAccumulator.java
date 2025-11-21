@@ -19,7 +19,9 @@ public class FullMapAccumulator {
     }
 
     public void accumulateFullMap(FullMap newTurnFullMap) {
-        Objects.requireNonNull(newTurnFullMap, "newTurnFullMap must not be null");
+        if (newTurnFullMap == null)
+            throw new IllegalArgumentException("newTurnFullMap must not be null");
+
         FullMap mapToAccumulate = fullMapRevealer.revealCoordinatesFromMyPlayer(newTurnFullMap);
 
         if (fullMap == null) {

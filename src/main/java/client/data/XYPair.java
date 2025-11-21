@@ -10,7 +10,8 @@ public record XYPair(int x, int y) {
 
     // grid starts from (0, 0)
     public List<XYPair> getAdjacentNeighbors(XYPair gridSize) {
-        Objects.requireNonNull(gridSize, "gridSize must not be null");
+        if (gridSize == null)
+            throw new IllegalArgumentException("gridSize must not be null");
 
         var gridNeighbors = new ArrayList<XYPair>();
 
@@ -28,7 +29,8 @@ public record XYPair(int x, int y) {
 
     // grid starts from (0, 0)
     public List<XYPair> getDiagonalNeighbors(XYPair gridSize) {
-        Objects.requireNonNull(gridSize, "gridSize must not be null");
+        if (gridSize == null)
+            throw new IllegalArgumentException("gridSize must not be null");
 
         var gridNeighbors = new ArrayList<XYPair>();
 
@@ -46,7 +48,8 @@ public record XYPair(int x, int y) {
 
     // grid starts from (0, 0)
     public List<XYPair> getAllNeighbors(XYPair gridSize) {
-        Objects.requireNonNull(gridSize, "gridSize must not be null");
+        if (gridSize == null)
+            throw new IllegalArgumentException("gridSize must not be null");
 
         List<XYPair> gridNeighbors = getAdjacentNeighbors(gridSize);
         gridNeighbors.addAll(getDiagonalNeighbors(gridSize));
@@ -55,7 +58,8 @@ public record XYPair(int x, int y) {
 
     // grid starts from (0, 0)
     public List<XYPair> getAllNeighborsWithThis(XYPair gridSize) {
-        Objects.requireNonNull(gridSize, "gridSize must not be null");
+        if (gridSize == null)
+            throw new IllegalArgumentException("gridSize must not be null");
 
         List<XYPair> gridNeighbors = getAllNeighbors(gridSize);
         gridNeighbors.add(this);
@@ -64,14 +68,16 @@ public record XYPair(int x, int y) {
 
     // grid starts from (0, 0)
     public boolean isOnBorder(XYPair gridSize) {
-        Objects.requireNonNull(gridSize, "gridSize must not be null");
+        if (gridSize == null)
+            throw new IllegalArgumentException("gridSize must not be null");
 
         return x == 0 || x == gridSize.x() - 1 || y == 0 || y == gridSize.y() - 1;
     }
 
     // grid starts from (0, 0)
     public boolean isOnCorner(XYPair gridSize) {
-        Objects.requireNonNull(gridSize, "gridSize must not be null");
+        if (gridSize == null)
+            throw new IllegalArgumentException("gridSize must not be null");
 
         return x == 0 && y == 0 || x == 0 && y == gridSize.y() - 1 ||
                 x == gridSize.x() - 1 && y == 0 || x == gridSize.x() - 1 && y == gridSize.y() - 1;

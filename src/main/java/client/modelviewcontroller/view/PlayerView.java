@@ -3,13 +3,11 @@ package client.modelviewcontroller.view;
 import client.data.PlayerInformation;
 import client.data.fromserver.EPlayerGameState;
 import client.data.fromserver.PlayerState;
-import client.modelviewcontroller.model.PlayerModel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
-import java.util.Objects;
 
 public class PlayerView {
     private static final Logger logger = LoggerFactory.getLogger(PlayerView.class);
@@ -29,28 +27,39 @@ public class PlayerView {
             );
 
     private static final int PLAYER_INFO_WIDTH = 80;
+    private static final int HEADER_WIDTH = 15;
 
     public void renderMyPlayerState(PlayerState playerState) {
-        Objects.requireNonNull(playerState, "playerState must not be null");
-        System.out.println("My Player");
-        renderPlayerState(playerState);
+        if (playerState == null)
+            throw new IllegalArgumentException("playerState must not be null");
+
+        renderPlayerState("My Player", playerState);
     }
 
     public void renderEnemyPlayerState(PlayerState playerState) {
-        Objects.requireNonNull(playerState, "playerState must not be null");
-        System.out.println("Enemy Player");
-        renderPlayerState(playerState);
+        if (playerState == null)
+            throw new IllegalArgumentException("playerState must not be null");
+
+        renderPlayerState("Enemy Player", playerState);
     }
 
-    private void renderPlayerState(PlayerState playerState) {
-        Objects.requireNonNull(playerState, "playerState must not be null");
+    private void renderPlayerState(String header, PlayerState playerState) {
+        if (header == null)
+            throw new IllegalArgumentException("header must not be null");
+        if (playerState == null)
+            throw new IllegalArgumentException("playerState must not be null");
+
+        System.out.printf("%-" + HEADER_WIDTH + "s", header + ":");
+
         renderPlayerInformation(playerState.playerInformation());
+
         System.out.print(" " + playerHasCollectedTreasureEmojiConverter.get(playerState.hasCollectedTreasure()));
         System.out.println(" " + playerGameStateEmojiConverter.get(playerState.gameState()));
     }
 
     private void renderPlayerInformation(PlayerInformation playerInformation) {
-        Objects.requireNonNull(playerInformation, "playerInformation must not be null");
+        if (playerInformation == null)
+            throw new IllegalArgumentException("playerInformation must not be null");
 
         String info = playerInformation.firstName() + " "
                 + playerInformation.lastName() + " "

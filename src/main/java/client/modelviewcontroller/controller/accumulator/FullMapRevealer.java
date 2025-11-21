@@ -17,7 +17,8 @@ public class FullMapRevealer {
     private static final Logger logger = LoggerFactory.getLogger(FullMapRevealer.class);
 
     public FullMap revealCoordinatesFromMyPlayer(FullMap fullMap) {
-        Objects.requireNonNull(fullMap, "fullMap must not be null");
+        if (fullMap == null)
+            throw new IllegalArgumentException("fullMap must not be null");
 
         Set<XYPair> coordinatesToReveal = getCoordinatesToRevealFromMyPlayer(fullMap);
         Map<XYPair, FullMapNode> newNodes = new HashMap<>(fullMap.nodes());
@@ -30,8 +31,10 @@ public class FullMapRevealer {
     }
 
     public FullMap combineRevealedMyTreasure(FullMap oldFullMap, FullMap newFullMap) {
-        Objects.requireNonNull(oldFullMap, "oldFullMap must not be null");
-        Objects.requireNonNull(newFullMap, "newFullMap must not be null");
+        if (oldFullMap == null)
+            throw new IllegalArgumentException("oldFullMap must not be null");
+        if (newFullMap == null)
+            throw new IllegalArgumentException("newFullMap must not be null");
 
         XYPair myTreasurePosition = oldFullMap.getOptionalMyTreasurePosition().orElse(newFullMap.myTreasurePosition());
 
@@ -40,8 +43,10 @@ public class FullMapRevealer {
     }
 
     public FullMap combineRevealedNodes(FullMap oldFullMap, FullMap newFullMap) {
-        Objects.requireNonNull(oldFullMap, "oldFullMap must not be null");
-        Objects.requireNonNull(newFullMap, "newFullMap must not be null");
+        if (oldFullMap == null)
+            throw new IllegalArgumentException("oldFullMap must not be null");
+        if (newFullMap == null)
+            throw new IllegalArgumentException("newFullMap must not be null");
 
         Map<XYPair, FullMapNode> newNodes = new HashMap<>(newFullMap.nodes());
 
@@ -56,6 +61,9 @@ public class FullMapRevealer {
     }
 
     private Set<XYPair> getCoordinatesToRevealFromMyPlayer(FullMap fullMap) {
+        if (fullMap == null)
+            throw new IllegalArgumentException("fullMap must not be null");
+
         return fullMap.getOptionalMyPlayerPosition()
                 .map(coordinate -> {
                     if (fullMap.nodes().get(coordinate).isMountain())

@@ -27,7 +27,8 @@ public class FullMapGraph {
     private final Map<XYPair, Map<XYPair, Set<XYPair>>> next;
 
     public FullMapGraph(FullMap fullMap) {
-        Objects.requireNonNull(fullMap, "fullMap must not be null");
+        if (fullMap == null)
+            throw new IllegalArgumentException("fullMap must not be null");
 
         distance = new HashMap<>();
         next = new HashMap<>();
@@ -88,8 +89,11 @@ public class FullMapGraph {
     }
 
     public int getDistance(XYPair start, XYPair end) {
-        Objects.requireNonNull(start, "start must not be null");
-        Objects.requireNonNull(end, "end must not be null");
+        if (start == null)
+            throw new IllegalArgumentException("start must not be null");
+        if (end == null)
+            throw new IllegalArgumentException("end must not be null");
+
         return distance.get(start).get(end);
     }
 
@@ -97,8 +101,10 @@ public class FullMapGraph {
     }
 
     public List<List<XYPair>> getAllPaths(XYPair start, XYPair end) {
-        Objects.requireNonNull(start, "start must not be null");
-        Objects.requireNonNull(end, "end must not be null");
+        if (start == null)
+            throw new IllegalArgumentException("start must not be null");
+        if (end == null)
+            throw new IllegalArgumentException("end must not be null");
 
         logger.debug("Starting BFS path search from {} to {}", start, end);
 

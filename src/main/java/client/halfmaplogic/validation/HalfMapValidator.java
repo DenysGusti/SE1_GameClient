@@ -15,11 +15,15 @@ public class HalfMapValidator {
     Collection<IHalfMapValidationRule> rules;
 
     public HalfMapValidator(Collection<IHalfMapValidationRule> rules) {
-        this.rules = Objects.requireNonNull(rules, "rules must not be null");
+        if (rules == null)
+            throw new IllegalArgumentException("rules must not be null");
+
+        this.rules = rules;
     }
 
     public Notification validate(HalfMap halfMap) {
-        Objects.requireNonNull(halfMap, "halfMap must not be null");
+        if (halfMap == null)
+            throw new IllegalArgumentException("halfMap must not be null");
 
         var notification = new Notification();
         rules.forEach(rule -> rule.validate(halfMap, notification));

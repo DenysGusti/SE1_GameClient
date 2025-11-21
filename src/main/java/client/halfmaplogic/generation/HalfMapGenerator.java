@@ -22,7 +22,10 @@ public class HalfMapGenerator {
     private final Random random;
 
     public HalfMapGenerator(Random random) {
-        this.random = Objects.requireNonNull(random, "random must not be null");
+        if (random == null)
+            throw new IllegalArgumentException("random must not be null");
+
+        this.random = random;
     }
 
     public HalfMap generateHalfMap() {
@@ -54,6 +57,9 @@ public class HalfMapGenerator {
     }
 
     private Set<XYPair> placePotentialForts(Map<XYPair, ETerrain> nodes) {
+        if (nodes == null)
+            throw new IllegalArgumentException("nodes must not be null");
+
         List<XYPair> grassTiles = nodes.entrySet().stream()
                 .filter(entry -> entry.getValue() == ETerrain.Grass)
                 .map(Map.Entry::getKey)

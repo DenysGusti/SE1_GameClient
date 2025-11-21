@@ -18,6 +18,11 @@ public class ConnectivityRule implements IHalfMapValidationRule {
 
     @Override
     public void validate(HalfMap halfMap, Notification notification) {
+        if (halfMap == null)
+            throw new IllegalArgumentException("halfMap must not be null");
+        if (notification == null)
+            throw new IllegalArgumentException("notification must not be null");
+
         XYPair startNode = halfMap.nodes().entrySet().stream()
                 .filter(e -> e.getValue() != ETerrain.Water)
                 .map(Map.Entry::getKey)

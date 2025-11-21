@@ -43,15 +43,31 @@ public class GameController {
     public GameController(PlayerModel playerModel, MapModel mapModel,
                           NetworkService networkService, HalfMapGenerator halfMapGenerator,
                           HalfMapValidator halfMapValidator, FullMapAccumulator fullMapAccumulator) {
-        this.playerModel = Objects.requireNonNull(playerModel, "playerModel must not be null");
-        this.mapModel = Objects.requireNonNull(mapModel, "mapModel must not be null");
-        this.networkService = Objects.requireNonNull(networkService, "networkService must not be null");
-        this.halfMapGenerator = Objects.requireNonNull(halfMapGenerator, "halfMapGenerator must not be null");
-        this.halfMapValidator = Objects.requireNonNull(halfMapValidator, "halfMapValidator must not be null");
-        this.fullMapAccumulator = Objects.requireNonNull(fullMapAccumulator, "fullMapAccumulator must not be null");
+        if (playerModel == null)
+            throw new IllegalArgumentException("playerModel must not be null");
+        if (mapModel == null)
+            throw new IllegalArgumentException("mapModel must not be null");
+        if (networkService == null)
+            throw new IllegalArgumentException("networkService must not be null");
+        if (halfMapGenerator == null)
+            throw new IllegalArgumentException("halfMapGenerator must not be null");
+        if (halfMapValidator == null)
+            throw new IllegalArgumentException("halfMapValidator must not be null");
+        if (fullMapAccumulator == null)
+            throw new IllegalArgumentException("fullMapAccumulator must not be null");
+
+        this.playerModel = playerModel;
+        this.mapModel = mapModel;
+        this.networkService = networkService;
+        this.halfMapGenerator = halfMapGenerator;
+        this.halfMapValidator = halfMapValidator;
+        this.fullMapAccumulator = fullMapAccumulator;
     }
 
     public void runGame(PlayerInformation playerInformation) {
+        if (playerInformation == null)
+            throw new IllegalArgumentException("playerInformation must not be null");
+
         myPlayerIdentifier = registerPlayer(playerInformation).block();
         logger.info("Player registration complete.");
 
@@ -113,12 +129,18 @@ public class GameController {
     }
 
     private void updateModels(GameState gameState) {
+        if (gameState == null)
+            throw new IllegalArgumentException("gameState must not be null");
+
         playerModel.updateMyPlayerState(gameState.myPlayer());
         gameState.getOptionalEnemyPlayer().ifPresent(playerModel::updateEnemyPlayerState);
         mapModel.updateFullMap(gameState.fullMap());
     }
 
     private Mono<UniquePlayerIdentifier> registerPlayer(PlayerInformation playerInformation) {
+        if (playerInformation == null)
+            throw new IllegalArgumentException("playerInformation must not be null");
+
         Objects.requireNonNull(playerInformation, "playerInformation must not be null");
         logger.info("Registering player...");
         return networkService.registerPlayer(playerInformation);
@@ -158,14 +180,18 @@ public class GameController {
     }
 
     private Mono<Void> sendHalfMap(HalfMap halfMap) {
+        if (halfMap == null)
+            throw new IllegalArgumentException("halfMap must not be null");
+
         Objects.requireNonNull(myPlayerIdentifier, "myPlayerIdentifier must not be null");
-        Objects.requireNonNull(halfMap, "halfMap must not be null");
         return networkService.sendHalfMap(myPlayerIdentifier, halfMap);
     }
 
     private Mono<Void> sendMove(EMove move) {
+        if (move == null)
+            throw new IllegalArgumentException("move must not be null");
+
         Objects.requireNonNull(myPlayerIdentifier, "myPlayerIdentifier must not be null");
-        Objects.requireNonNull(move, "move must not be null");
         return networkService.sendMove(myPlayerIdentifier, move);
     }
 }

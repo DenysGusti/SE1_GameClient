@@ -22,8 +22,8 @@ public class FullMapConverter {
             );
 
     public FullMap convertFullMap(messagesbase.messagesfromserver.FullMap fullMap, boolean isMyTreasureCollected) {
-        Objects.requireNonNull(fullMap, "fullMap must not be null");
-        logger.trace("{} nodes found", fullMap.getMapNodes().size());
+        if (fullMap == null)
+            throw new IllegalArgumentException("fullMap must not be null");
 
         if (fullMap.isEmpty())
             return FullMap.emptyFullMap();
@@ -68,7 +68,8 @@ public class FullMapConverter {
     }
 
     private static boolean representsEnemyPlayer(EPlayerPositionState state) {
-        Objects.requireNonNull(state, "state must not be null");
+        if (state == null)
+            throw new IllegalArgumentException("state must not be null");
         return state == EPlayerPositionState.EnemyPlayerPosition || state == EPlayerPositionState.BothPlayerPosition;
     }
 }

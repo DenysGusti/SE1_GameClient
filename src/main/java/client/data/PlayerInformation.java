@@ -9,8 +9,11 @@ public record PlayerInformation(String firstName, String lastName, String uaccou
     private static final Logger logger = LoggerFactory.getLogger(PlayerInformation.class);
 
     public PlayerInformation {
-        Objects.requireNonNull(firstName, "firstName must not be null");
-        Objects.requireNonNull(lastName, "lastName must not be null");
-        Objects.requireNonNull(uaccount, "uaccount must not be null");
+        if (firstName == null)
+            throw new IllegalArgumentException("firstName must not be null");
+        if (lastName == null)
+            throw new IllegalArgumentException("lastName must not be null");
+        if (uaccount == null)
+            throw new IllegalArgumentException("uaccount must not be null");
     }
 }

@@ -33,7 +33,9 @@ public class FromClientConverter {
             );
 
     public PlayerRegistration convertPlayerInformation(PlayerInformation playerInformation) {
-        Objects.requireNonNull(playerInformation, "playerInformation must not be null");
+        if (playerInformation == null)
+            throw new IllegalArgumentException("playerInformation must not be null");
+
         return new PlayerRegistration(
                 playerInformation.firstName(),
                 playerInformation.lastName(),
@@ -42,8 +44,10 @@ public class FromClientConverter {
     }
 
     public PlayerHalfMap convertHalfMap(UniquePlayerIdentifier uniquePlayerIdentifier, HalfMap halfMap) {
-        Objects.requireNonNull(uniquePlayerIdentifier, "uniquePlayerIdentifier must not be null");
-        Objects.requireNonNull(halfMap, "halfMap must not be null");
+        if (uniquePlayerIdentifier == null)
+            throw new IllegalArgumentException("uniquePlayerIdentifier must not be null");
+        if (halfMap == null)
+            throw new IllegalArgumentException("halfMap must not be null");
 
         var nodes = new ArrayList<PlayerHalfMapNode>();
         Set<XYPair> potentialForts = halfMap.potentialForts();
@@ -57,8 +61,11 @@ public class FromClientConverter {
     }
 
     public PlayerMove convertMove(UniquePlayerIdentifier uniquePlayerIdentifier, EMove move) {
-        Objects.requireNonNull(uniquePlayerIdentifier, "uniquePlayerIdentifier must not be null");
-        Objects.requireNonNull(move, "move must not be null");
+        if (uniquePlayerIdentifier == null)
+            throw new IllegalArgumentException("uniquePlayerIdentifier must not be null");
+        if (move == null)
+            throw new IllegalArgumentException("move must not be null");
+
         return PlayerMove.of(uniquePlayerIdentifier.uniquePlayerID(), moveConverter.get(move));
     }
 }

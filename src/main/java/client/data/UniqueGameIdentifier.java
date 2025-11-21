@@ -9,6 +9,7 @@ public record UniqueGameIdentifier(String uniqueGameID) {
     private static final Logger logger = LoggerFactory.getLogger(UniqueGameIdentifier.class);
 
     public UniqueGameIdentifier {
-        Objects.requireNonNull(uniqueGameID, "uniqueGameID must not be null");
+        if (uniqueGameID == null)
+            throw new IllegalArgumentException("uniqueGameID must not be null");
     }
 }

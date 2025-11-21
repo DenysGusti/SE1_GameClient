@@ -15,7 +15,9 @@ public class Notification {
     private final Collection<HalfMapGenerationException> errors = new ArrayList<>();
 
     public void addError(HalfMapGenerationException exception) {
-        Objects.requireNonNull(exception, "exception must not be null");
+        if (exception == null)
+            throw new IllegalArgumentException("exception must not be null");
+
         errors.add(exception);
     }
 
