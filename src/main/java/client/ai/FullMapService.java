@@ -29,13 +29,4 @@ public class FullMapService {
             return isFortOnTopSide == isCoordinateOnTopSide;
         }
     }
-
-    public boolean isOnEnemySide(FullMap fullMap, XYPair coordinate) {
-        if (fullMap == null)
-            throw new IllegalArgumentException("fullMap must not be null");
-        if (coordinate == null)
-            throw new IllegalArgumentException("coordinate must not be null");
-
-        return !isOnMySide(fullMap, coordinate);
-    }
 }
