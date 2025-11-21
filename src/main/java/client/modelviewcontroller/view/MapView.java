@@ -31,7 +31,7 @@ public class MapView {
     private static final String myTreasureEmoji = "💰";
 
     private static final String[] numbers = new String[]{"0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣"};
-    private static final String numberBackground = "⭐";
+    private static final String numberBackground = "➰";
 
     private static final int EXPECTED_EMOJI_WIDTH = 4;
     private static final int TILE_SIZE = 3;
