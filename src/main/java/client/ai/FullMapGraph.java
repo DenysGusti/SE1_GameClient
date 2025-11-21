@@ -5,10 +5,14 @@ import client.data.XYPair;
 import client.data.fromserver.FullMap;
 import client.data.fromserver.FullMapNode;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class FullMapGraph {
+    private static final Logger logger = LoggerFactory.getLogger(FullMapGraph.class);
     private static final Map<ETerrain, Integer> terrainMovementCost =
             Map.of(
                     ETerrain.Grass, 1,
@@ -89,35 +93,49 @@ public class FullMapGraph {
         return distance.get(start).get(end);
     }
 
+    private record QueueEntry(XYPair coordinate, List<XYPair> path) {
+    }
+
     public List<List<XYPair>> getAllPaths(XYPair start, XYPair end) {
         Objects.requireNonNull(start, "start must not be null");
         Objects.requireNonNull(end, "end must not be null");
 
+        logger.debug("Starting BFS path search from {} to {}", start, end);
+
         List<List<XYPair>> allPaths = new ArrayList<>();
-        reconstructPaths(start, end, List.of(start), allPaths);
+        Queue<QueueEntry> queue = new ArrayDeque<>();
 
-        return allPaths;
-    }
+        queue.add(new QueueEntry(start, List.of(start)));
 
-    private void reconstructPaths(XYPair current, XYPair end, List<XYPair> currentPath, List<List<XYPair>> allPaths) {
-        if (current.equals(end)) {
-            allPaths.add(new ArrayList<>(currentPath));
-            return;
-        }
+        while (!queue.isEmpty()) {
+            QueueEntry entry = queue.remove();
+            XYPair current = entry.coordinate();
+            List<XYPair> currentPath = entry.path();
 
-        Set<XYPair> nextCoordinates = next.get(current).get(end);
-        if (nextCoordinates.isEmpty())
-            return;
+            logger.trace("Visiting node {} with path {}", current, currentPath);
 
-        for (XYPair nextCoordinate : nextCoordinates) {
-            if (currentPath.contains(nextCoordinate)) {
-                throw new RuntimeException("???");
+            if (current.equals(end)) {
+                logger.debug("Finished full path: {}", currentPath);
+                allPaths.add(currentPath);
+                continue;
             }
 
-            List<XYPair> nextPath = new ArrayList<>(currentPath);
-            nextPath.add(nextCoordinate);
+            Set<XYPair> nextCoordinates = next.get(current).get(end);
 
-            reconstructPaths(nextCoordinate, end, nextPath, allPaths);
+            logger.trace("Expanding {} -> next {}", current, nextCoordinates);
+
+            for (XYPair nextCoordinate : nextCoordinates) {
+                List<XYPair> newPath = new ArrayList<>(currentPath);
+                newPath.add(nextCoordinate);
+
+                logger.trace("Adding to queue: {} via path {}", nextCoordinate, newPath);
+
+                queue.add(new QueueEntry(nextCoordinate, newPath));
+            }
         }
+
+        logger.debug("Finished BFS search: total {} paths found from {} to {}", allPaths.size(), start, end);
+
+        return allPaths;
     }
 }
