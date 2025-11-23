@@ -108,10 +108,12 @@ public class GameController {
 
             XYPair next = fullMapGraph.getAllPaths(currentState.fullMap().myPlayerPosition(), goal).getFirst().get(1);
 
-            EMove move = switch (new XYPair(
+            var delta = new XYPair(
                     next.x() - currentState.fullMap().myPlayerPosition().x(),
                     next.y() - currentState.fullMap().myPlayerPosition().y()
-            )) {
+            );
+
+            EMove move = switch (delta) {
                 case XYPair(int dx, int dy) when dx == 0 && dy == 1 -> EMove.Down;
                 case XYPair(int dx, int dy) when dx == 0 && dy == -1 -> EMove.Up;
                 case XYPair(int dx, int dy) when dx == 1 && dy == 0 -> EMove.Right;
