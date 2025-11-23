@@ -8,6 +8,7 @@ import client.data.UniquePlayerIdentifier;
 import client.data.XYPair;
 import client.data.fromclient.EMove;
 import client.data.fromclient.HalfMap;
+import client.data.fromserver.FullMap;
 import client.data.fromserver.GameState;
 import client.halfmaplogic.generation.HalfMapGenerator;
 import client.halfmaplogic.validation.HalfMapValidator;
@@ -92,19 +93,28 @@ public class GameController {
             var fullMapGraph = new FullMapGraph(currentState.fullMap());
             var fullMapService = new FullMapService();
 
-            GameState finalCurrentState = currentState;
+            FullMap fullMap = currentState.fullMap();
 
-            XYPair goal = currentState.myPlayer().hasCollectedTreasure() ?
-                    currentState.fullMap().nodes().entrySet().stream()
-                            .filter(e -> !fullMapService.isOnMySide(finalCurrentState.fullMap(), e.getKey()))
-                            .filter(e -> e.getValue().terrain() == ETerrain.Grass && !e.getValue().isRevealed())
-                            .map(Map.Entry::getKey)
-                            .findFirst().orElseThrow() :
-                    finalCurrentState.fullMap().nodes().entrySet().stream()
-                            .filter(e -> fullMapService.isOnMySide(finalCurrentState.fullMap(), e.getKey()))
+            XYPair goal;
+            if (fullMap.isMyTreasureCollected()) {
+                if (fullMap.getOptionalEnemyFortPosition().isPresent())
+                    goal = fullMap.getOptionalEnemyFortPosition().get();
+                else
+                    goal = fullMap.nodes().entrySet().stream()
+                            .filter(e -> !fullMapService.isOnMySide(fullMap, e.getKey()))
                             .filter(e -> e.getValue().terrain() == ETerrain.Grass && !e.getValue().isRevealed())
                             .map(Map.Entry::getKey)
                             .findFirst().orElseThrow();
+            } else {
+                if (fullMap.getOptionalMyTreasurePosition().isPresent())
+                    goal = fullMap.getOptionalEnemyFortPosition().get();
+                else
+                    goal = fullMap.nodes().entrySet().stream()
+                            .filter(e -> fullMapService.isOnMySide(fullMap, e.getKey()))
+                            .filter(e -> e.getValue().terrain() == ETerrain.Grass && !e.getValue().isRevealed())
+                            .map(Map.Entry::getKey)
+                            .findFirst().orElseThrow();
+            }
 
             XYPair next = fullMapGraph.getAllPaths(currentState.fullMap().myPlayerPosition(), goal).getFirst().get(1);
 
