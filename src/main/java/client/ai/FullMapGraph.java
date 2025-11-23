@@ -23,53 +23,47 @@ public class FullMapGraph {
         return terrainMovementCost.get(from) + terrainMovementCost.get(to);
     }
 
-    private final Map<XYPair, Map<XYPair, Integer>> distance;
-    private final Map<XYPair, Map<XYPair, Set<XYPair>>> next;
+    private final Map<XYPair, Map<XYPair, Integer>> distance = new HashMap<>();
+    private final Map<XYPair, Map<XYPair, Set<XYPair>>> next = new HashMap<>();
 
     public FullMapGraph(FullMap fullMap) {
         if (fullMap == null)
             throw new IllegalArgumentException("fullMap must not be null");
 
-        distance = new HashMap<>();
-        next = new HashMap<>();
-
         Set<XYPair> coordinates = fullMap.nodes().keySet().stream()
                 .filter(coordinate -> !fullMap.nodes().get(coordinate).isWater())
                 .collect(Collectors.toSet());
 
-        coordinates.forEach(
-                (coordinateFrom) -> {
-                    Map<XYPair, Integer> innerDistanceMap = new HashMap<>();
-                    Map<XYPair, Set<XYPair>> innerNextMap = new HashMap<>();
-                    distance.put(coordinateFrom, innerDistanceMap);
-                    next.put(coordinateFrom, innerNextMap);
+        for (XYPair coordinateFrom : coordinates) {
+            Map<XYPair, Integer> innerDistanceMap = new HashMap<>();
+            Map<XYPair, Set<XYPair>> innerNextMap = new HashMap<>();
+            distance.put(coordinateFrom, innerDistanceMap);
+            next.put(coordinateFrom, innerNextMap);
 
-                    coordinates.forEach(
-                            (coordinateTo) -> {
-                                if (coordinateFrom.equals(coordinateTo)) {
-                                    innerDistanceMap.put(coordinateTo, 0);
-                                    innerNextMap.put(coordinateTo, Collections.emptySet());
-                                } else {
-                                    innerDistanceMap.put(coordinateTo, (int) Short.MAX_VALUE);
-                                    innerNextMap.put(coordinateTo, new HashSet<>());
-                                }
-                            }
-                    );
+            for (XYPair coordinateTo : coordinates) {
+                if (coordinateFrom.equals(coordinateTo)) {
+                    innerDistanceMap.put(coordinateTo, 0);
+                    innerNextMap.put(coordinateTo, Collections.emptySet());
+                } else {
+                    innerDistanceMap.put(coordinateTo, (int) Short.MAX_VALUE);
+                    innerNextMap.put(coordinateTo, new HashSet<>());
                 }
-        );
+            }
+        }
 
-        coordinates.forEach((coordinateFrom) -> {
+        for (XYPair coordinateFrom : coordinates) {
             FullMapNode nodeFrom = fullMap.nodes().get(coordinateFrom);
+            List<XYPair> traversableAdjacentNeighbors = coordinateFrom.getAdjacentNeighbors(fullMap.size()).stream()
+                    .filter(coordinates::contains)
+                    .toList();
 
-            coordinateFrom.getAdjacentNeighbors(fullMap.size()).stream()
-                    .filter(coordinate -> !fullMap.nodes().get(coordinate).isWater())
-                    .forEach((coordinateTo) -> {
-                        FullMapNode nodeTo = fullMap.nodes().get(coordinateTo);
-                        int cost = getMovementCost(nodeFrom.terrain(), nodeTo.terrain());
-                        distance.get(coordinateFrom).put(coordinateTo, cost);
-                        next.get(coordinateFrom).get(coordinateTo).add(coordinateTo);
-                    });
-        });
+            for (XYPair coordinateTo : traversableAdjacentNeighbors) {
+                FullMapNode nodeTo = fullMap.nodes().get(coordinateTo);
+                int cost = getMovementCost(nodeFrom.terrain(), nodeTo.terrain());
+                distance.get(coordinateFrom).put(coordinateTo, cost);
+                next.get(coordinateFrom).get(coordinateTo).add(coordinateTo);
+            }
+        }
 
         for (XYPair coordinateK : coordinates)
             for (XYPair coordinateI : coordinates)
