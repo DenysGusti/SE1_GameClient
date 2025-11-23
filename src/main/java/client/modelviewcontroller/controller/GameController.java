@@ -2,6 +2,7 @@ package client.modelviewcontroller.controller;
 
 import client.ai.FullMapGraph;
 import client.ai.FullMapService;
+import client.ai.NodeTraversalStrategy;
 import client.data.ETerrain;
 import client.data.PlayerInformation;
 import client.data.UniquePlayerIdentifier;
@@ -25,6 +26,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class GameController {
     private static final Logger logger = LoggerFactory.getLogger(GameController.class);
@@ -91,6 +93,7 @@ public class GameController {
             }
 
             var fullMapGraph = new FullMapGraph(currentState.fullMap());
+            var nodeTraversalStrategy = new NodeTraversalStrategy(fullMapGraph);
             var fullMapService = new FullMapService();
 
             FullMap fullMap = currentState.fullMap();
@@ -99,21 +102,31 @@ public class GameController {
             if (fullMap.isMyTreasureCollected()) {
                 if (fullMap.getOptionalEnemyFortPosition().isPresent())
                     goal = fullMap.getOptionalEnemyFortPosition().get();
-                else
-                    goal = fullMap.nodes().entrySet().stream()
+                else {
+                    Set<XYPair> nodesToTraverse = fullMap.nodes().entrySet().stream()
                             .filter(e -> !fullMapService.isOnMySide(fullMap, e.getKey()))
                             .filter(e -> e.getValue().terrain() == ETerrain.Grass && !e.getValue().isRevealed())
                             .map(Map.Entry::getKey)
-                            .findFirst().orElseThrow();
+                            .collect(Collectors.toSet());
+                    List<XYPair> bypassOrder = nodeTraversalStrategy
+                            .orderNodes(fullMap.getOptionalMyPlayerPosition().orElseThrow(), nodesToTraverse);
+                    List<List<XYPair>> paths = fullMapGraph.getAllPaths(bypassOrder.getFirst(), bypassOrder.get(1));
+                    goal = paths.getFirst().get(1);
+                }
             } else {
                 if (fullMap.getOptionalMyTreasurePosition().isPresent())
-                    goal = fullMap.getOptionalEnemyFortPosition().get();
-                else
-                    goal = fullMap.nodes().entrySet().stream()
+                    goal = fullMap.getOptionalMyTreasurePosition().get();
+                else {
+                    Set<XYPair> nodesToTraverse = fullMap.nodes().entrySet().stream()
                             .filter(e -> fullMapService.isOnMySide(fullMap, e.getKey()))
                             .filter(e -> e.getValue().terrain() == ETerrain.Grass && !e.getValue().isRevealed())
                             .map(Map.Entry::getKey)
-                            .findFirst().orElseThrow();
+                            .collect(Collectors.toSet());
+                    List<XYPair> bypassOrder = nodeTraversalStrategy
+                            .orderNodes(fullMap.getOptionalMyPlayerPosition().orElseThrow(), nodesToTraverse);
+                    List<List<XYPair>> paths = fullMapGraph.getAllPaths(bypassOrder.getFirst(), bypassOrder.get(1));
+                    goal = paths.getFirst().get(1);
+                }
             }
 
             XYPair next = fullMapGraph.getAllPaths(currentState.fullMap().myPlayerPosition(), goal).getFirst().get(1);
