@@ -134,9 +134,9 @@ public class NetworkService {
 
         logger.info("Sending map to server...");
 
-        PlayerHalfMap playerHalfMap = this.fromClientConverter.convertHalfMap(uniquePlayerIdentifier, halfMap);
+        PlayerHalfMap playerHalfMap = fromClientConverter.convertHalfMap(uniquePlayerIdentifier, halfMap);
 
-        return this.gameWebClient
+        return gameWebClient
                 .method(HttpMethod.POST)
                 .uri("/halfmaps")
                 .body(BodyInserters.fromValue(playerHalfMap))
@@ -162,7 +162,7 @@ public class NetworkService {
 
         logger.info("Sending move: {}", move);
 
-        PlayerMove playerMove = this.fromClientConverter.convertMove(uniquePlayerIdentifier, move);
+        PlayerMove playerMove = fromClientConverter.convertMove(uniquePlayerIdentifier, move);
 
         return gameWebClient
                 .method(HttpMethod.POST)
