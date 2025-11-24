@@ -26,16 +26,18 @@ public class NodeTraversalStrategy {
         XYPair current = start;
 
         while (!remaining.isEmpty()) {
-            XYPair finalCurrent = current;
-            XYPair nearest = remaining.stream()
-                    .min(Comparator.comparingInt(node -> fullMapGraph.getDistance(finalCurrent, node)))
-                    .orElseThrow();
-
+            XYPair nearest = getNearest(current, remaining);
             ordered.add(nearest);
             remaining.remove(nearest);
             current = nearest;
         }
 
         return ordered;
+    }
+
+    XYPair getNearest(XYPair current, Set<XYPair> remaining) {
+        return remaining.stream()
+                .min(Comparator.comparingInt(node -> fullMapGraph.getDistance(current, node)))
+                .orElseThrow();
     }
 }
