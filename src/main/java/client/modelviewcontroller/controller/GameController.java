@@ -103,11 +103,7 @@ public class GameController {
                 if (fullMap.getOptionalEnemyFortPosition().isPresent())
                     goal = fullMap.getOptionalEnemyFortPosition().get();
                 else {
-                    Set<XYPair> nodesToTraverse = fullMap.nodes().entrySet().stream()
-                            .filter(e -> !fullMapService.isOnMySide(fullMap, e.getKey()))
-                            .filter(e -> e.getValue().terrain() == ETerrain.Grass && !e.getValue().isRevealed())
-                            .map(Map.Entry::getKey)
-                            .collect(Collectors.toSet());
+                    Set<XYPair> nodesToTraverse = fullMapService.getUnrevealedGrassNodesOnEnemySide(fullMap);
                     List<XYPair> bypassOrder = nodeTraversalStrategy
                             .orderNodes(fullMap.getOptionalMyPlayerPosition().orElseThrow(), nodesToTraverse);
                     List<List<XYPair>> paths = fullMapGraph.getAllPaths(bypassOrder.getFirst(), bypassOrder.get(1));
@@ -117,11 +113,7 @@ public class GameController {
                 if (fullMap.getOptionalMyTreasurePosition().isPresent())
                     goal = fullMap.getOptionalMyTreasurePosition().get();
                 else {
-                    Set<XYPair> nodesToTraverse = fullMap.nodes().entrySet().stream()
-                            .filter(e -> fullMapService.isOnMySide(fullMap, e.getKey()))
-                            .filter(e -> e.getValue().terrain() == ETerrain.Grass && !e.getValue().isRevealed())
-                            .map(Map.Entry::getKey)
-                            .collect(Collectors.toSet());
+                    Set<XYPair> nodesToTraverse = fullMapService.getUnrevealedGrassNodesOnMySide(fullMap);
                     List<XYPair> bypassOrder = nodeTraversalStrategy
                             .orderNodes(fullMap.getOptionalMyPlayerPosition().orElseThrow(), nodesToTraverse);
                     List<List<XYPair>> paths = fullMapGraph.getAllPaths(bypassOrder.getFirst(), bypassOrder.get(1));
