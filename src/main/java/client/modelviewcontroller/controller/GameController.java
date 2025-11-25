@@ -3,7 +3,6 @@ package client.modelviewcontroller.controller;
 import client.ai.FullMapGraph;
 import client.ai.FullMapService;
 import client.ai.NodeTraversalStrategy;
-import client.data.ETerrain;
 import client.data.PlayerInformation;
 import client.data.UniquePlayerIdentifier;
 import client.data.XYPair;
