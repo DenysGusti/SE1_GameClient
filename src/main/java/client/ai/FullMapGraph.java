@@ -13,22 +13,23 @@ import java.util.*;
 public class FullMapGraph {
     private static final Logger logger = LoggerFactory.getLogger(FullMapGraph.class);
 
-    private static final Map<ETerrain, Integer> terrainMovementCost =
+    private static final Map<ETerrain, Short> terrainMovementCost =
             Map.of(
-                    ETerrain.Grass, 1,
-                    ETerrain.Mountain, 2
+                    ETerrain.Grass, (short) 1,
+                    ETerrain.Mountain, (short) 2
             );
 
-    private static int getMovementCost(ETerrain from, ETerrain to) {
-        return terrainMovementCost.get(from) + terrainMovementCost.get(to);
+    private static short getMovementCost(ETerrain from, ETerrain to) {
+        return (short) (terrainMovementCost.get(from) + terrainMovementCost.get(to));
     }
 
     private final XYPair[] indexToCoordinate;
-    private final Map<XYPair, Integer> coordinateToIndex;
+    private final Map<XYPair, Short> coordinateToIndex;
 
-    private final int[][] distances;
-    private final Set<Integer>[][] next;
+    private final short[][] distances;
+    private final short[][][] next;
 
+    @SuppressWarnings("unchecked")
     public FullMapGraph(FullMap fullMap) {
         if (fullMap == null)
             throw new IllegalArgumentException("fullMap must not be null");
@@ -40,25 +41,26 @@ public class FullMapGraph {
 
         indexToCoordinate = validNodes.toArray(new XYPair[0]);
         coordinateToIndex = new HashMap<>(n);
-        for (int i = 0; i < n; i++)
+        for (short i = 0; i < n; i++)
             coordinateToIndex.put(indexToCoordinate[i], i);
 
-        this.distances = new int[n][n];
-        this.next = (Set<Integer>[][]) new Set[n][n];
+        distances = new short[n][n];
+        next = new short[n][n][];
+        var tempNext = (Set<Short>[][]) new Set[n][n];
 
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
+        for (short i = 0; i < n; ++i) {
+            for (short j = 0; j < n; ++j) {
                 if (i == j) {
                     distances[i][j] = 0;
-                    next[i][j] = Collections.emptySet();
+                    tempNext[i][j] = Collections.emptySet();
                 } else {
                     distances[i][j] = Short.MAX_VALUE;
-                    next[i][j] = new HashSet<>();
+                    tempNext[i][j] = new HashSet<>();
                 }
             }
         }
 
-        for (int i = 0; i < n; i++) {
+        for (short i = 0; i < n; ++i) {
             XYPair coordinateFrom = indexToCoordinate[i];
             FullMapNode nodeFrom = fullMap.nodes().get(coordinateFrom);
 
@@ -67,44 +69,69 @@ public class FullMapGraph {
                     .toList();
 
             for (XYPair coordinateTo : traversableAdjacentNeighbors) {
-                int j = coordinateToIndex.get(coordinateTo);
+                short j = coordinateToIndex.get(coordinateTo);
                 FullMapNode nodeTo = fullMap.nodes().get(coordinateTo);
 
                 distances[i][j] = getMovementCost(nodeFrom.terrain(), nodeTo.terrain());
-                next[i][j].add(j);
+                tempNext[i][j].add(j);
             }
         }
 
-        for (int k = 0; k < n; k++)
-            for (int i = 0; i < n; i++) {
+        for (short k = 0; k < n; ++k)
+            for (short i = 0; i < n; ++i) {
                 if (distances[i][k] == Short.MAX_VALUE)
                     continue;
 
-                for (int j = 0; j < n; j++) {
+                for (short j = 0; j < n; ++j) {
                     if (distances[k][j] == Short.MAX_VALUE)
                         continue;
 
-                    int currentCost = distances[i][j];
+                    short currentCost = distances[i][j];
                     int newCost = distances[i][k] + distances[k][j];
+                    if (newCost >= Short.MAX_VALUE)
+                        throw new RuntimeException("Cost Overflow!");
 
                     if (currentCost > newCost) {
-                        distances[i][j] = newCost;
-                        next[i][j].clear();
-                        next[i][j].addAll(next[i][k]);
+                        distances[i][j] = (short) newCost;
+                        tempNext[i][j].clear();
+                        tempNext[i][j].addAll(tempNext[i][k]);
                     } else if (currentCost == newCost)
-                        next[i][j].addAll(next[i][k]);
+                        tempNext[i][j].addAll(tempNext[i][k]);
                 }
             }
+
+        for (short i = 0; i < n; ++i)
+            for (short j = 0; j < n; ++j) {
+                Set<Short> nextIndices = tempNext[i][j];
+                short[] arr = new short[nextIndices.size()];
+                short idx = 0;
+                for (short val : nextIndices)
+                    arr[idx++] = val;
+                next[i][j] = arr;
+            }
+
+        short maxDistance = 0;
+
+        for (short[] distanceFrom : distances)
+            for (short distance : distanceFrom) {
+                if (distance == Short.MAX_VALUE)
+                    throw new RuntimeException("Uninitialized Cost!");
+
+                if (distance > maxDistance)
+                    maxDistance = distance;
+            }
+
+        logger.debug("Max Distance: {}", maxDistance);
     }
 
-    public int getDistance(XYPair start, XYPair end) {
+    public short getDistance(XYPair start, XYPair end) {
         if (start == null)
             throw new IllegalArgumentException("start must not be null");
         if (end == null)
             throw new IllegalArgumentException("end must not be null");
 
-        int startIdx = coordinateToIndex.get(start);
-        int endIdx = coordinateToIndex.get(end);
+        short startIdx = coordinateToIndex.get(start);
+        short endIdx = coordinateToIndex.get(end);
 
         return distances[startIdx][endIdx];
     }
@@ -122,7 +149,7 @@ public class FullMapGraph {
 
         List<List<XYPair>> allPaths = new ArrayList<>();
 
-        int endIdx = coordinateToIndex.get(end);
+        short endIdx = coordinateToIndex.get(end);
 
         Queue<PathState> queue = new ArrayDeque<>();
         queue.add(new PathState(start, List.of(start)));
@@ -140,11 +167,11 @@ public class FullMapGraph {
                 continue;
             }
 
-            int currentIdx = coordinateToIndex.get(current);
-            Set<Integer> nextIndices = next[currentIdx][endIdx];
+            short currentIdx = coordinateToIndex.get(current);
+            short[] nextIndices = next[currentIdx][endIdx];
 
             Set<XYPair> nextCoordinates = new HashSet<>();
-            for (int idx : nextIndices)
+            for (short idx : nextIndices)
                 nextCoordinates.add(indexToCoordinate[idx]);
 
             logger.trace("Expanding {} -> next {}", current, nextCoordinates);
