@@ -63,7 +63,7 @@ public class PlayerView {
 
         String info = playerInformation.firstName() + " "
                 + playerInformation.lastName() + " "
-                + playerInformation.uaccount();
+                + playerInformation.uAccount();
 
         System.out.printf("%-" + PLAYER_INFO_WIDTH + "s", info);
     }

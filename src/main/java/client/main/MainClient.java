@@ -52,10 +52,10 @@ public class MainClient {
         try (InputStream inputStream = MainClient.class.getClassLoader().getResourceAsStream(CONFIG_FILE_NAME)) {
             properties.load(inputStream);
         }
-        String firstName = properties.getProperty("player.firstname");
-        String lastName = properties.getProperty("player.lastname");
-        String uaccount = properties.getProperty("player.uaccount");
-        return new PlayerInformation(firstName, lastName, uaccount);
+        String firstName = properties.getProperty("player.firstName");
+        String lastName = properties.getProperty("player.lastName");
+        String uAccount = properties.getProperty("player.uAccount");
+        return new PlayerInformation(firstName, lastName, uAccount);
     }
 
     private static NetworkService createNetworkService(String serverBaseURL, UniqueGameIdentifier uniqueGameIdentifier) {

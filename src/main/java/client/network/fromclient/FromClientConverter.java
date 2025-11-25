@@ -39,7 +39,7 @@ public class FromClientConverter {
         return new PlayerRegistration(
                 playerInformation.firstName(),
                 playerInformation.lastName(),
-                playerInformation.uaccount()
+                playerInformation.uAccount()
         );
     }
 
