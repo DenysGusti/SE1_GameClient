@@ -105,7 +105,7 @@ public class GameController {
                     Set<XYPair> nodesToTraverse = fullMapService.getUnrevealedGrassNodesOnEnemySide(fullMap);
                     List<XYPair> bypassOrder = nodeTraversalStrategy
                             .orderNodes(fullMap.getOptionalMyPlayerPosition().orElseThrow(), nodesToTraverse);
-                    List<List<XYPair>> paths = fullMapGraph.getAllPaths(bypassOrder.getFirst(), bypassOrder.get(1));
+                    List<List<XYPair>> paths = fullMapGraph.getAllPaths(bypassOrder);
                     goal = paths.getFirst().get(1);
                 }
             } else {
@@ -115,7 +115,7 @@ public class GameController {
                     Set<XYPair> nodesToTraverse = fullMapService.getUnrevealedGrassNodesOnMySide(fullMap);
                     List<XYPair> bypassOrder = nodeTraversalStrategy
                             .orderNodes(fullMap.getOptionalMyPlayerPosition().orElseThrow(), nodesToTraverse);
-                    List<List<XYPair>> paths = fullMapGraph.getAllPaths(bypassOrder.getFirst(), bypassOrder.get(1));
+                    List<List<XYPair>> paths = fullMapGraph.getAllPaths(bypassOrder);
                     goal = paths.getFirst().get(1);
                 }
             }

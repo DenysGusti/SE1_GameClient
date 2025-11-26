@@ -124,7 +124,7 @@ public class FullMapGraph {
         logger.debug("Max Distance: {}", maxDistance);
     }
 
-    public short getDistance(XYPair start, XYPair end) {
+    public int getDistance(XYPair start, XYPair end) {
         if (start == null)
             throw new IllegalArgumentException("start must not be null");
         if (end == null)
@@ -134,6 +134,19 @@ public class FullMapGraph {
         short endIdx = coordinateToIndex.get(end);
 
         return distances[startIdx][endIdx];
+    }
+
+    public int getDistance(List<XYPair> waypoints) {
+        if (waypoints == null)
+            throw new IllegalArgumentException("waypoints must not be null");
+        if (waypoints.size() <= 1)
+            throw new IllegalArgumentException("waypoint must have at least start and end");
+
+        int totalDistance = 0;
+        for (int i = 0; i < waypoints.size() - 1; ++i)
+            totalDistance += getDistance(waypoints.get(i), waypoints.get(i + 1));
+
+        return totalDistance;
     }
 
     private record PathState(XYPair coordinate, List<XYPair> path) {
@@ -191,5 +204,39 @@ public class FullMapGraph {
         logger.debug("Finished BFS search: total {} paths found from {} to {}", allPaths.size(), start, end);
 
         return allPaths;
+    }
+
+    public List<List<XYPair>> getAllPaths(List<XYPair> waypoints) {
+        if (waypoints == null)
+            throw new IllegalArgumentException("waypoints must not be null");
+        if (waypoints.size() <= 1)
+            throw new IllegalArgumentException("waypoint must have at least start and end");
+
+        List<List<XYPair>> currentPaths = new ArrayList<>();
+        currentPaths.add(new ArrayList<>(List.of(waypoints.getFirst())));
+
+        for (int i = 0; i < waypoints.size() - 1; ++i) {
+            XYPair startSegment = waypoints.get(i);
+            XYPair endSegment = waypoints.get(i + 1);
+
+            List<List<XYPair>> segmentPaths = getAllPaths(startSegment, endSegment);
+
+            if (segmentPaths.isEmpty())
+                throw new RuntimeException("No path found between waypoints " + startSegment + " and " + endSegment);
+
+            List<List<XYPair>> nextPaths = new ArrayList<>();
+
+            for (List<XYPair> existingPath : currentPaths)
+                for (List<XYPair> segment : segmentPaths) {
+                    List<XYPair> combined = new ArrayList<>(existingPath);
+                    // skip the first element to avoid duplicating the start node
+                    combined.addAll(segment.subList(1, segment.size()));
+                    nextPaths.add(combined);
+                }
+            currentPaths = nextPaths;
+        }
+
+        logger.debug("Found {} total variations for multi-stop path", currentPaths.size());
+        return currentPaths;
     }
 }
