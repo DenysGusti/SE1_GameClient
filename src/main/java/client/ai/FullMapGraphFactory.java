@@ -18,7 +18,11 @@ public class FullMapGraphFactory {
     );
 
     private static short getMovementCost(ETerrain from, ETerrain to) {
-        return (short) (terrainMovementCost.get(from) + terrainMovementCost.get(to));
+        int cost = terrainMovementCost.get(from) + terrainMovementCost.get(to);
+        if (cost >= Short.MAX_VALUE)
+            throw new RuntimeException("Movement Cost Overflow!");
+
+        return (short) cost;
     }
 
     @SuppressWarnings("unchecked")
