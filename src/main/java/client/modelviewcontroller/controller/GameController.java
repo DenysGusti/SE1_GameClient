@@ -1,9 +1,6 @@
 package client.modelviewcontroller.controller;
 
-import client.ai.FullMapGraph;
-import client.ai.FullMapGraphFactory;
-import client.ai.FullMapService;
-import client.ai.NodeTraversalStrategy;
+import client.ai.*;
 import client.data.PlayerInformation;
 import client.data.UniquePlayerIdentifier;
 import client.data.XYPair;
@@ -92,7 +89,7 @@ public class GameController {
             }
 
             var fullMapGraph = FullMapGraphFactory.createGraph(currentState.fullMap());
-            var nodeTraversalStrategy = new NodeTraversalStrategy(fullMapGraph);
+            NodeTraversalStrategy nodeTraversalStrategy = new NearestNeighbourTraversalStrategy(fullMapGraph);
             var fullMapService = new FullMapService();
 
             FullMap fullMap = currentState.fullMap();
