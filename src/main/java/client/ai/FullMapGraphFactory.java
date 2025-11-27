@@ -35,7 +35,11 @@ public class FullMapGraphFactory {
         List<XYPair> validNodes = fullMap.nodes().keySet().stream()
                 .filter(coordinate -> !fullMap.nodes().get(coordinate).isWater())
                 .toList();
-        int n = validNodes.size();
+
+        if (validNodes.size() >= Short.MAX_VALUE)
+            throw new IllegalArgumentException("Too many valid nodes!");
+
+        short n = (short) validNodes.size();
 
         XYPair[] indexToCoordinate = validNodes.toArray(new XYPair[0]);
         Map<XYPair, Short> coordinateToIndex = new HashMap<>(n);
@@ -83,28 +87,29 @@ public class FullMapGraphFactory {
                     if (distances[k][j] == Short.MAX_VALUE)
                         continue;
 
-                    int newCost = distances[i][k] + distances[k][j];
-                    if (newCost >= Short.MAX_VALUE)
+                    int newCostTmp = distances[i][k] + distances[k][j];
+                    if (newCostTmp >= Short.MAX_VALUE)
                         throw new RuntimeException("Cost Overflow!");
+                    var newCost = (short) newCostTmp;
 
                     if (distances[i][j] > newCost) {
-                        distances[i][j] = (short) newCost;
+                        distances[i][j] = newCost;
                         tempNext[i][j].clear();
                         tempNext[i][j].addAll(tempNext[i][k]);
-                    } else if (distances[i][j] == newCost) {
+                    } else if (distances[i][j] == newCost)
                         tempNext[i][j].addAll(tempNext[i][k]);
-                    }
                 }
             }
         }
 
-        short[][][] next = new short[n][n][];
+        var next = new short[n][n][];
         for (short i = 0; i < n; ++i)
             for (short j = 0; j < n; ++j) {
                 Set<Short> nextIndices = tempNext[i][j];
-                short[] arr = new short[nextIndices.size()];
+                var arr = new short[nextIndices.size()];
                 short idx = 0;
-                for (short val : nextIndices) arr[idx++] = val;
+                for (short val : nextIndices)
+                    arr[idx++] = val;
                 next[i][j] = arr;
             }
 
