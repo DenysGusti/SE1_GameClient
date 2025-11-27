@@ -26,6 +26,8 @@ public class NearestNeighbourTraversalStrategy implements NodeTraversalStrategy 
             throw new IllegalArgumentException("start must not be null");
         if (nodes == null)
             throw new IllegalArgumentException("nodes must not be null");
+        if (nodes.contains(start))
+            throw new IllegalArgumentException("nodes contains start");
 
         logger.debug("Starting Nearest Neighbour calculation from {} to visit {} nodes", start, nodes.size());
 

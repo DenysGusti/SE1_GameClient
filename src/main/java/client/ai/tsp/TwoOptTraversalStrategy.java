@@ -31,6 +31,8 @@ public class TwoOptTraversalStrategy implements NodeTraversalStrategy {
             throw new IllegalArgumentException("start must not be null");
         if (nodes == null)
             throw new IllegalArgumentException("nodes must not be null");
+        if (nodes.contains(start))
+            throw new IllegalArgumentException("nodes contains start");
 
         logger.debug("Starting 2-Opt optimization for {} nodes (Max Iterations: {})", nodes.size(), MAX_ITERATIONS);
 
