@@ -1,5 +1,6 @@
-package client.ai;
+package client.ai.tsp;
 
+import client.ai.FullMapGraph;
 import client.data.XYPair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

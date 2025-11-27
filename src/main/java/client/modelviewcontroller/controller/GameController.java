@@ -1,6 +1,9 @@
 package client.modelviewcontroller.controller;
 
 import client.ai.*;
+import client.ai.tsp.NearestNeighbourTraversalStrategy;
+import client.ai.tsp.NodeTraversalStrategy;
+import client.ai.tsp.TwoOptTraversalStrategy;
 import client.data.PlayerInformation;
 import client.data.UniquePlayerIdentifier;
 import client.data.XYPair;

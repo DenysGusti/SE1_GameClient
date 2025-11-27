@@ -1,4 +1,4 @@
-package client.ai;
+package client.ai.tsp;
 
 import client.data.XYPair;
 
