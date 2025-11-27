@@ -10,13 +10,20 @@ import java.util.*;
 public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
     private static final Logger logger = LoggerFactory.getLogger(HeldKarpTraversalStrategy.class);
 
-    private final FullMapGraph fullMapGraph;
+    private static final int INF = 255;
+    private static final int MAX_NODES_LIMIT = 30;
 
-    public HeldKarpTraversalStrategy(FullMapGraph fullMapGraph) {
+    private final FullMapGraph fullMapGraph;
+    private final NodeTraversalStrategy fallbackStrategy;
+
+    public HeldKarpTraversalStrategy(FullMapGraph fullMapGraph, NodeTraversalStrategy fallbackStrategy) {
         if (fullMapGraph == null)
             throw new IllegalArgumentException("fullMapGraph must not be null");
+        if (fallbackStrategy == null)
+            throw new IllegalArgumentException("fallbackStrategy must not be null");
 
         this.fullMapGraph = fullMapGraph;
+        this.fallbackStrategy = fallbackStrategy;
     }
 
     @Override
@@ -28,45 +35,72 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
         if (nodes.contains(start))
             throw new IllegalArgumentException("nodes contains start");
 
+        if (nodes.size() > MAX_NODES_LIMIT) {
+            logger.info("Too many nodes ({}) for Held-Karp. Switching to fallback.", nodes.size());
+            return fallbackStrategy.orderNodes(start, nodes);
+        }
+
         List<XYPair> allNodes = new ArrayList<>(nodes);
         int n = allNodes.size();
 
         logger.debug("Running exact Held-Karp solver for {} nodes...", n);
 
-        var dist = new short[n][n];
+        var dist = new byte[n][n];
         for (int i = 0; i < n; ++i)
-            for (int j = 0; j < n; ++j)
-                dist[i][j] = (short) fullMapGraph.getDistance(allNodes.get(i), allNodes.get(j));
+            for (int j = 0; j < n; ++j) {
+                int distance = fullMapGraph.getDistance(allNodes.get(i), allNodes.get(j));
+                if (distance >= INF)
+                    throw new RuntimeException("distance exceeded INF");
+                dist[i][j] = (byte) distance;
+            }
+
+        if (n >= 31)
+            throw new RuntimeException("(1 << n) too big");
 
         // stores the minimum cost to reach node i having visited all nodes in mask
         // mask is a bitmask where the k-th bit set means node k is visited
-        var dp = new short[1 << n][n];
+        var dp = new byte[1 << n][n];
         for (var row : dp)
-            Arrays.fill(row, Short.MAX_VALUE);
+            Arrays.fill(row, (byte) INF);
 
-        var parent = new short[1 << n][n];
+        var parent = new byte[1 << n][n];
 
-        for (int i = 0; i < n; ++i)
-            dp[1 << i][i] = (short) fullMapGraph.getDistance(start, allNodes.get(i));
+        for (int i = 0; i < n; ++i) {
+            int distance = fullMapGraph.getDistance(start, allNodes.get(i));
+            if (distance >= INF)
+                throw new RuntimeException("distance exceeded INF");
+            dp[1 << i][i] = (byte) distance;
+        }
 
         // nodeFrom -> nodeTo, visiting all nodes in mask visitedNodes
         for (int visitedNodes = 0; visitedNodes < (1 << n); ++visitedNodes) {
-            for (short nodeFrom = 0; nodeFrom < n; ++nodeFrom) {
+            for (byte nodeFrom = 0; nodeFrom < n; ++nodeFrom) {
                 // if nodeFrom is not in visitedNodes, skip
                 if ((visitedNodes & (1 << nodeFrom)) == 0)
                     continue;
 
-                for (short nodeTo = 0; nodeTo < n; ++nodeTo) {
+                int costFrom = Byte.toUnsignedInt(dp[visitedNodes][nodeFrom]);
+
+                if (costFrom == INF)
+                    throw new RuntimeException("distance is INF");
+
+                for (byte nodeTo = 0; nodeTo < n; ++nodeTo) {
                     // if nodeTo is in visitedNodes, skip
                     if ((visitedNodes & (1 << nodeTo)) != 0)
                         continue;
 
                     int visitedNodesAfterVisitedNodeTo = visitedNodes | (1 << nodeTo);
-                    var newCost = (short) (dp[visitedNodes][nodeFrom] + dist[nodeFrom][nodeTo]);
-                    short currentCost = dp[visitedNodesAfterVisitedNodeTo][nodeTo];
+
+                    int distVal = Byte.toUnsignedInt(dist[nodeFrom][nodeTo]);
+                    int newCost = costFrom + distVal;
+
+                    if (newCost >= INF)
+                        throw new RuntimeException("distance exceeded INF");
+
+                    int currentCost = Byte.toUnsignedInt(dp[visitedNodesAfterVisitedNodeTo][nodeTo]);
 
                     if (newCost < currentCost) {
-                        dp[visitedNodesAfterVisitedNodeTo][nodeTo] = newCost;
+                        dp[visitedNodesAfterVisitedNodeTo][nodeTo] = (byte) newCost;
                         parent[visitedNodesAfterVisitedNodeTo][nodeTo] = nodeFrom;
                     }
                 }
@@ -74,11 +108,11 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
         }
 
         int allNodesVisited = (1 << n) - 1;
-        short minCost = Short.MAX_VALUE;
+        int minCost = INF;
         int bestEndNode = -1;
 
         for (int i = 0; i < n; ++i) {
-            short currentCost = dp[allNodesVisited][i];
+            int currentCost = Byte.toUnsignedInt(dp[allNodesVisited][i]);
 
             if (currentCost < minCost) {
                 minCost = currentCost;
@@ -92,8 +126,10 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
         List<XYPair> optimalPath = new ArrayList<>();
         int currentVisitedNodes = allNodesVisited;
         int currentNode = bestEndNode;
-        while (currentVisitedNodes > 0) {
+
+        while (Integer.bitCount(currentVisitedNodes) > 0) {
             optimalPath.add(allNodes.get(currentNode));
+
             int visitedNode = currentNode;
             currentNode = parent[currentVisitedNodes][currentNode];
             currentVisitedNodes ^= (1 << visitedNode);  // currentVisitedNodes before visiting visitedNode
@@ -103,6 +139,11 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
         Collections.reverse(optimalPath);
 
         logger.debug("Held-Karp found optimal path with cost {}", minCost);
+        logger.debug("Path: {}", optimalPath);
+
+        if (minCost != fullMapGraph.getDistance(optimalPath))
+            throw new RuntimeException("minCost is wrong!");
+
         return optimalPath;
     }
 }

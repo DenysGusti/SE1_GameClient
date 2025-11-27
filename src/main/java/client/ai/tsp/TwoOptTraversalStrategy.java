@@ -72,6 +72,8 @@ public class TwoOptTraversalStrategy implements NodeTraversalStrategy {
             throw new RuntimeException("Too many iterations");
 
         logger.debug("2-Opt finished in {} iterations. Final Path Size: {}", iterations, currentPath.size());
+        logger.debug("Final Path Distance: {}", fullMapGraph.getDistance(currentPath));
+        logger.debug("Path: {}", currentPath);
         return currentPath;
     }
 

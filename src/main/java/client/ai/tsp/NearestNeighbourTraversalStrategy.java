@@ -32,21 +32,23 @@ public class NearestNeighbourTraversalStrategy implements NodeTraversalStrategy 
         logger.debug("Starting Nearest Neighbour calculation from {} to visit {} nodes", start, nodes.size());
 
         Set<XYPair> remaining = new HashSet<>(nodes);
-        List<XYPair> ordered = new ArrayList<>();
-        ordered.add(start);
+        List<XYPair> orderedPath = new ArrayList<>();
+        orderedPath.add(start);
         XYPair current = start;
 
         while (!remaining.isEmpty()) {
             XYPair nearest = getNearest(current, remaining);
             logger.trace("Nearest node to {} is {}", current, nearest);
 
-            ordered.add(nearest);
+            orderedPath.add(nearest);
             remaining.remove(nearest);
             current = nearest;
         }
 
-        logger.debug("Path calculation finished. Final path size: {}", ordered.size());
-        return ordered;
+        logger.debug("Path calculation finished. Final path size: {}", orderedPath.size());
+        logger.debug("Final Path Distance: {}", fullMapGraph.getDistance(orderedPath));
+        logger.debug("Path: {}", orderedPath);
+        return orderedPath;
     }
 
     private XYPair getNearest(XYPair current, Set<XYPair> remaining) {

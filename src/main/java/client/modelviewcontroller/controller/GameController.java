@@ -1,6 +1,7 @@
 package client.modelviewcontroller.controller;
 
 import client.ai.*;
+import client.ai.tsp.HeldKarpTraversalStrategy;
 import client.ai.tsp.NearestNeighbourTraversalStrategy;
 import client.ai.tsp.NodeTraversalStrategy;
 import client.ai.tsp.TwoOptTraversalStrategy;
@@ -93,7 +94,8 @@ public class GameController {
 
             var fullMapGraph = FullMapGraphFactory.createGraph(currentState.fullMap());
             NodeTraversalStrategy nearestNeighbourTraversalStrategy = new NearestNeighbourTraversalStrategy(fullMapGraph);
-            NodeTraversalStrategy nodeTraversalStrategy = new TwoOptTraversalStrategy(fullMapGraph, nearestNeighbourTraversalStrategy);
+            NodeTraversalStrategy fallbackStrategy = new TwoOptTraversalStrategy(fullMapGraph, nearestNeighbourTraversalStrategy);
+            NodeTraversalStrategy nodeTraversalStrategy = new HeldKarpTraversalStrategy(fullMapGraph, fallbackStrategy);
             var fullMapService = new FullMapService();
 
             FullMap fullMap = currentState.fullMap();
