@@ -29,7 +29,7 @@ public class FullMapService {
     }
 
     // is coordinate on the same side as my fort
-    private boolean isOnMySide(FullMap fullMap, XYPair coordinate) {
+    private static boolean isOnMySide(FullMap fullMap, XYPair coordinate) {
         if (fullMap == null)
             throw new IllegalArgumentException("fullMap must not be null");
         if (coordinate == null)

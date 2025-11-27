@@ -1,6 +1,7 @@
 package client.modelviewcontroller.controller;
 
 import client.ai.FullMapGraph;
+import client.ai.FullMapGraphFactory;
 import client.ai.FullMapService;
 import client.ai.NodeTraversalStrategy;
 import client.data.PlayerInformation;
@@ -25,7 +26,6 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class GameController {
     private static final Logger logger = LoggerFactory.getLogger(GameController.class);
@@ -91,7 +91,7 @@ public class GameController {
                 break;
             }
 
-            var fullMapGraph = new FullMapGraph(currentState.fullMap());
+            var fullMapGraph = FullMapGraphFactory.createGraph(currentState.fullMap());
             var nodeTraversalStrategy = new NodeTraversalStrategy(fullMapGraph);
             var fullMapService = new FullMapService();
 
