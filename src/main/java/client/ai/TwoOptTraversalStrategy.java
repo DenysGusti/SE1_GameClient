@@ -31,6 +31,8 @@ public class TwoOptTraversalStrategy implements NodeTraversalStrategy {
         if (nodes == null)
             throw new IllegalArgumentException("nodes must not be null");
 
+        logger.debug("Starting 2-Opt optimization for {} nodes (Max Iterations: {})", nodes.size(), MAX_ITERATIONS);
+
         List<XYPair> currentPath = baselineStrategy.orderNodes(start, nodes);
 
         boolean improvementMade = true;
@@ -48,6 +50,8 @@ public class TwoOptTraversalStrategy implements NodeTraversalStrategy {
                     int newDistance = fullMapGraph.getDistance(newPath);
 
                     if (newDistance < currentDistance) {
+                        logger.trace("2-Opt improvement at iter {}: distance reduced from {} to {}", iterations, currentDistance, newDistance);
+
                         currentPath = newPath;
                         improvementMade = true;
                         break;
@@ -58,6 +62,7 @@ public class TwoOptTraversalStrategy implements NodeTraversalStrategy {
             }
             ++iterations;
         }
+
         if (iterations >= MAX_ITERATIONS)
             throw new RuntimeException("Too many iterations");
 
