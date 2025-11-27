@@ -2,9 +2,14 @@ package client.ai;
 
 import client.data.XYPair;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.*;
 
 public class NearestNeighbourTraversalStrategy implements NodeTraversalStrategy {
+    private static final Logger logger = LoggerFactory.getLogger(NearestNeighbourTraversalStrategy.class);
+
     private final FullMapGraph fullMapGraph;
 
     public NearestNeighbourTraversalStrategy(FullMapGraph fullMapGraph) {
@@ -21,6 +26,8 @@ public class NearestNeighbourTraversalStrategy implements NodeTraversalStrategy 
         if (nodes == null)
             throw new IllegalArgumentException("nodes must not be null");
 
+        logger.debug("Starting Nearest Neighbour calculation from {} to visit {} nodes", start, nodes.size());
+
         Set<XYPair> remaining = new HashSet<>(nodes);
         List<XYPair> ordered = new ArrayList<>();
         ordered.add(start);
@@ -28,11 +35,14 @@ public class NearestNeighbourTraversalStrategy implements NodeTraversalStrategy 
 
         while (!remaining.isEmpty()) {
             XYPair nearest = getNearest(current, remaining);
+            logger.trace("Nearest node to {} is {}", current, nearest);
+
             ordered.add(nearest);
             remaining.remove(nearest);
             current = nearest;
         }
 
+        logger.debug("Path calculation finished. Final path size: {}", ordered.size());
         return ordered;
     }
 
