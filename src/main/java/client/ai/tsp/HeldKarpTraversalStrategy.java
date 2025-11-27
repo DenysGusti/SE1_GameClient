@@ -11,7 +11,7 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
     private static final Logger logger = LoggerFactory.getLogger(HeldKarpTraversalStrategy.class);
 
     private static final int INF = 255;
-    private static final int MAX_NODES_LIMIT = 30;
+    private static final int MAX_NODES_LIMIT = 27;
 
     private final FullMapGraph fullMapGraph;
     private final NodeTraversalStrategy fallbackStrategy;
@@ -54,8 +54,8 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
                 dist[i][j] = (byte) distance;
             }
 
-        if (n >= 31)
-            throw new RuntimeException("(1 << n) too big");
+        if (n >= 28)
+            throw new RuntimeException("(1 << n) is too big for Java heap space");
 
         // stores the minimum cost to reach node i having visited all nodes in mask
         // mask is a bitmask where the k-th bit set means node k is visited
@@ -72,24 +72,30 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
             dp[1 << i][i] = (byte) distance;
         }
 
-        // nodeFrom -> nodeTo, visiting all nodes in mask visitedNodes
-        for (int visitedNodes = 0; visitedNodes < (1 << n); ++visitedNodes) {
-            for (byte nodeFrom = 0; nodeFrom < n; ++nodeFrom) {
-                // if nodeFrom is not in visitedNodes, skip
-                if ((visitedNodes & (1 << nodeFrom)) == 0)
-                    continue;
+        int allNodesVisitedMask = (1 << n) - 1;
 
-                int costFrom = Byte.toUnsignedInt(dp[visitedNodes][nodeFrom]);
+        // nodeFrom -> nodeTo, visiting all nodes in mask visitedNodes
+        for (int visitedNodesMask = 1; visitedNodesMask <= allNodesVisitedMask; ++visitedNodesMask) {
+
+            int nodeFromMask = visitedNodesMask;
+            while (Integer.bitCount(nodeFromMask) > 0) {
+
+                byte nodeFrom = (byte) Integer.numberOfTrailingZeros(nodeFromMask); // rightmost 1-bit index
+                // flip all the bits after the rightmost 1-bit and remove that 1-bit
+                nodeFromMask &= nodeFromMask - 1;  // nodeFromMask without nodeFrom
+
+                int costFrom = Byte.toUnsignedInt(dp[visitedNodesMask][nodeFrom]);
 
                 if (costFrom == INF)
                     throw new RuntimeException("distance is INF");
 
-                for (byte nodeTo = 0; nodeTo < n; ++nodeTo) {
-                    // if nodeTo is in visitedNodes, skip
-                    if ((visitedNodes & (1 << nodeTo)) != 0)
-                        continue;
+                int nodeToMask = allNodesVisitedMask ^ visitedNodesMask;  // complement, nodes to visit mask
+                while (Integer.bitCount(nodeToMask) > 0) {
+                    byte nodeTo = (byte) Integer.numberOfTrailingZeros(nodeToMask); // rightmost 1-bit index
+                    // flip all the bits after the rightmost 1-bit and remove that 1-bit
+                    nodeToMask &= nodeToMask - 1;  // nodeToMask without nodeTo
 
-                    int visitedNodesAfterVisitedNodeTo = visitedNodes | (1 << nodeTo);
+                    int visitedNodesAfterVisitedNodeToMask = visitedNodesMask | (1 << nodeTo);
 
                     int distVal = Byte.toUnsignedInt(dist[nodeFrom][nodeTo]);
                     int newCost = costFrom + distVal;
@@ -97,22 +103,21 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
                     if (newCost >= INF)
                         throw new RuntimeException("distance exceeded INF");
 
-                    int currentCost = Byte.toUnsignedInt(dp[visitedNodesAfterVisitedNodeTo][nodeTo]);
+                    int currentCost = Byte.toUnsignedInt(dp[visitedNodesAfterVisitedNodeToMask][nodeTo]);
 
                     if (newCost < currentCost) {
-                        dp[visitedNodesAfterVisitedNodeTo][nodeTo] = (byte) newCost;
-                        parent[visitedNodesAfterVisitedNodeTo][nodeTo] = nodeFrom;
+                        dp[visitedNodesAfterVisitedNodeToMask][nodeTo] = (byte) newCost;
+                        parent[visitedNodesAfterVisitedNodeToMask][nodeTo] = nodeFrom;
                     }
                 }
             }
         }
 
-        int allNodesVisited = (1 << n) - 1;
         int minCost = INF;
         int bestEndNode = -1;
 
         for (int i = 0; i < n; ++i) {
-            int currentCost = Byte.toUnsignedInt(dp[allNodesVisited][i]);
+            int currentCost = Byte.toUnsignedInt(dp[allNodesVisitedMask][i]);
 
             if (currentCost < minCost) {
                 minCost = currentCost;
@@ -124,15 +129,15 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
             throw new RuntimeException("Held-Karp failed: could not find a valid end node.");
 
         List<XYPair> optimalPath = new ArrayList<>();
-        int currentVisitedNodes = allNodesVisited;
+        int currentVisitedNodesMask = allNodesVisitedMask;
         int currentNode = bestEndNode;
 
-        while (Integer.bitCount(currentVisitedNodes) > 0) {
+        while (Integer.bitCount(currentVisitedNodesMask) > 0) {
             optimalPath.add(allNodes.get(currentNode));
 
             int visitedNode = currentNode;
-            currentNode = parent[currentVisitedNodes][currentNode];
-            currentVisitedNodes ^= (1 << visitedNode);  // currentVisitedNodes before visiting visitedNode
+            currentNode = parent[currentVisitedNodesMask][currentNode];
+            currentVisitedNodesMask ^= (1 << visitedNode);  // currentVisitedNodesMask without visitedNode
         }
 
         optimalPath.add(start);
@@ -141,7 +146,9 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
         logger.debug("Held-Karp found optimal path with cost {}", minCost);
         logger.debug("Path: {}", optimalPath);
 
-        if (minCost != fullMapGraph.getDistance(optimalPath))
+        int realCost = fullMapGraph.getDistance(optimalPath);
+
+        if (minCost != realCost)
             throw new RuntimeException("minCost is wrong!");
 
         return optimalPath;
