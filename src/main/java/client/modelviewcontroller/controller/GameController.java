@@ -89,7 +89,8 @@ public class GameController {
             }
 
             var fullMapGraph = FullMapGraphFactory.createGraph(currentState.fullMap());
-            NodeTraversalStrategy nodeTraversalStrategy = new NearestNeighbourTraversalStrategy(fullMapGraph);
+            NodeTraversalStrategy nearestNeighbourTraversalStrategy = new NearestNeighbourTraversalStrategy(fullMapGraph);
+            NodeTraversalStrategy nodeTraversalStrategy = new TwoOptTraversalStrategy(fullMapGraph, nearestNeighbourTraversalStrategy);
             var fullMapService = new FullMapService();
 
             FullMap fullMap = currentState.fullMap();
