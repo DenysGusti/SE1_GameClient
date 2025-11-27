@@ -45,8 +45,8 @@ public class TwoOptTraversalStrategy implements NodeTraversalStrategy {
             // we start at i = 1 because the start node is fixed
             // we go up to size - 2 because we need at least one edge after i to swap
             for (int i = 1; i < currentPath.size() - 1; ++i) {
-                for (int k = i + 1; k < currentPath.size(); ++k) {
-                    List<XYPair> newPath = twoOptSwap(currentPath, i, k);
+                for (int j = i + 1; j < currentPath.size(); ++j) {
+                    List<XYPair> newPath = twoOptSwap(currentPath, i, j);
                     int newDistance = fullMapGraph.getDistance(newPath);
 
                     if (newDistance < currentDistance) {
