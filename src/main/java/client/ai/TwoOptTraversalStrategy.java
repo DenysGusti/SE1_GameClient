@@ -33,7 +33,9 @@ public class TwoOptTraversalStrategy implements NodeTraversalStrategy {
 
         logger.debug("Starting 2-Opt optimization for {} nodes (Max Iterations: {})", nodes.size(), MAX_ITERATIONS);
 
-        List<XYPair> currentPath = baselineStrategy.orderNodes(start, nodes);
+        List<XYPair> currentPath = Objects.requireNonNull(baselineStrategy.orderNodes(start, nodes), "currentPath must not be null");
+        if (currentPath.size() <= 1)
+            throw new RuntimeException("currentPath must have at least start and end");
 
         boolean improvementMade = true;
         int iterations = 0;
