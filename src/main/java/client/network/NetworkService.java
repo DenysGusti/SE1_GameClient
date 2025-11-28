@@ -97,7 +97,7 @@ public class NetworkService {
                 .<messagesbase.UniquePlayerIdentifier>handle((response, sink) -> {
                     Objects.requireNonNull(response, "Server response for registering player is null.");
                     if (response.getState() == ERequestState.Error) {
-                        sink.error(new PlayerRegistrationException(response.getExceptionName() + ": " + response.getExceptionMessage()));
+                        sink.error(new NetworkPlayerRegistrationException(response.getExceptionName() + ": " + response.getExceptionMessage()));
                         return;
                     }
                     sink.next(response.getData().orElseThrow());
@@ -118,7 +118,7 @@ public class NetworkService {
                 .<messagesbase.messagesfromserver.GameState>handle((response, sink) -> {
                     Objects.requireNonNull(response, "Server response for receiving game state is null.");
                     if (response.getState() == ERequestState.Error) {
-                        sink.error(new GameStateException(response.getExceptionName() + ": " + response.getExceptionMessage()));
+                        sink.error(new NetworkGameStateException(response.getExceptionName() + ": " + response.getExceptionMessage()));
                         return;
                     }
                     sink.next(response.getData().orElseThrow());
@@ -146,7 +146,7 @@ public class NetworkService {
                 .<ResponseEnvelope>handle((response, sink) -> {
                     Objects.requireNonNull(response, "Server response for sending half map is null.");
                     if (response.getState() == ERequestState.Error) {
-                        sink.error(new HalfMapException(response.getExceptionName() + ": " + response.getExceptionMessage()));
+                        sink.error(new NetworkHalfMapException(response.getExceptionName() + ": " + response.getExceptionMessage()));
                         return;
                     }
                     logger.info("Map sent successfully.");
@@ -174,7 +174,7 @@ public class NetworkService {
                 .<ResponseEnvelope>handle((response, sink) -> {
                     Objects.requireNonNull(response, "Server response for sending move is null.");
                     if (response.getState() == ERequestState.Error) {
-                        sink.error(new MoveException(response.getExceptionName() + ": " + response.getExceptionMessage()));
+                        sink.error(new NetworkMoveException(response.getExceptionName() + ": " + response.getExceptionMessage()));
                         return;
                     }
                     logger.info("Move sent successfully.");
