@@ -40,6 +40,8 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
             return fallbackStrategy.orderNodes(start, nodes);
         }
 
+        long startTime = System.nanoTime();
+
         List<XYPair> allNodes = new ArrayList<>(nodes);
         int n = allNodes.size();
 
@@ -57,7 +59,7 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
         if (n >= 28)
             throw new RuntimeException("(1 << n) is too big for Java heap space");
 
-        // stores the minimum cost to reach node i having visited all nodes in mask
+        // dp[mask][i] means the minimum cost to visit the set of nodes marked by mask, ending the journey at node i
         // mask is a bitmask where the k-th bit set means node k is visited
         var dp = new byte[1 << n][n];
         for (var row : dp)
@@ -150,6 +152,11 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
 
         if (minCost != realCost)
             throw new RuntimeException("minCost is wrong!");
+
+        long endTime = System.nanoTime();
+        long durationNs = endTime - startTime;
+        double durationMs = durationNs / 1_000_000_000.0;
+        logger.info("Held-Karp finished in {}s", String.format("%.4f", durationMs));
 
         return optimalPath;
     }
