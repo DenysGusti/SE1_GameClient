@@ -29,6 +29,8 @@ public class NearestNeighbourTraversalStrategy implements NodeTraversalStrategy 
         if (nodes.contains(start))
             throw new IllegalArgumentException("nodes contains start");
 
+        long startTime = System.nanoTime();
+
         logger.debug("Starting Nearest Neighbour calculation from {} to visit {} nodes", start, nodes.size());
 
         Set<XYPair> remaining = new HashSet<>(nodes);
@@ -48,6 +50,12 @@ public class NearestNeighbourTraversalStrategy implements NodeTraversalStrategy 
         logger.debug("Path calculation finished. Final path size: {}", orderedPath.size());
         logger.debug("Final Path Distance: {}", fullMapGraph.getDistance(orderedPath));
         logger.debug("Path: {}", orderedPath);
+
+        long endTime = System.nanoTime();
+        long durationNs = endTime - startTime;
+        double durationMs = durationNs / 1_000_000_000.;
+        logger.info("Nearest Neighbour finished in {} s", String.format("%.4f", durationMs));
+
         return orderedPath;
     }
 
