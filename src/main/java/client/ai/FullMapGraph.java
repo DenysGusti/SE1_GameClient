@@ -64,7 +64,7 @@ public class FullMapGraph {
         if (end == null)
             throw new IllegalArgumentException("end must not be null");
 
-        logger.debug("Starting BFS path search from {} to {}", start, end);
+        logger.trace("Starting BFS path search from {} to {}", start, end);
 
         List<List<XYPair>> allPaths = new ArrayList<>();
 
@@ -81,7 +81,7 @@ public class FullMapGraph {
             logger.trace("Visiting node {} with path {}", current, currentPath);
 
             if (current.equals(end)) {
-                logger.debug("Finished full path: {}", currentPath);
+                logger.trace("Finished full path: {}", currentPath);
                 allPaths.add(currentPath);
                 continue;
             }
@@ -107,7 +107,7 @@ public class FullMapGraph {
             }
         }
 
-        logger.debug("Finished BFS search: total {} paths found from {} to {}", allPaths.size(), start, end);
+        logger.trace("Finished BFS search: total {} paths found from {} to {}", allPaths.size(), start, end);
 
         return allPaths;
     }
