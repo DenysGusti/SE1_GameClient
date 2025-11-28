@@ -75,27 +75,20 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
         }
 
         int allNodesVisitedMask = (1 << n) - 1;
-
         // nodeFrom -> nodeTo, visiting all nodes in mask visitedNodes
         for (int visitedNodesMask = 1; visitedNodesMask <= allNodesVisitedMask; ++visitedNodesMask) {
-
-            int nodeFromMask = visitedNodesMask;
-            while (Integer.bitCount(nodeFromMask) > 0) {
-
+            // flip all the bits after the rightmost 1-bit and remove that 1-bit -> nodeFromMask without nodeFrom
+            for (int nodeFromMask = visitedNodesMask; nodeFromMask > 0; nodeFromMask &= nodeFromMask - 1) {
                 byte nodeFrom = (byte) Integer.numberOfTrailingZeros(nodeFromMask); // rightmost 1-bit index
-                // flip all the bits after the rightmost 1-bit and remove that 1-bit
-                nodeFromMask &= nodeFromMask - 1;  // nodeFromMask without nodeFrom
 
                 int costFrom = Byte.toUnsignedInt(dp[visitedNodesMask][nodeFrom]);
-
                 if (costFrom == INF)
                     throw new RuntimeException("distance is INF");
 
-                int nodeToMask = allNodesVisitedMask ^ visitedNodesMask;  // complement, nodes to visit mask
-                while (Integer.bitCount(nodeToMask) > 0) {
+                // nodeToMask - unvisitedNodesMask, all except visited
+                // flip all the bits after the rightmost 1-bit and remove that 1-bit -> nodeToMask without nodeTo
+                for (int nodeToMask = allNodesVisitedMask ^ visitedNodesMask; nodeToMask > 0; nodeToMask &= nodeToMask - 1) {
                     byte nodeTo = (byte) Integer.numberOfTrailingZeros(nodeToMask); // rightmost 1-bit index
-                    // flip all the bits after the rightmost 1-bit and remove that 1-bit
-                    nodeToMask &= nodeToMask - 1;  // nodeToMask without nodeTo
 
                     int visitedNodesAfterVisitedNodeToMask = visitedNodesMask | (1 << nodeTo);
 
