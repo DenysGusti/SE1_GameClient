@@ -34,6 +34,8 @@ public class TwoOptTraversalStrategy implements NodeTraversalStrategy {
         if (nodes.contains(start))
             throw new IllegalArgumentException("nodes contains start");
 
+        long startTime = System.nanoTime();
+
         logger.debug("Starting 2-Opt optimization for {} nodes (Max Iterations: {})", nodes.size(), MAX_ITERATIONS);
 
         List<XYPair> currentPath = Objects.requireNonNull(baselineStrategy.orderNodes(start, nodes), "currentPath must not be null");
@@ -74,11 +76,17 @@ public class TwoOptTraversalStrategy implements NodeTraversalStrategy {
         logger.debug("2-Opt finished in {} iterations. Final Path Size: {}", iterations, currentPath.size());
         logger.debug("Final Path Distance: {}", fullMapGraph.getDistance(currentPath));
         logger.debug("Path: {}", currentPath);
+
+        long endTime = System.nanoTime();
+        long durationNs = endTime - startTime;
+        double durationMs = durationNs / 1_000_000_000.;
+        logger.info("2-Opt finished in {} s", String.format("%.4f", durationMs));
+
         return currentPath;
     }
 
     // reverses the segment of the path between indices i and j (inclusive).
-    // [a, b, c, d, e], i=1, j=3 -> [a, d, c, b, e]
+    // [a, b, c, d, e], i = 1, j = 3 -> [a, d, c, b, e]
     private List<XYPair> twoOptSwap(List<XYPair> path, int i, int j) {
         if (path == null)
             throw new IllegalArgumentException("path must not be null");
