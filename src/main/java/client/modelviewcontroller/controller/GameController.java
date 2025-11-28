@@ -1,10 +1,7 @@
 package client.modelviewcontroller.controller;
 
 import client.ai.*;
-import client.ai.tsp.HeldKarpTraversalStrategy;
-import client.ai.tsp.NearestNeighbourTraversalStrategy;
-import client.ai.tsp.NodeTraversalStrategy;
-import client.ai.tsp.TwoOptTraversalStrategy;
+import client.ai.tsp.*;
 import client.data.PlayerInformation;
 import client.data.UniquePlayerIdentifier;
 import client.data.XYPair;
@@ -76,7 +73,7 @@ public class GameController {
 
         GameState currentState = pollForNewState().filter(GameState::myPlayerMustAct).next().blockOptional().orElseThrow();
         updateModels(currentState);
-        logger.debug("First active game state received: {}", currentState);
+        logger.trace("First active game state received: {}", currentState);
 
         HalfMap halfMap = generateHalfMap();
         sendHalfMap(halfMap).block();
