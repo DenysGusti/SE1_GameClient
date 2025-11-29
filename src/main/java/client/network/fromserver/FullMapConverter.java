@@ -39,7 +39,7 @@ public class FullMapConverter {
         XYPair myTreasurePosition = null;
 
         // for loop was much easier to read than streams
-        for (var node : fullMap.getMapNodes()) {
+        for (FullMapNode node : fullMap.getMapNodes()) {
             var coordinate = new XYPair(node.getX(), node.getY());
             nodes.put(coordinate, new client.data.fromserver.FullMapNode(terrainConverter.get(node.getTerrain()), false));
 
