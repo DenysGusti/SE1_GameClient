@@ -49,8 +49,8 @@ public class HalfMapGenerator {
         Collections.shuffle(terrainPool, random);
         Map<XYPair, ETerrain> nodes = new HashMap<>();
         int index = 0;
-        for (int x = 0; x < HALF_MAP_SIZE.x(); x++)
-            for (int y = 0; y < HALF_MAP_SIZE.y(); y++)
+        for (int x = 0; x < HALF_MAP_SIZE.x(); ++x)
+            for (int y = 0; y < HALF_MAP_SIZE.y(); ++y)
                 nodes.put(new XYPair(x, y), terrainPool.get(index++));
 
         return nodes;

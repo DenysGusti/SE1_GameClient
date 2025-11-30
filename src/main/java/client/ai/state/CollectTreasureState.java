@@ -4,10 +4,15 @@ import client.ai.AIPlayer;
 import client.data.XYPair;
 import client.data.fromserver.FullMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 import java.util.Objects;
 
 public class CollectTreasureState extends AIState {
+    private static final Logger logger = LoggerFactory.getLogger(CollectTreasureState.class);
+
     public CollectTreasureState(AIPlayer aiPlayer) {
         super(Objects.requireNonNull(aiPlayer, "aiPlayer must not be null"));
     }
@@ -18,11 +23,16 @@ public class CollectTreasureState extends AIState {
             throw new IllegalArgumentException("fullMap must not be null");
 
         if (fullMap.isMyTreasureCollected()) {
+            logger.info("Treasure successfully collected.");
+
             AIState aiState;
-            if (fullMap.getOptionalEnemyFortPosition().isPresent())
+            if (fullMap.getOptionalEnemyFortPosition().isPresent()) {
+                logger.warn("Rare case: Enemy Fort location is known -> Switching to CaptureFortState.");
                 aiState = new CaptureFortState(aiPlayer);
-            else
+            } else {
+                logger.info("Enemy Fort location unknown -> Switching to ScoutingFullEnemySideState.");
                 aiState = new ScoutingFullEnemySideState(aiPlayer);
+            }
 
             aiPlayer.setAIState(aiState);
             aiState.handleFullMapUpdate(fullMap);
@@ -32,7 +42,10 @@ public class CollectTreasureState extends AIState {
         if (aiPlayer.hasMoves())
             return;
 
-        List<XYPair> path = aiPlayer.moveToTarget(fullMap.getOptionalMyTreasurePosition().orElseThrow());
+        XYPair myTreasurePosition = fullMap.getOptionalMyTreasurePosition().orElseThrow();
+        logger.debug("Calculating path to My Treasure at {}", myTreasurePosition);
+
+        List<XYPair> path = aiPlayer.moveToTarget(myTreasurePosition);
         if (path.isEmpty())
             throw new RuntimeException("path is empty");
 
