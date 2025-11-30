@@ -12,24 +12,16 @@ import java.util.stream.Collectors;
 public class FullMapService {
     private static final XYPair HALF_MAP_SIZE = new XYPair(10, 5);
 
-    public Set<XYPair> getUnrevealedGrassNodesOnMySide(FullMap fullMap) {
+    public Set<XYPair> getUnrevealedGrassNodes(FullMap fullMap, boolean onMySide) {
         return fullMap.nodes().entrySet().stream()
                 .filter(e -> e.getValue().terrain() == ETerrain.Grass && !e.getValue().isRevealed())
-                .filter(e -> isOnMySide(fullMap, e.getKey()))
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toSet());
-    }
-
-    public Set<XYPair> getUnrevealedGrassNodesOnEnemySide(FullMap fullMap) {
-        return fullMap.nodes().entrySet().stream()
-                .filter(e -> e.getValue().terrain() == ETerrain.Grass && !e.getValue().isRevealed())
-                .filter(e -> !isOnMySide(fullMap, e.getKey()))
+                .filter(e -> onMySide == IsCoordinateOnMySide(fullMap, e.getKey()))
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toSet());
     }
 
     // is coordinate on the same side as my fort
-    private static boolean isOnMySide(FullMap fullMap, XYPair coordinate) {
+    private static boolean IsCoordinateOnMySide(FullMap fullMap, XYPair coordinate) {
         if (fullMap == null)
             throw new IllegalArgumentException("fullMap must not be null");
         if (coordinate == null)

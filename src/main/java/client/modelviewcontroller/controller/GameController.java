@@ -4,10 +4,8 @@ import client.ai.*;
 import client.ai.tsp.*;
 import client.data.PlayerInformation;
 import client.data.UniquePlayerIdentifier;
-import client.data.XYPair;
 import client.data.fromclient.EMove;
 import client.data.fromclient.HalfMap;
-import client.data.fromserver.FullMap;
 import client.data.fromserver.GameState;
 import client.halfmaplogic.generation.HalfMapGenerator;
 import client.halfmaplogic.validation.HalfMapValidator;
@@ -39,6 +37,7 @@ public class GameController {
 
     private UniquePlayerIdentifier myPlayerIdentifier = null;
     private String lastGameStateID = null;
+    private AIPlayer aiPlayer = null;
 
     public GameController(PlayerModel playerModel, MapModel mapModel,
                           NetworkService networkService, HalfMapGenerator halfMapGenerator,
@@ -89,56 +88,24 @@ public class GameController {
                 break;
             }
 
-            var fullMapGraph = FullMapGraphFactory.createGraph(currentState.fullMap());
-            NodeTraversalStrategy nearestNeighbourTraversalStrategy = new NearestNeighbourTraversalStrategy(fullMapGraph);
-            NodeTraversalStrategy fallbackStrategy = new TwoOptTraversalStrategy(fullMapGraph, nearestNeighbourTraversalStrategy);
-            NodeTraversalStrategy nodeTraversalStrategy = new HeldKarpTraversalStrategy(fullMapGraph, fallbackStrategy);
-            var fullMapService = new FullMapService();
+            if (!currentState.myPlayerMustAct())
+                continue;
 
-            FullMap fullMap = currentState.fullMap();
+            if (aiPlayer == null) {
+                var fullMapService = new FullMapService();
+                FullMapGraph fullMapGraph = FullMapGraphFactory.createGraph(currentState.fullMap());
 
-            XYPair goal;
-            if (fullMap.isMyTreasureCollected()) {
-                if (fullMap.getOptionalEnemyFortPosition().isPresent())
-                    goal = fullMap.getOptionalEnemyFortPosition().get();
-                else {
-                    Set<XYPair> nodesToTraverse = fullMapService.getUnrevealedGrassNodesOnEnemySide(fullMap);
-                    List<XYPair> bypassOrder = nodeTraversalStrategy
-                            .orderNodes(fullMap.getOptionalMyPlayerPosition().orElseThrow(), nodesToTraverse);
-                    List<List<XYPair>> paths = fullMapGraph.getAllPaths(bypassOrder);
-                    goal = paths.getFirst().get(1);
-                }
-            } else {
-                if (fullMap.getOptionalMyTreasurePosition().isPresent())
-                    goal = fullMap.getOptionalMyTreasurePosition().get();
-                else {
-                    Set<XYPair> nodesToTraverse = fullMapService.getUnrevealedGrassNodesOnMySide(fullMap);
-                    List<XYPair> bypassOrder = nodeTraversalStrategy
-                            .orderNodes(fullMap.getOptionalMyPlayerPosition().orElseThrow(), nodesToTraverse);
-                    List<List<XYPair>> paths = fullMapGraph.getAllPaths(bypassOrder);
-                    goal = paths.getFirst().get(1);
-                }
+                var baselineStrategy = new NearestNeighbourTraversalStrategy(fullMapGraph);
+                var fallbackStrategy = new TwoOptTraversalStrategy(fullMapGraph, baselineStrategy);
+                var nodeTraversalStrategy = new HeldKarpTraversalStrategy(fullMapGraph, fallbackStrategy);
+
+                aiPlayer = new AIPlayer(fullMapService, fullMapGraph, nodeTraversalStrategy);
             }
 
-            XYPair next = fullMapGraph.getAllPaths(currentState.fullMap().myPlayerPosition(), goal).getFirst().get(1);
-
-            var delta = new XYPair(
-                    next.x() - currentState.fullMap().myPlayerPosition().x(),
-                    next.y() - currentState.fullMap().myPlayerPosition().y()
-            );
-
-            EMove move = switch (delta) {
-                case XYPair(int dx, int dy) when dx == 0 && dy == 1 -> EMove.Down;
-                case XYPair(int dx, int dy) when dx == 0 && dy == -1 -> EMove.Up;
-                case XYPair(int dx, int dy) when dx == 1 && dy == 0 -> EMove.Right;
-                case XYPair(int dx, int dy) when dx == -1 && dy == 0 -> EMove.Left;
-                default -> throw new IllegalStateException("Next path node is not an adjacent neighbor: " + next);
-            };
-
-            if (currentState.myPlayerMustAct()) {
-                logger.info("My turn! Deciding move...");
-                sendMove(move).block();
-            }
+            logger.info("My turn! Deciding move...");
+            aiPlayer.updateKnowledgeBase(currentState.fullMap());
+            EMove move = aiPlayer.getNextMove();
+            sendMove(move).block();
         }
 
         logger.info("Game Over. Client shutting down.");

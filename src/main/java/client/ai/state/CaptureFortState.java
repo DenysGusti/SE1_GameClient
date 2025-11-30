@@ -1,0 +1,29 @@
+package client.ai.state;
+
+import client.ai.AIPlayer;
+import client.data.XYPair;
+import client.data.fromserver.FullMap;
+
+import java.util.List;
+import java.util.Objects;
+
+public class CaptureFortState extends AIState {
+    public CaptureFortState(AIPlayer aiPlayer) {
+        super(Objects.requireNonNull(aiPlayer, "aiPlayer must not be null"));
+    }
+
+    @Override
+    public void handleFullMapUpdate(FullMap fullMap) {
+        if (fullMap == null)
+            throw new IllegalArgumentException("fullMap must not be null");
+
+        if (aiPlayer.hasMoves())
+            return;
+
+        List<XYPair> path = aiPlayer.moveToTarget(fullMap.getOptionalEnemyFortPosition().orElseThrow());
+        if (path.isEmpty())
+            throw new RuntimeException("path is empty");
+
+        aiPlayer.setPlannedPath(path.subList(1, path.size()));
+    }
+}
