@@ -37,7 +37,7 @@ public class NetworkService {
 
     public static Mono<UniqueGameIdentifier> createNewGame(String serverBaseURL, boolean debugMode, boolean dummyCompetition) {
         if (serverBaseURL == null)
-            throw new IllegalArgumentException("serverBaseURL must not be null");
+            return Mono.error(new IllegalArgumentException("serverBaseURL must not be null"));
 
         logger.info("Attempting to create a new game, debugMode={}, dummyCompetition={}", debugMode, dummyCompetition);
 
@@ -82,7 +82,7 @@ public class NetworkService {
 
     public Mono<UniquePlayerIdentifier> registerPlayer(PlayerInformation playerInformation) {
         if (playerInformation == null)
-            throw new IllegalArgumentException("playerInformation must not be null");
+            return Mono.error(new IllegalArgumentException("playerInformation must not be null"));
 
         logger.info("Registering player...");
         PlayerRegistration playerRegistration = fromClientConverter.convertPlayerInformation(playerInformation);
@@ -107,7 +107,7 @@ public class NetworkService {
 
     public Mono<GameState> receiveGameState(UniquePlayerIdentifier uniquePlayerIdentifier) {
         if (uniquePlayerIdentifier == null)
-            throw new IllegalArgumentException("uniquePlayerIdentifier must not be null");
+            return Mono.error(new IllegalArgumentException("uniquePlayerIdentifier must not be null"));
 
         return gameWebClient
                 .method(HttpMethod.GET)
@@ -128,9 +128,9 @@ public class NetworkService {
 
     public Mono<Void> sendHalfMap(UniquePlayerIdentifier uniquePlayerIdentifier, HalfMap halfMap) {
         if (uniquePlayerIdentifier == null)
-            throw new IllegalArgumentException("uniquePlayerIdentifier must not be null");
+            return Mono.error(new IllegalArgumentException("uniquePlayerIdentifier must not be null"));
         if (halfMap == null)
-            throw new IllegalArgumentException("halfMap must not be null");
+            return Mono.error(new IllegalArgumentException("halfMap must not be null"));
 
         logger.info("Sending map to server...");
 
@@ -156,9 +156,9 @@ public class NetworkService {
 
     public Mono<Void> sendMove(UniquePlayerIdentifier uniquePlayerIdentifier, EMove move) {
         if (uniquePlayerIdentifier == null)
-            throw new IllegalArgumentException("uniquePlayerIdentifier must not be null");
+            return Mono.error(new IllegalArgumentException("uniquePlayerIdentifier must not be null"));
         if (move == null)
-            throw new IllegalArgumentException("move must not be null");
+            return Mono.error(new IllegalArgumentException("move must not be null"));
 
         logger.info("Sending move: {}", move);
 
