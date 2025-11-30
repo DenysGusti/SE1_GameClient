@@ -1,6 +1,8 @@
 package client.modelviewcontroller.controller.accumulator;
 
 import client.data.fromserver.FullMap;
+import client.network.accumulator.FullMapAccumulator;
+import client.network.accumulator.FullMapRevealer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

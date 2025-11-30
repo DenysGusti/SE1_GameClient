@@ -1,11 +1,9 @@
-package client.modelviewcontroller.controller.accumulator;
+package client.network.accumulator;
 
 import client.data.fromserver.FullMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Objects;
 
 public class FullMapAccumulator {
     private static final Logger logger = LoggerFactory.getLogger(FullMapAccumulator.class);

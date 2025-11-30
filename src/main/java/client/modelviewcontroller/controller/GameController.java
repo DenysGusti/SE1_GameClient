@@ -3,7 +3,6 @@ package client.modelviewcontroller.controller;
 import client.ai.*;
 import client.ai.tsp.*;
 import client.data.PlayerInformation;
-import client.data.UniquePlayerIdentifier;
 import client.data.fromclient.EMove;
 import client.data.fromclient.HalfMap;
 import client.data.fromserver.GameState;
@@ -12,74 +11,66 @@ import client.halfmaplogic.validation.HalfMapValidator;
 import client.halfmaplogic.validation.exception.HalfMapGenerationException;
 import client.modelviewcontroller.model.MapModel;
 import client.modelviewcontroller.model.PlayerModel;
-import client.network.NetworkService;
-import client.modelviewcontroller.controller.accumulator.FullMapAccumulator;
+import client.network.GameSession;
 import client.halfmaplogic.validation.Notification;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-
-import java.time.Duration;
-import java.util.*;
 
 public class GameController {
     private static final Logger logger = LoggerFactory.getLogger(GameController.class);
-    private static final long POLL_DELAY_MS = 400;
 
     private final PlayerModel playerModel;
     private final MapModel mapModel;
-
-    private final NetworkService networkService;
+    private final GameSession gameSession;
     private final HalfMapGenerator halfMapGenerator;
     private final HalfMapValidator halfMapValidator;
-    private final FullMapAccumulator fullMapAccumulator;
 
-    private UniquePlayerIdentifier myPlayerIdentifier = null;
-    private String lastGameStateID = null;
     private AIPlayer aiPlayer = null;
 
-    public GameController(PlayerModel playerModel, MapModel mapModel,
-                          NetworkService networkService, HalfMapGenerator halfMapGenerator,
-                          HalfMapValidator halfMapValidator, FullMapAccumulator fullMapAccumulator) {
+    public GameController(PlayerModel playerModel, MapModel mapModel, GameSession gameSession,
+                          HalfMapGenerator halfMapGenerator, HalfMapValidator halfMapValidator) {
         if (playerModel == null)
             throw new IllegalArgumentException("playerModel must not be null");
         if (mapModel == null)
             throw new IllegalArgumentException("mapModel must not be null");
-        if (networkService == null)
-            throw new IllegalArgumentException("networkService must not be null");
+        if (gameSession == null)
+            throw new IllegalArgumentException("gameSession must not be null");
         if (halfMapGenerator == null)
             throw new IllegalArgumentException("halfMapGenerator must not be null");
         if (halfMapValidator == null)
             throw new IllegalArgumentException("halfMapValidator must not be null");
-        if (fullMapAccumulator == null)
-            throw new IllegalArgumentException("fullMapAccumulator must not be null");
 
         this.playerModel = playerModel;
         this.mapModel = mapModel;
-        this.networkService = networkService;
+        this.gameSession = gameSession;
         this.halfMapGenerator = halfMapGenerator;
         this.halfMapValidator = halfMapValidator;
-        this.fullMapAccumulator = fullMapAccumulator;
     }
 
     public void runGame(PlayerInformation playerInformation) {
         if (playerInformation == null)
             throw new IllegalArgumentException("playerInformation must not be null");
 
-        myPlayerIdentifier = registerPlayer(playerInformation).block();
+        gameSession.registerPlayer(playerInformation).block();
         logger.info("Player registration complete.");
 
-        GameState currentState = pollForNewState().filter(GameState::myPlayerMustAct).next().blockOptional().orElseThrow();
+        GameState currentState = gameSession.pollForNewGameState()
+                .filter(GameState::myPlayerMustAct)
+                .next().blockOptional().orElseThrow();
+
         updateModels(currentState);
         logger.trace("First active game state received: {}", currentState);
 
         HalfMap halfMap = generateHalfMap();
-        sendHalfMap(halfMap).block();
+        gameSession.sendHalfMap(halfMap).block();
         logger.info("Half-map sent successfully.");
 
         while (true) {
-            currentState = pollForNewState().filter(GameState::myPlayerMustNotWait).next().blockOptional().orElseThrow();
+            currentState = gameSession.pollForNewGameState()
+                    .filter(GameState::myPlayerMustNotWait)
+                    .next().blockOptional().orElseThrow();
+
             updateModels(currentState);
 
             if (currentState.myPlayerWonOrLost()) {
@@ -104,8 +95,9 @@ public class GameController {
 
             logger.info("My turn! Deciding move...");
             aiPlayer.updateKnowledgeBase(currentState.fullMap());
+
             EMove move = aiPlayer.getNextMove();
-            sendMove(move).block();
+            gameSession.sendMove(move).block();
         }
 
         logger.info("Game Over. Client shutting down.");
@@ -118,31 +110,6 @@ public class GameController {
         playerModel.updateMyPlayerState(gameState.myPlayer());
         gameState.getOptionalEnemyPlayer().ifPresent(playerModel::updateEnemyPlayerState);
         mapModel.updateFullMap(gameState.fullMap());
-    }
-
-    private Mono<UniquePlayerIdentifier> registerPlayer(PlayerInformation playerInformation) {
-        if (playerInformation == null)
-            throw new IllegalArgumentException("playerInformation must not be null");
-
-        Objects.requireNonNull(playerInformation, "playerInformation must not be null");
-        logger.info("Registering player...");
-        return networkService.registerPlayer(playerInformation);
-    }
-
-    private Flux<GameState> pollForNewState() {
-        Objects.requireNonNull(myPlayerIdentifier, "myPlayerIdentifier must not be null");
-
-        return Flux.interval(Duration.ofMillis(POLL_DELAY_MS))
-                .doOnNext(subscription -> logger.debug("Polling for game state..."))
-                .flatMap(tick -> networkService.receiveGameState(myPlayerIdentifier))
-                .filter(state -> !state.gameStateID().equals(lastGameStateID))
-                // Command
-                .doOnNext(gameState -> {
-                    lastGameStateID = gameState.gameStateID();
-                    fullMapAccumulator.accumulateFullMap(gameState.fullMap());
-                })
-                // Query
-                .map(gameState -> gameState.withFullMap(fullMapAccumulator.getFullMap()));
     }
 
     private HalfMap generateHalfMap() {
@@ -160,21 +127,5 @@ public class GameController {
 
         logger.error("Failed to generate a valid map after 100 attempts!");
         throw new HalfMapGenerationException("Map generation failed. Check rules.");
-    }
-
-    private Mono<Void> sendHalfMap(HalfMap halfMap) {
-        if (halfMap == null)
-            throw new IllegalArgumentException("halfMap must not be null");
-
-        Objects.requireNonNull(myPlayerIdentifier, "myPlayerIdentifier must not be null");
-        return networkService.sendHalfMap(myPlayerIdentifier, halfMap);
-    }
-
-    private Mono<Void> sendMove(EMove move) {
-        if (move == null)
-            throw new IllegalArgumentException("move must not be null");
-
-        Objects.requireNonNull(myPlayerIdentifier, "myPlayerIdentifier must not be null");
-        return networkService.sendMove(myPlayerIdentifier, move);
     }
 }

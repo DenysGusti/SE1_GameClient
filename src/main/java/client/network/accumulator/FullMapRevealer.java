@@ -1,4 +1,4 @@
-package client.modelviewcontroller.controller.accumulator;
+package client.network.accumulator;
 
 import client.data.XYPair;
 import client.data.fromserver.FullMap;
@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;

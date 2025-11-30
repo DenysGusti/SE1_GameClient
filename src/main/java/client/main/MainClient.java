@@ -5,7 +5,8 @@ import client.data.UniqueGameIdentifier;
 import client.halfmaplogic.generation.HalfMapGenerator;
 import client.main.exception.CommandLineArgumentsException;
 import client.modelviewcontroller.controller.GameController;
-import client.modelviewcontroller.controller.accumulator.FullMapAccumulator;
+import client.network.GameSession;
+import client.network.accumulator.FullMapAccumulator;
 import client.modelviewcontroller.model.MapModel;
 import client.modelviewcontroller.model.PlayerModel;
 import client.modelviewcontroller.view.MapView;
@@ -15,7 +16,7 @@ import client.network.NetworkService;
 import client.network.fromclient.FromClientConverter;
 import client.network.fromserver.FromServerConverter;
 import client.network.fromserver.FullMapConverter;
-import client.modelviewcontroller.controller.accumulator.FullMapRevealer;
+import client.network.accumulator.FullMapRevealer;
 import client.halfmaplogic.validation.HalfMapValidator;
 import client.halfmaplogic.validation.rule.IHalfMapValidationRule;
 import client.halfmaplogic.validation.rule.BorderRule;
@@ -80,6 +81,15 @@ public class MainClient {
         return new FullMapAccumulator(fullMapRevealer);
     }
 
+    private static GameSession createGameSession(NetworkService networkService, FullMapAccumulator fullMapAccumulator) {
+        if (networkService == null)
+            throw new IllegalArgumentException("networkService must not be null");
+        if (fullMapAccumulator == null)
+            throw new IllegalArgumentException("fullMapAccumulator must not be null");
+
+        return new GameSession(networkService, fullMapAccumulator);
+    }
+
     private static HalfMapGenerator createHalfMapGenerator() {
         long seed = new Random().nextLong();
         logger.info("Creating HalfMapGenerator with seed {}", seed);
@@ -121,9 +131,11 @@ public class MainClient {
             uniqueGameIdentifier = NetworkService.createNewGame(serverBaseURL, true, true).block();
 
         NetworkService networkService = createNetworkService(serverBaseURL, uniqueGameIdentifier);
+        FullMapAccumulator fullMapAccumulator = createFullMapAccumulator();
+        GameSession gameSession = createGameSession(networkService, fullMapAccumulator);
+
         HalfMapGenerator halfMapGenerator = createHalfMapGenerator();
         HalfMapValidator halfMapValidator = createHalfMapValidator();
-        FullMapAccumulator fullMapAccumulator = createFullMapAccumulator();
 
         var playerModel = new PlayerModel();
         var playerView = new PlayerView();
@@ -134,8 +146,7 @@ public class MainClient {
         var mapView = new MapView();
         mapModel.subscribeOnFullMapUpdated(mapView::renderFullMap);
 
-        var gameController =
-                new GameController(playerModel, mapModel, networkService, halfMapGenerator, halfMapValidator, fullMapAccumulator);
+        var gameController = new GameController(playerModel, mapModel, gameSession, halfMapGenerator, halfMapValidator);
         gameController.runGame(playerInformation);
     }
 }
