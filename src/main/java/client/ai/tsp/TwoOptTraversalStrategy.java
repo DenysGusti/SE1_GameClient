@@ -42,10 +42,8 @@ public class TwoOptTraversalStrategy implements NodeTraversalStrategy {
         if (currentPath.size() <= 1)
             throw new RuntimeException("currentPath must have at least start and end");
 
-        boolean improvementMade = true;
         int iterations = 0;
-
-        while (improvementMade && iterations < MAX_ITERATIONS) {
+        for (boolean improvementMade = true; improvementMade && iterations < MAX_ITERATIONS; ++iterations) {
             improvementMade = false;
             int currentDistance = fullMapGraph.getDistance(currentPath);
 
@@ -67,7 +65,6 @@ public class TwoOptTraversalStrategy implements NodeTraversalStrategy {
                 if (improvementMade)
                     break;
             }
-            ++iterations;
         }
 
         if (iterations >= MAX_ITERATIONS)
