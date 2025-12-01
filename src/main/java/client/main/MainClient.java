@@ -1,5 +1,8 @@
 package client.main;
 
+import client.ai.AIPlayer;
+import client.ai.FullMapService;
+import client.ai.tsp.BenchmarkNodeTraversalStrategy;
 import client.data.PlayerInformation;
 import client.data.UniqueGameIdentifier;
 import client.halfmaplogic.generation.HalfMapGenerator;
@@ -146,7 +149,13 @@ public class MainClient {
         var mapView = new MapView();
         mapModel.subscribeOnFullMapUpdated(mapView::renderFullMap);
 
-        var gameController = new GameController(playerModel, mapModel, gameSession, halfMapGenerator, halfMapValidator);
+        var fullMapService = new FullMapService();
+        var nodeTraversalStrategy = BenchmarkNodeTraversalStrategy.withDefaults();
+
+        var aiPlayer = new AIPlayer(fullMapService, nodeTraversalStrategy);
+
+        var gameController =
+                new GameController(playerModel, mapModel, gameSession, halfMapGenerator, halfMapValidator, aiPlayer);
         gameController.runGame(playerInformation);
     }
 }

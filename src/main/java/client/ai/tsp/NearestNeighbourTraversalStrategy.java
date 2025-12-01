@@ -11,27 +11,10 @@ import java.util.*;
 public class NearestNeighbourTraversalStrategy implements NodeTraversalStrategy {
     private static final Logger logger = LoggerFactory.getLogger(NearestNeighbourTraversalStrategy.class);
 
-    private final FullMapGraph fullMapGraph;
-
-    public NearestNeighbourTraversalStrategy(FullMapGraph fullMapGraph) {
-        if (fullMapGraph == null)
-            throw new IllegalArgumentException("fullMapGraph must not be null");
-
-        this.fullMapGraph = fullMapGraph;
-    }
-
     @Override
-    public List<XYPair> orderNodes(XYPair start, Set<XYPair> nodes) {
-        if (start == null)
-            throw new IllegalArgumentException("start must not be null");
-        if (nodes == null)
-            throw new IllegalArgumentException("nodes must not be null");
-        if (nodes.contains(start))
-            throw new IllegalArgumentException("nodes contains start");
-
+    public TraversalResult computePath(FullMapGraph fullMapGraph, XYPair start, Set<XYPair> nodes) {
         long startTime = System.nanoTime();
-
-        logger.debug("Starting Nearest Neighbour calculation from {} to visit {} nodes", start, nodes.size());
+        logger.debug("Nearest Neighbour started for {} nodes...", nodes.size());
 
         Set<XYPair> remainingNodes = new HashSet<>(nodes);
         List<XYPair> orderedPath = new ArrayList<>();
@@ -39,27 +22,23 @@ public class NearestNeighbourTraversalStrategy implements NodeTraversalStrategy 
         XYPair current = start;
 
         while (!remainingNodes.isEmpty()) {
-            XYPair nearest = getNearestNode(current, remainingNodes);
-            logger.trace("Nearest node to {} is {}", current, nearest);
+            XYPair nearest = getNearestNode(fullMapGraph, current, remainingNodes);
 
             orderedPath.add(nearest);
             remainingNodes.remove(nearest);
             current = nearest;
         }
 
-        logger.debug("Path calculation finished. Final path size: {}", orderedPath.size());
-        logger.debug("Final Path Distance: {}", fullMapGraph.getDistance(orderedPath));
-        logger.debug("Path: {}", orderedPath);
+        int distance = fullMapGraph.getDistance(orderedPath);
 
         long endTime = System.nanoTime();
-        long durationNs = endTime - startTime;
-        double durationMs = durationNs / 1_000_000_000.;
-        logger.info("Nearest Neighbour finished in {} s", String.format("%.4f", durationMs));
+        double duration = (endTime - startTime) / 1_000_000_000.;
+        logger.debug("Nearest Neighbour finished: time: {}s, distance: {}", duration, distance);
 
-        return orderedPath;
+        return new TraversalResult(orderedPath, distance);
     }
 
-    private XYPair getNearestNode(XYPair current, Set<XYPair> remainingNodes) {
+    private XYPair getNearestNode(FullMapGraph fullMapGraph, XYPair current, Set<XYPair> remainingNodes) {
         return remainingNodes.stream()
                 .min(Comparator.comparingInt(node -> fullMapGraph.getDistance(current, node)))
                 .orElseThrow();

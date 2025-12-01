@@ -18,8 +18,9 @@ public class AIPlayer {
     private static final int FIRST_VALID_ENEMY_PLAYER_POSITION_MOVE = 8;
 
     private final FullMapService fullMapService;
-    private final FullMapGraph fullMapGraph;
     private final NodeTraversalStrategy nodeTraversalStrategy;
+
+    private FullMapGraph fullMapGraph = null;
 
     int moveCounter = 0;
     XYPair currentMyPlayerPosition = null;
@@ -28,19 +29,27 @@ public class AIPlayer {
     private AIState currentAIState = new ScoutingMySideState(this);
     private final Queue<XYPair> plannedPath = new ArrayDeque<>();
 
-    public AIPlayer(FullMapService fullMapService, FullMapGraph fullMapGraph, NodeTraversalStrategy nodeTraversalStrategy) {
+    public AIPlayer(FullMapService fullMapService, NodeTraversalStrategy nodeTraversalStrategy) {
         if (fullMapService == null)
             throw new IllegalArgumentException("fullMapService is null");
-        if (fullMapGraph == null)
-            throw new IllegalArgumentException("fullMapGraph is null");
         if (nodeTraversalStrategy == null)
             throw new IllegalArgumentException("nodeTraversalStrategy is null");
 
         this.fullMapService = fullMapService;
-        this.fullMapGraph = fullMapGraph;
         this.nodeTraversalStrategy = nodeTraversalStrategy;
 
         logger.info("AIPlayer initialized with strategy: {}", nodeTraversalStrategy.getClass().getSimpleName());
+    }
+
+    public boolean isFullMapGraphInitialized() {
+        return fullMapGraph != null;
+    }
+
+    public void setFullMapGraph(FullMapGraph fullMapGraph) {
+        if (fullMapGraph == null)
+            throw new IllegalArgumentException("fullMapGraph is null");
+
+        this.fullMapGraph = fullMapGraph;
     }
 
     public boolean hasMoves() {
@@ -73,6 +82,10 @@ public class AIPlayer {
     public List<XYPair> moveToTarget(XYPair target) {
         if (target == null)
             throw new IllegalArgumentException("target is null");
+        if (currentMyPlayerPosition == null)
+            throw new IllegalStateException("currentMyPlayerPosition is null");
+        if (fullMapGraph == null)
+            throw new IllegalStateException("fullMapGraph is null");
 
         logger.debug("Calculating path from {} to target {}", currentMyPlayerPosition, target);
 
@@ -81,6 +94,11 @@ public class AIPlayer {
     }
 
     public Set<XYPair> collectUnrevealedGrassNodes(FullMap fullMap, boolean onMySide) {
+        if (fullMap == null)
+            throw new IllegalArgumentException("fullMap is null");
+        if (fullMapGraph == null)
+            throw new IllegalStateException("fullMapGraph is null");
+
         Set<XYPair> nodesToTraverse = fullMapService.getUnrevealedGrassNodes(fullMap, onMySide);
         Objects.requireNonNull(nodesToTraverse, "nodesToTraverse must not be null");
 
@@ -102,13 +120,16 @@ public class AIPlayer {
     public List<XYPair> traverseUnrevealedGrassNodes(Set<XYPair> unrevealedGrassNodes) {
         if (unrevealedGrassNodes == null)
             throw new IllegalArgumentException("unrevealedGrassNodes is null");
+        if (fullMapGraph == null)
+            throw new IllegalStateException("fullMapGraph is null");
 
         logger.debug("Ordering traversal for {} nodes using strategy...", unrevealedGrassNodes.size());
 
-        List<XYPair> bypassOrder = nodeTraversalStrategy.orderNodes(currentMyPlayerPosition, unrevealedGrassNodes);
-        Objects.requireNonNull(bypassOrder, "bypassOrder must not be null");
+        NodeTraversalStrategy.TraversalResult traversalResult =
+                nodeTraversalStrategy.orderNodes(fullMapGraph, currentMyPlayerPosition, unrevealedGrassNodes);
+        Objects.requireNonNull(traversalResult, "traversalResult must not be null");
 
-        List<List<XYPair>> allPaths = fullMapGraph.getAllPaths(bypassOrder);
+        List<List<XYPair>> allPaths = fullMapGraph.getAllPaths(traversalResult.path());
         Objects.requireNonNull(allPaths, "allPaths must not be null");
 
         return allPaths.getFirst();
@@ -140,7 +161,8 @@ public class AIPlayer {
 
     // Query
     public EMove getNextMove() {
-        Objects.requireNonNull(currentMyPlayerPosition, "currentMyPlayerPosition must not be null");
+        if (currentMyPlayerPosition == null)
+            throw new IllegalStateException("currentMyPlayerPosition is null");
 
         XYPair nextPosition = plannedPath.element();  // throws an exception if queue is empty
         Objects.requireNonNull(nextPosition, "nextPosition must not be null");

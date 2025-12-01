@@ -64,8 +64,6 @@ public class FullMapGraph {
         if (end == null)
             throw new IllegalArgumentException("end must not be null");
 
-        logger.trace("Starting BFS path search from {} to {}", start, end);
-
         List<List<XYPair>> allPaths = new ArrayList<>();
 
         short endIdx = Objects.requireNonNull(coordinateToIndex.get(end), "endIdx must not be null");
@@ -78,10 +76,7 @@ public class FullMapGraph {
             XYPair current = entry.coordinate();
             List<XYPair> currentPath = entry.path();
 
-            logger.trace("Visiting node {} with path {}", current, currentPath);
-
             if (current.equals(end)) {
-                logger.trace("Finished full path: {}", currentPath);
                 allPaths.add(currentPath);
                 continue;
             }
@@ -93,8 +88,6 @@ public class FullMapGraph {
             for (short idx : nextIndices)
                 nextCoordinates.add(indexToCoordinate[idx]);
 
-            logger.trace("Expanding {} -> next {}", current, nextCoordinates);
-
             for (XYPair nextCoordinate : nextCoordinates) {
                 if (currentPath.contains(nextCoordinate))
                     throw new RuntimeException("Cycling path found!");
@@ -102,12 +95,9 @@ public class FullMapGraph {
                 List<XYPair> newPath = new ArrayList<>(currentPath);
                 newPath.add(nextCoordinate);
 
-                logger.trace("Adding to queue: {} via path {}", nextCoordinate, newPath);
                 queue.add(new PathState(nextCoordinate, newPath));
             }
         }
-
-        logger.trace("Finished BFS search: total {} paths found from {} to {}", allPaths.size(), start, end);
 
         return allPaths;
     }
@@ -143,6 +133,8 @@ public class FullMapGraph {
         }
 
         logger.debug("Found {} total variations for multi-stop path", currentPaths.size());
+        for (var path : currentPaths)
+            logger.trace("Path: {}", path);
         return currentPaths;
     }
 }

@@ -25,11 +25,10 @@ public class GameController {
     private final GameSession gameSession;
     private final HalfMapGenerator halfMapGenerator;
     private final HalfMapValidator halfMapValidator;
-
-    private AIPlayer aiPlayer = null;
+    private final AIPlayer aiPlayer;
 
     public GameController(PlayerModel playerModel, MapModel mapModel, GameSession gameSession,
-                          HalfMapGenerator halfMapGenerator, HalfMapValidator halfMapValidator) {
+                          HalfMapGenerator halfMapGenerator, HalfMapValidator halfMapValidator, AIPlayer aiPlayer) {
         if (playerModel == null)
             throw new IllegalArgumentException("playerModel must not be null");
         if (mapModel == null)
@@ -40,12 +39,15 @@ public class GameController {
             throw new IllegalArgumentException("halfMapGenerator must not be null");
         if (halfMapValidator == null)
             throw new IllegalArgumentException("halfMapValidator must not be null");
+        if (aiPlayer == null)
+            throw new IllegalArgumentException("aiPlayer must not be null");
 
         this.playerModel = playerModel;
         this.mapModel = mapModel;
         this.gameSession = gameSession;
         this.halfMapGenerator = halfMapGenerator;
         this.halfMapValidator = halfMapValidator;
+        this.aiPlayer = aiPlayer;
     }
 
     public void runGame(PlayerInformation playerInformation) {
@@ -60,7 +62,6 @@ public class GameController {
                 .next().blockOptional().orElseThrow();
 
         updateModels(currentState);
-        logger.trace("First active game state received: {}", currentState);
 
         HalfMap halfMap = generateHalfMap();
         gameSession.sendHalfMap(halfMap).block();
@@ -82,15 +83,9 @@ public class GameController {
             if (!currentState.myPlayerMustAct())
                 continue;
 
-            if (aiPlayer == null) {
-                var fullMapService = new FullMapService();
+            if (!aiPlayer.isFullMapGraphInitialized()) {
                 FullMapGraph fullMapGraph = FullMapGraphFactory.createGraph(currentState.fullMap());
-
-                var baselineStrategy = new NearestNeighbourTraversalStrategy(fullMapGraph);
-                var fallbackStrategy = new TwoOptTraversalStrategy(fullMapGraph, baselineStrategy);
-                var nodeTraversalStrategy = new HeldKarpTraversalStrategy(fullMapGraph, fallbackStrategy);
-
-                aiPlayer = new AIPlayer(fullMapService, fullMapGraph, nodeTraversalStrategy);
+                aiPlayer.setFullMapGraph(fullMapGraph);
             }
 
             logger.info("My turn! Deciding move...");

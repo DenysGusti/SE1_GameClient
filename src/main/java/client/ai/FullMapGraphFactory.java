@@ -90,13 +90,13 @@ public class FullMapGraphFactory {
                     int newCostTmp = distances[i][k] + distances[k][j];
                     if (newCostTmp >= Short.MAX_VALUE)
                         throw new RuntimeException("Cost Overflow!");
-                    var newCost = (short) newCostTmp;
+                    var newDistance = (short) newCostTmp;
 
-                    if (distances[i][j] > newCost) {
-                        distances[i][j] = newCost;
+                    if (distances[i][j] > newDistance) {
+                        distances[i][j] = newDistance;
                         tempNext[i][j].clear();
                         tempNext[i][j].addAll(tempNext[i][k]);
-                    } else if (distances[i][j] == newCost)
+                    } else if (distances[i][j] == newDistance)
                         tempNext[i][j].addAll(tempNext[i][k]);
                 }
             }
