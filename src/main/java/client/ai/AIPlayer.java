@@ -141,7 +141,6 @@ public class AIPlayer {
             throw new IllegalArgumentException("fullMap is null");
 
         ++moveCounter;
-        logger.debug("Processing Move #{}", moveCounter);
 
         currentMyPlayerPosition = fullMap.getOptionalMyPlayerPosition().orElseThrow();
         logger.debug("My Player Position updated: {}", currentMyPlayerPosition);
