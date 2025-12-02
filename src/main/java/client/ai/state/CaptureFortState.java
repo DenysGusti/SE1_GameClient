@@ -26,12 +26,12 @@ public class CaptureFortState extends AIState {
             return;
 
         XYPair enemyFort = fullMap.getOptionalEnemyFortPosition().orElseThrow();
-        logger.info("Plotting final trajectory to Enemy Fort at {}", enemyFort);
+        logger.info("Calculating step-path to enemy fort at {}", enemyFort);
 
-        List<XYPair> path = aiPlayer.moveToTarget(enemyFort);
-        if (path.isEmpty())
-            throw new RuntimeException("path is empty");
+        List<XYPair> stepPathToGoal = aiPlayer.getStepPathToGoal(enemyFort);
+        if (stepPathToGoal.isEmpty())
+            throw new RuntimeException("stepPathToGoal is empty");
 
-        aiPlayer.setPlannedPath(path.subList(1, path.size()));
+        aiPlayer.setPlannedPath(stepPathToGoal.subList(1, stepPathToGoal.size()));
     }
 }

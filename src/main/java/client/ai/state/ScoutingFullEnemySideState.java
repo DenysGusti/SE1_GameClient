@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 public class ScoutingFullEnemySideState extends AIState {
     private static final Logger logger = LoggerFactory.getLogger(ScoutingFullEnemySideState.class);
@@ -43,15 +42,12 @@ public class ScoutingFullEnemySideState extends AIState {
         if (aiPlayer.hasMoves())
             return;
 
-        logger.debug("Generating traversal path for full enemy side.");
-        Set<XYPair> unrevealedGrassNodes = aiPlayer.collectUnrevealedGrassNodes(fullMap, false);
-        if (unrevealedGrassNodes.isEmpty())
-            throw new RuntimeException("unrevealedGrassNodes is empty");
+        logger.debug("Generating step-path for scouting full enemy side.");
 
-        List<XYPair> path = aiPlayer.traverseUnrevealedGrassNodes(unrevealedGrassNodes);
-        if (path.isEmpty())
-            throw new RuntimeException("path is empty");
+        List<XYPair> stepPathForScouting = aiPlayer.getStepPathForScouting(fullMap, false);
+        if (stepPathForScouting.isEmpty())
+            throw new RuntimeException("stepPathForScouting is empty");
 
-        aiPlayer.setPlannedPath(path.subList(1, path.size()));
+        aiPlayer.setPlannedPath(stepPathForScouting.subList(1, stepPathForScouting.size()));
     }
 }

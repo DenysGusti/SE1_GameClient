@@ -33,12 +33,9 @@ public class ScoutingRadiusEnemySideState extends AIState {
         if (aiPlayer.hasMoves())
             return;
 
-        logger.debug("Generating traversal path for enemy radius.");
-        Set<XYPair> unrevealedGrassNodes = aiPlayer.collectUnrevealedGrassNodes(fullMap, false);
-        if (unrevealedGrassNodes.isEmpty())
-            throw new RuntimeException("unrevealedGrassNodes is empty");
+        logger.debug("Generating step-path for scouting radius enemy side.");
 
-        List<XYPair> path = aiPlayer.traverseUnrevealedGrassNodes(unrevealedGrassNodes);
+        List<XYPair> path = aiPlayer.getStepPathForScouting(fullMap, false);
         if (path.isEmpty())
             throw new RuntimeException("path is empty");
 

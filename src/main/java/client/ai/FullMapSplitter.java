@@ -13,6 +13,9 @@ public class FullMapSplitter {
     private static final XYPair HALF_MAP_SIZE = new XYPair(10, 5);
 
     public Set<XYPair> getUnrevealedGrassNodes(FullMap fullMap, boolean onMySide) {
+        if (fullMap == null)
+            throw new IllegalArgumentException("fullMap must not be null");
+
         return fullMap.nodes().entrySet().stream()
                 .filter(e -> e.getValue().terrain() == ETerrain.Grass && !e.getValue().isRevealed())
                 .filter(e -> onMySide == IsCoordinateOnMySide(fullMap, e.getKey()))

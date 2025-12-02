@@ -20,6 +20,7 @@ public class AIPlayer {
 
     private final FullMapSplitter fullMapSplitter;
     private final NodeTraversalStrategy nodeTraversalStrategy;
+    private final PathOptimizer pathOptimizer;
 
     private FullMapGraph fullMapGraph = null;
 
@@ -30,14 +31,17 @@ public class AIPlayer {
     private AIState currentAIState = new ScoutingMySideState(this);
     private final Queue<XYPair> plannedPath = new ArrayDeque<>();
 
-    public AIPlayer(FullMapSplitter fullMapSplitter, NodeTraversalStrategy nodeTraversalStrategy) {
+    public AIPlayer(FullMapSplitter fullMapSplitter, NodeTraversalStrategy nodeTraversalStrategy, PathOptimizer pathOptimizer) {
         if (fullMapSplitter == null)
             throw new IllegalArgumentException("fullMapSplitter is null");
         if (nodeTraversalStrategy == null)
             throw new IllegalArgumentException("nodeTraversalStrategy is null");
+        if (pathOptimizer == null)
+            throw new IllegalArgumentException("pathOptimizer is null");
 
         this.fullMapSplitter = fullMapSplitter;
         this.nodeTraversalStrategy = nodeTraversalStrategy;
+        this.pathOptimizer = pathOptimizer;
 
         logger.info("AIPlayer initialized with strategy: {}", nodeTraversalStrategy.getClass().getSimpleName());
     }
@@ -61,6 +65,7 @@ public class AIPlayer {
         return firstValidEnemyPlayerPosition != null;
     }
 
+    // Command
     public void setAIState(AIState aiState) {
         if (aiState == null)
             throw new IllegalArgumentException("aiState is null");
@@ -72,6 +77,7 @@ public class AIPlayer {
         logger.debug("Cleared path queue.");
     }
 
+    // Command
     public void setPlannedPath(Collection<XYPair> plannedPath) {
         if (plannedPath == null)
             throw new IllegalArgumentException("plannedPath is null");
@@ -80,49 +86,35 @@ public class AIPlayer {
         logger.debug("New path set. Steps remaining: {}", this.plannedPath.size());
     }
 
-    public List<XYPair> moveToTarget(XYPair target) {
-        if (target == null)
+    // Query
+    public List<XYPair> getStepPathToGoal(XYPair goal) {
+        if (goal == null)
             throw new IllegalArgumentException("target is null");
         if (currentMyPlayerPosition == null)
             throw new IllegalStateException("currentMyPlayerPosition is null");
         if (fullMapGraph == null)
             throw new IllegalStateException("fullMapGraph is null");
 
-        logger.debug("Calculating path from {} to target {}", currentMyPlayerPosition, target);
+        logger.debug("Calculating path from {} to target {}", currentMyPlayerPosition, goal);
 
-        List<List<XYPair>> allPaths = fullMapGraph.getAllPaths(currentMyPlayerPosition, target);
+        List<List<XYPair>> allPaths = fullMapGraph.getAllPaths(currentMyPlayerPosition, goal);
         return allPaths.getFirst();
     }
 
-    public Set<XYPair> collectUnrevealedGrassNodes(FullMap fullMap, boolean onMySide) {
+    // Query
+    public List<XYPair> getStepPathForScouting(FullMap fullMap, boolean onMySide) {
         if (fullMap == null)
             throw new IllegalArgumentException("fullMap is null");
         if (fullMapGraph == null)
             throw new IllegalStateException("fullMapGraph is null");
+        if (currentMyPlayerPosition == null)
+            throw new IllegalStateException("currentMyPlayerPosition is null");
 
-        Set<XYPair> nodesToTraverse = fullMapSplitter.getUnrevealedGrassNodes(fullMap, onMySide);
-        Objects.requireNonNull(nodesToTraverse, "nodesToTraverse must not be null");
+        logger.debug("Calculating path for scouting, on my side: {}", onMySide);
 
-        int originalSize = nodesToTraverse.size();
-
-        if (!onMySide && firstValidEnemyPlayerPosition != null) {
-            nodesToTraverse = nodesToTraverse.stream()
-                    .filter(coordinate -> fullMapGraph.getDistance(firstValidEnemyPlayerPosition, coordinate)
-                            <= FIRST_VALID_ENEMY_PLAYER_POSITION_MOVE)
-                    .collect(Collectors.toSet());
-
-            logger.debug("Filtered unrevealed nodes near enemy. Reduced from {} to {}", originalSize, nodesToTraverse.size());
-        } else
-            logger.debug("Collected {} unrevealed grass nodes, onMySide: {}", nodesToTraverse.size(), onMySide);
-
-        return nodesToTraverse;
-    }
-
-    public List<XYPair> traverseUnrevealedGrassNodes(Set<XYPair> unrevealedGrassNodes) {
-        if (unrevealedGrassNodes == null)
-            throw new IllegalArgumentException("unrevealedGrassNodes is null");
-        if (fullMapGraph == null)
-            throw new IllegalStateException("fullMapGraph is null");
+        Set<XYPair> unrevealedGrassNodes = collectUnrevealedGrassNodes(fullMap, onMySide);
+        if (unrevealedGrassNodes.isEmpty())
+            throw new RuntimeException("unrevealedGrassNodes is empty");
 
         logger.debug("Ordering traversal for {} nodes using strategy...", unrevealedGrassNodes.size());
 
@@ -130,10 +122,19 @@ public class AIPlayer {
                 nodeTraversalStrategy.orderNodes(fullMapGraph, currentMyPlayerPosition, unrevealedGrassNodes);
         Objects.requireNonNull(traversalResult, "traversalResult must not be null");
 
-        List<List<XYPair>> allPaths = fullMapGraph.getAllPaths(traversalResult.path());
-        Objects.requireNonNull(allPaths, "allPaths must not be null");
+        if (traversalResult.path().isEmpty())
+            throw new RuntimeException("traversal path is empty");
 
-        return allPaths.getFirst();
+        PathOptimizer.StepPathMetric stepPathMetric =
+                pathOptimizer.calculateBestStepPath(fullMap, fullMapGraph, unrevealedGrassNodes, traversalResult.path());
+        Objects.requireNonNull(stepPathMetric, "stepPathMetric must not be null");
+
+        if (stepPathMetric.path().isEmpty())
+            throw new RuntimeException("step-path is empty");
+
+        logger.debug("Step-path expected goal distance: {}", stepPathMetric.expectedGoalDistance());
+
+        return stepPathMetric.path();
     }
 
     // Command
@@ -185,5 +186,29 @@ public class AIPlayer {
         logger.info("Executing Move #{}: {} ({} -> {})", moveCounter, move, currentMyPlayerPosition, nextPosition);
 
         return move;
+    }
+
+    private Set<XYPair> collectUnrevealedGrassNodes(FullMap fullMap, boolean onMySide) {
+        if (fullMap == null)
+            throw new IllegalArgumentException("fullMap is null");
+        if (fullMapGraph == null)
+            throw new IllegalStateException("fullMapGraph is null");
+
+        Set<XYPair> nodesToTraverse = fullMapSplitter.getUnrevealedGrassNodes(fullMap, onMySide);
+        Objects.requireNonNull(nodesToTraverse, "nodesToTraverse must not be null");
+
+        int originalSize = nodesToTraverse.size();
+
+        if (!onMySide && firstValidEnemyPlayerPosition != null) {
+            nodesToTraverse = nodesToTraverse.stream()
+                    .filter(coordinate -> fullMapGraph.getDistance(firstValidEnemyPlayerPosition, coordinate)
+                            <= FIRST_VALID_ENEMY_PLAYER_POSITION_MOVE)
+                    .collect(Collectors.toSet());
+
+            logger.debug("Filtered unrevealed nodes near enemy. Reduced from {} to {}", originalSize, nodesToTraverse.size());
+        } else
+            logger.debug("Collected {} unrevealed grass nodes, onMySide: {}", nodesToTraverse.size(), onMySide);
+
+        return nodesToTraverse;
     }
 }

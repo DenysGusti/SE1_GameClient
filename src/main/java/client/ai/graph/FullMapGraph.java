@@ -133,8 +133,6 @@ public class FullMapGraph {
         }
 
         logger.debug("Found {} total variations for multi-stop path", currentPaths.size());
-        for (var path : currentPaths)
-            logger.trace("Path: {}", path);
         return currentPaths;
     }
 }

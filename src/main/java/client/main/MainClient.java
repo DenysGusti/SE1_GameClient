@@ -1,6 +1,7 @@
 package client.main;
 
 import client.ai.AIPlayer;
+import client.ai.PathOptimizer;
 import client.ai.graph.FullMapGraphFactory;
 import client.ai.FullMapSplitter;
 import client.ai.tsp.*;
@@ -122,7 +123,9 @@ public class MainClient {
 
         var nodeTraversalStrategy = new GeneralNodeTraversalStrategy(heldKarp, simulatedAnnealing);
 
-        return new AIPlayer(fullMapService, nodeTraversalStrategy);
+        var pathOptimizer = new PathOptimizer();
+
+        return new AIPlayer(fullMapService, nodeTraversalStrategy, pathOptimizer);
     }
 
     public static void main(String[] args) {

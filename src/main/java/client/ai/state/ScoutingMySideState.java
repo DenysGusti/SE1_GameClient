@@ -32,12 +32,9 @@ public class ScoutingMySideState extends AIState {
         if (aiPlayer.hasMoves())
             return;
 
-        logger.debug("Generating traversal path for my side.");
-        Set<XYPair> unrevealedGrassNodes = aiPlayer.collectUnrevealedGrassNodes(fullMap, true);
-        if (unrevealedGrassNodes.isEmpty())
-            throw new RuntimeException("unrevealedGrassNodes is empty");
+        logger.debug("Generating step-path for scouting full my side.");
 
-        List<XYPair> path = aiPlayer.traverseUnrevealedGrassNodes(unrevealedGrassNodes);
+        List<XYPair> path = aiPlayer.getStepPathForScouting(fullMap, true);
         if (path.isEmpty())
             throw new RuntimeException("path is empty");
 
