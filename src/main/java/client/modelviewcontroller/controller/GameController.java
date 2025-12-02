@@ -28,9 +28,11 @@ public class GameController {
     private final HalfMapGenerator halfMapGenerator;
     private final HalfMapValidator halfMapValidator;
     private final AIPlayer aiPlayer;
+    private final FullMapGraphFactory fullMapGraphFactory;
 
     public GameController(PlayerModel playerModel, MapModel mapModel, GameSession gameSession,
-                          HalfMapGenerator halfMapGenerator, HalfMapValidator halfMapValidator, AIPlayer aiPlayer) {
+                          HalfMapGenerator halfMapGenerator, HalfMapValidator halfMapValidator, AIPlayer aiPlayer,
+                          FullMapGraphFactory fullMapGraphFactory) {
         if (playerModel == null)
             throw new IllegalArgumentException("playerModel must not be null");
         if (mapModel == null)
@@ -43,6 +45,8 @@ public class GameController {
             throw new IllegalArgumentException("halfMapValidator must not be null");
         if (aiPlayer == null)
             throw new IllegalArgumentException("aiPlayer must not be null");
+        if (fullMapGraphFactory == null)
+            throw new IllegalArgumentException("fullMapGraphFactory must not be null");
 
         this.playerModel = playerModel;
         this.mapModel = mapModel;
@@ -50,6 +54,7 @@ public class GameController {
         this.halfMapGenerator = halfMapGenerator;
         this.halfMapValidator = halfMapValidator;
         this.aiPlayer = aiPlayer;
+        this.fullMapGraphFactory = fullMapGraphFactory;
     }
 
     public void runGame(PlayerInformation playerInformation) {
@@ -86,7 +91,7 @@ public class GameController {
                 continue;
 
             if (!aiPlayer.isFullMapGraphInitialized()) {
-                FullMapGraph fullMapGraph = FullMapGraphFactory.createGraph(currentState.fullMap());
+                FullMapGraph fullMapGraph = fullMapGraphFactory.createGraph(currentState.fullMap());
                 aiPlayer.setFullMapGraph(fullMapGraph);
             }
 

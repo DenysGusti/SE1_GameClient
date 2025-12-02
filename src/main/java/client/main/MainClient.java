@@ -1,6 +1,7 @@
 package client.main;
 
 import client.ai.AIPlayer;
+import client.ai.FullMapGraphFactory;
 import client.ai.FullMapService;
 import client.ai.tsp.*;
 import client.data.PlayerInformation;
@@ -141,7 +142,7 @@ public class MainClient {
         if (args.length > 2)
             uniqueGameIdentifier = new UniqueGameIdentifier(args[2]);
         else
-            uniqueGameIdentifier = NetworkService.createNewGame(serverBaseURL, true, true).block();
+            uniqueGameIdentifier = NetworkService.createNewGame(serverBaseURL, true, false).block();
 
         NetworkService networkService = createNetworkService(serverBaseURL, uniqueGameIdentifier);
         FullMapAccumulator fullMapAccumulator = createFullMapAccumulator();
@@ -160,9 +161,10 @@ public class MainClient {
         mapModel.subscribeOnFullMapUpdated(mapView::renderFullMap);
 
         var aiPlayer = createAIPlayer();
+        var fullMapGraphFactory = new FullMapGraphFactory();
 
-        var gameController =
-                new GameController(playerModel, mapModel, gameSession, halfMapGenerator, halfMapValidator, aiPlayer);
+        var gameController = new GameController(playerModel, mapModel,gameSession, halfMapGenerator, halfMapValidator,
+                aiPlayer, fullMapGraphFactory);
         gameController.runGame(playerInformation);
     }
 }

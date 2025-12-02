@@ -26,7 +26,7 @@ public class FullMapGraphFactory {
     }
 
     @SuppressWarnings("unchecked")
-    public static FullMapGraph createGraph(FullMap fullMap) {
+    public FullMapGraph createGraph(FullMap fullMap) {
         if (fullMap == null)
             throw new IllegalArgumentException("fullMap must not be null");
 
