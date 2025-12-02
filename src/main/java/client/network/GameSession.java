@@ -51,7 +51,7 @@ public class GameSession {
             return Flux.error(new IllegalStateException("playerIdentifier must not be null"));
 
         return Flux.interval(Duration.ofMillis(POLL_DELAY_MS))
-                .doOnNext(tick -> logger.debug("Polling for game state..."))
+                .doOnNext(tick -> logger.trace("Polling for game state..."))
                 .flatMap(tick -> networkService.receiveGameState(playerIdentifier))
                 .filter(this::isNewGameState)
                 .doOnNext(this::updateInternalState)
