@@ -19,7 +19,7 @@ public class MapView {
                     ETerrain.Mountain, "🏔️",
                     ETerrain.Water, "🌊"
             );
-    private static final String isRevealedEmoji = "🚩";
+    private static final String fogOfWarEmoji = "☁️";
 
     private static final String myFortEmoji = "🏰";
     private static final String enemyFortEmoji = "🏯";
@@ -170,7 +170,6 @@ public class MapView {
         Objects.requireNonNull(fullMapNode, "fullMapNode must not be null");
 
         String terrainEmoji = terrainEmojiConverter.get(fullMapNode.terrain());
-        String corner = fullMapNode.isRevealed() ? isRevealedEmoji : terrainEmoji;
 
         String side = terrainEmoji;
         if (fullMap.getOptionalMyFortPosition().filter(coordinate::equals).isPresent())
@@ -180,7 +179,7 @@ public class MapView {
         else if (fullMap.getOptionalMyTreasurePosition().filter(coordinate::equals).isPresent())
             side = myTreasureBackgroundEmoji;
 
-        String center = terrainEmoji;
+        String center = fullMapNode.isRevealed() ? terrainEmoji : fogOfWarEmoji;
         if (fullMap.getOptionalMyPlayerPosition().filter(coordinate::equals).isPresent()) {
             if (fullMap.getOptionalEnemyPlayerPosition().filter(coordinate::equals).isPresent())
                 center = bothPlayersEmoji;
@@ -194,9 +193,9 @@ public class MapView {
         }
 
         return new String[]{
-                corner + side + corner,
+                terrainEmoji + side + terrainEmoji,
                 side + center + side,
-                corner + side + corner
+                terrainEmoji + side + terrainEmoji
         };
     }
 }
