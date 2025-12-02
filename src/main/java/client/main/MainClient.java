@@ -47,11 +47,18 @@ public class MainClient {
             throw new CommandLineArgumentsException("Invalid game visualization mode!");
     }
 
-    private static PlayerInformation loadPlayerInformation() throws IOException {
+    private static Properties loadProperties() throws IOException {
         var properties = new Properties();
         try (InputStream inputStream = MainClient.class.getClassLoader().getResourceAsStream(CONFIG_FILE_NAME)) {
+            if (inputStream == null)
+                throw new FileNotFoundException("Property file '" + CONFIG_FILE_NAME + "' not found in the classpath");
+
             properties.load(inputStream);
         }
+        return properties;
+    }
+
+    private static PlayerInformation loadPlayerInformation(Properties properties) {
         String firstName = properties.getProperty("player.firstName");
         String lastName = properties.getProperty("player.lastName");
         String uAccount = properties.getProperty("player.uAccount");
@@ -113,7 +120,7 @@ public class MainClient {
         var twoOpt = new TwoOptTraversalStrategy(nearestNeighbour, twoOptHelper);
         var simulatedAnnealing = new SimulatedAnnealingTraversalStrategy(twoOpt, new Random(), twoOptHelper);
 
-        var nodeTraversalStrategy = new GeneralNodeTraversalStrategy(heldKarp, simulatedAnnealing, 17);
+        var nodeTraversalStrategy = new GeneralNodeTraversalStrategy(heldKarp, simulatedAnnealing);
 
         return new AIPlayer(fullMapService, nodeTraversalStrategy);
     }
@@ -126,12 +133,9 @@ public class MainClient {
             return;
         }
 
-        PlayerInformation playerInformation;
+        Properties properties;
         try {
-            playerInformation = loadPlayerInformation();
-        } catch (FileNotFoundException e) {
-            logger.error("Properties file not found.", e);
-            return;
+            properties = loadProperties();
         } catch (IOException e) {
             logger.error("Error reading properties file.", e);
             return;
@@ -141,8 +145,15 @@ public class MainClient {
         UniqueGameIdentifier uniqueGameIdentifier;
         if (args.length > 2)
             uniqueGameIdentifier = new UniqueGameIdentifier(args[2]);
-        else
-            uniqueGameIdentifier = NetworkService.createNewGame(serverBaseURL, true, false).block();
+        else {
+            String debugModeString = Objects.requireNonNull(properties.getProperty("game.debugMode"));
+            String dummyCompetitionString = Objects.requireNonNull(properties.getProperty("game.dummyCompetition"));
+
+            boolean debugMode = Boolean.parseBoolean(debugModeString);
+            boolean dummyCompetition = Boolean.parseBoolean(dummyCompetitionString);
+
+            uniqueGameIdentifier = NetworkService.createNewGame(serverBaseURL, debugMode, dummyCompetition).block();
+        }
 
         NetworkService networkService = createNetworkService(serverBaseURL, uniqueGameIdentifier);
         FullMapAccumulator fullMapAccumulator = createFullMapAccumulator();
@@ -163,8 +174,10 @@ public class MainClient {
         var aiPlayer = createAIPlayer();
         var fullMapGraphFactory = new FullMapGraphFactory();
 
-        var gameController = new GameController(playerModel, mapModel,gameSession, halfMapGenerator, halfMapValidator,
+        var gameController = new GameController(playerModel, mapModel, gameSession, halfMapGenerator, halfMapValidator,
                 aiPlayer, fullMapGraphFactory);
+
+        PlayerInformation playerInformation = loadPlayerInformation(properties);
         gameController.runGame(playerInformation);
     }
 }

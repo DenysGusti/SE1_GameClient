@@ -1,3 +1,5 @@
 player.firstName=<First Name>
 player.lastName=<Last Name>
 player.uAccount=<UAccount>
+game.debugMode=true
+game.dummyCompetition=true
