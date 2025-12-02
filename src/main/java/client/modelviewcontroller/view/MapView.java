@@ -129,14 +129,12 @@ public class MapView {
 
         String terrainEmoji = terrainEmojiConverter.get(terrain);
 
-        String side = terrainEmoji;
-        if (halfMap.potentialForts().contains(coordinate))
-            side = myFortEmoji;
+        String border = halfMap.potentialForts().contains(coordinate) ? terrainEmoji : myFortEmoji;
 
         return new String[]{
-                terrainEmoji + side + terrainEmoji,
-                side + terrainEmoji + side,
-                terrainEmoji + side + terrainEmoji
+                border + border + border,
+                border + terrainEmoji + border,
+                border + border + border
         };
     }
 
@@ -171,13 +169,13 @@ public class MapView {
 
         String terrainEmoji = terrainEmojiConverter.get(fullMapNode.terrain());
 
-        String side = terrainEmoji;
+        String border = terrainEmoji;
         if (fullMap.getOptionalMyFortPosition().filter(coordinate::equals).isPresent())
-            side = myFortEmoji;
+            border = myFortEmoji;
         else if (fullMap.getOptionalEnemyFortPosition().filter(coordinate::equals).isPresent())
-            side = enemyFortEmoji;
+            border = enemyFortEmoji;
         else if (fullMap.getOptionalMyTreasurePosition().filter(coordinate::equals).isPresent())
-            side = myTreasureBackgroundEmoji;
+            border = myTreasureBackgroundEmoji;
 
         String center = fullMapNode.isRevealed() ? terrainEmoji : fogOfWarEmoji;
         if (fullMap.getOptionalMyPlayerPosition().filter(coordinate::equals).isPresent()) {
@@ -193,9 +191,9 @@ public class MapView {
         }
 
         return new String[]{
-                terrainEmoji + side + terrainEmoji,
-                side + center + side,
-                terrainEmoji + side + terrainEmoji
+                border + border + border,
+                border + center + border,
+                border + border + border
         };
     }
 }
