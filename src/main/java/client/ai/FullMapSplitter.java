@@ -9,7 +9,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class FullMapService {
+public class FullMapSplitter {
     private static final XYPair HALF_MAP_SIZE = new XYPair(10, 5);
 
     public Set<XYPair> getUnrevealedGrassNodes(FullMap fullMap, boolean onMySide) {

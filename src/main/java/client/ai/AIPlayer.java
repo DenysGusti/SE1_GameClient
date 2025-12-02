@@ -17,7 +17,7 @@ public class AIPlayer {
     private static final Logger logger = LoggerFactory.getLogger(AIPlayer.class);
     private static final int FIRST_VALID_ENEMY_PLAYER_POSITION_MOVE = 8;
 
-    private final FullMapService fullMapService;
+    private final FullMapSplitter fullMapSplitter;
     private final NodeTraversalStrategy nodeTraversalStrategy;
 
     private FullMapGraph fullMapGraph = null;
@@ -29,13 +29,13 @@ public class AIPlayer {
     private AIState currentAIState = new ScoutingMySideState(this);
     private final Queue<XYPair> plannedPath = new ArrayDeque<>();
 
-    public AIPlayer(FullMapService fullMapService, NodeTraversalStrategy nodeTraversalStrategy) {
-        if (fullMapService == null)
-            throw new IllegalArgumentException("fullMapService is null");
+    public AIPlayer(FullMapSplitter fullMapSplitter, NodeTraversalStrategy nodeTraversalStrategy) {
+        if (fullMapSplitter == null)
+            throw new IllegalArgumentException("fullMapSplitter is null");
         if (nodeTraversalStrategy == null)
             throw new IllegalArgumentException("nodeTraversalStrategy is null");
 
-        this.fullMapService = fullMapService;
+        this.fullMapSplitter = fullMapSplitter;
         this.nodeTraversalStrategy = nodeTraversalStrategy;
 
         logger.info("AIPlayer initialized with strategy: {}", nodeTraversalStrategy.getClass().getSimpleName());
@@ -99,7 +99,7 @@ public class AIPlayer {
         if (fullMapGraph == null)
             throw new IllegalStateException("fullMapGraph is null");
 
-        Set<XYPair> nodesToTraverse = fullMapService.getUnrevealedGrassNodes(fullMap, onMySide);
+        Set<XYPair> nodesToTraverse = fullMapSplitter.getUnrevealedGrassNodes(fullMap, onMySide);
         Objects.requireNonNull(nodesToTraverse, "nodesToTraverse must not be null");
 
         int originalSize = nodesToTraverse.size();

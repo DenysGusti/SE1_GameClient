@@ -10,9 +10,9 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class FullMapServiceTest {
+class FullMapSplitterTest {
 
-    private FullMapService mapService;
+    private FullMapSplitter mapService;
 
     // Test coordinates
     private final XYPair coordinateTopLeft = new XYPair(2, 2);
@@ -26,7 +26,7 @@ class FullMapServiceTest {
 
     @BeforeEach
     void setUp() {
-        mapService = new FullMapService();
+        mapService = new FullMapSplitter();
     }
 
     @Test

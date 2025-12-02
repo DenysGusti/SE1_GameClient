@@ -2,7 +2,7 @@ package client.main;
 
 import client.ai.AIPlayer;
 import client.ai.FullMapGraphFactory;
-import client.ai.FullMapService;
+import client.ai.FullMapSplitter;
 import client.ai.tsp.*;
 import client.data.PlayerInformation;
 import client.data.UniqueGameIdentifier;
@@ -106,7 +106,7 @@ public class MainClient {
     private static AIPlayer createAIPlayer() {
         var heldKarp = new HeldKarpTraversalStrategy();
 
-        var fullMapService = new FullMapService();
+        var fullMapService = new FullMapSplitter();
         var twoOptHelper = new TwoOptHelper();
 
         var nearestNeighbour = new NearestNeighbourTraversalStrategy();
