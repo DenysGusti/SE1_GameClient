@@ -24,7 +24,7 @@ public class PathOptimizer {
 
     // calculate step-path with the lowest expected goal distance
     public StepPathMetric calculateBestStepPath(FullMap fullMap, FullMapGraph fullMapGraph,
-                                            Set<XYPair> unrevealedGrassNodes, List<XYPair> traversalPath) {
+                                                Set<XYPair> unrevealedGrassNodes, List<XYPair> traversalPath) {
         if (fullMap == null)
             throw new IllegalArgumentException("fullMap is null");
         if (fullMapGraph == null)
@@ -43,8 +43,7 @@ public class PathOptimizer {
         return allPaths.stream().parallel()
                 .map(stepPath -> {
                     double expectedGoalDistance = getExpectedGoalDistance(fullMap, fullMapGraph, unrevealedGrassNodes, stepPath);
-                    logger.trace("Step-path: {}", stepPath);
-                    logger.trace("Expected goal distance: {}", expectedGoalDistance);
+                    logger.trace("Expected goal distance: {}\nStep-path: {}", expectedGoalDistance, stepPath);
                     return new StepPathMetric(stepPath, expectedGoalDistance);
                 })
                 .min(Comparator.comparingDouble(StepPathMetric::expectedGoalDistance))
