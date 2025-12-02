@@ -108,13 +108,11 @@ public class MainClient {
         var fullMapService = new FullMapService();
         var twoOptHelper = new TwoOptHelper();
 
-//        var randomWalk = new RandomWalkTraversalStrategy(new Random());
         var nearestNeighbour = new NearestNeighbourTraversalStrategy();
-
         var twoOpt = new TwoOptTraversalStrategy(nearestNeighbour, twoOptHelper);
         var simulatedAnnealing = new SimulatedAnnealingTraversalStrategy(twoOpt, new Random(), twoOptHelper);
 
-        var nodeTraversalStrategy = new GeneralNodeTraversalStrategy(heldKarp, simulatedAnnealing, 20);
+        var nodeTraversalStrategy = new GeneralNodeTraversalStrategy(heldKarp, simulatedAnnealing, 17);
 
         return new AIPlayer(fullMapService, nodeTraversalStrategy);
     }

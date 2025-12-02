@@ -10,8 +10,9 @@ import java.util.*;
 public class SimulatedAnnealingTraversalStrategy implements NodeTraversalStrategy {
     private static final Logger logger = LoggerFactory.getLogger(SimulatedAnnealingTraversalStrategy.class);
 
-    private static final double STARTING_TEMPERATURE = 100000;
-    private static final double COOLING_RATE = 0.9999;
+    // very hot
+    private static final double STARTING_TEMPERATURE = 1.5;
+    private static final double COOLING_RATE = 0.999999;
     private static final double MIN_TEMPERATURE = 1;
 
     private final NodeTraversalStrategy initialStrategy;
