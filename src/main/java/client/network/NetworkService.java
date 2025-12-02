@@ -77,14 +77,12 @@ public class NetworkService {
         this.gameWebClient = gameWebClient;
         this.fromClientConverter = fromClientConverter;
         this.fromServerConverter = fromServerConverter;
-        logger.info("NetworkService initialized.");
     }
 
     public Mono<UniquePlayerIdentifier> registerPlayer(PlayerInformation playerInformation) {
         if (playerInformation == null)
             return Mono.error(new IllegalArgumentException("playerInformation must not be null"));
 
-        logger.info("Registering player...");
         PlayerRegistration playerRegistration = fromClientConverter.convertPlayerInformation(playerInformation);
 
         return gameWebClient
@@ -132,8 +130,6 @@ public class NetworkService {
         if (halfMap == null)
             return Mono.error(new IllegalArgumentException("halfMap must not be null"));
 
-        logger.info("Sending map to server...");
-
         PlayerHalfMap playerHalfMap = fromClientConverter.convertHalfMap(uniquePlayerIdentifier, halfMap);
 
         return gameWebClient
@@ -147,9 +143,7 @@ public class NetworkService {
                     Objects.requireNonNull(response, "Server response for sending half map is null.");
                     if (response.getState() == ERequestState.Error) {
                         sink.error(new NetworkHalfMapException(response.getExceptionName() + ": " + response.getExceptionMessage()));
-                        return;
                     }
-                    logger.info("Map sent successfully.");
                 })
                 .then();
     }
@@ -159,8 +153,6 @@ public class NetworkService {
             return Mono.error(new IllegalArgumentException("uniquePlayerIdentifier must not be null"));
         if (move == null)
             return Mono.error(new IllegalArgumentException("move must not be null"));
-
-        logger.info("Sending move: {}", move);
 
         PlayerMove playerMove = fromClientConverter.convertMove(uniquePlayerIdentifier, move);
 
@@ -175,9 +167,7 @@ public class NetworkService {
                     Objects.requireNonNull(response, "Server response for sending move is null.");
                     if (response.getState() == ERequestState.Error) {
                         sink.error(new NetworkMoveException(response.getExceptionName() + ": " + response.getExceptionMessage()));
-                        return;
                     }
-                    logger.info("Move sent successfully.");
                 })
                 .then();
     }
