@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 public class GameController {
     private static final Logger logger = LoggerFactory.getLogger(GameController.class);
 
-    private static final int HALF_MAP_GENERATION_ATTEMPTS = 1000;
+    private static final int HALF_MAP_GENERATION_ATTEMPTS = 100_000;
 
     private final PlayerModel playerModel;
     private final MapModel mapModel;
@@ -110,6 +110,9 @@ public class GameController {
     }
 
     private HalfMap generateHalfMap() {
+        long startTime = System.nanoTime();
+        logger.debug("Generating half-map...");
+
         for (int attempt = 0; attempt < HALF_MAP_GENERATION_ATTEMPTS; ++attempt) {
             HalfMap halfMap = halfMapGenerator.generateHalfMap();
             Notification notification = halfMapValidator.validate(halfMap);
@@ -117,12 +120,17 @@ public class GameController {
             if (!notification.hasErrors()) {
                 logger.info("Generated a valid map in {} attempts.", attempt);
                 mapModel.updateHalfMap(halfMap);
+
+                long endTime = System.nanoTime();
+                double duration = (endTime - startTime) / 1_000_000_000.;
+                logger.info("Half-map generation completed in {}s.", duration);
+
                 return halfMap;
             }
             mapModel.updateHalfMapValidationErrors(notification.getErrors());
         }
 
-        logger.error("Failed to generate a valid map after 100 attempts!");
+        logger.error("Failed to generate a valid map after {} attempts!", HALF_MAP_GENERATION_ATTEMPTS);
         throw new HalfMapGenerationException("Map generation failed. Check rules.");
     }
 }
