@@ -144,7 +144,6 @@ public class AIPlayer {
         ++moveCounter;
 
         currentMyPlayerPosition = fullMap.getOptionalMyPlayerPosition().orElseThrow();
-        logger.debug("My Player Position updated: {}", currentMyPlayerPosition);
 
         if (moveCounter == FIRST_VALID_ENEMY_PLAYER_POSITION_MOVE) {
             firstValidEnemyPlayerPosition = fullMap.getOptionalEnemyPlayerPosition().orElseThrow();
@@ -155,8 +154,9 @@ public class AIPlayer {
 
         if (currentMyPlayerPosition.equals(plannedPath.element())) {
             plannedPath.remove();
-            logger.debug("Reached node {}. Remaining steps: {}", currentMyPlayerPosition, plannedPath.size());
-        }
+            logger.debug("Remaining path nodes: {}. Reached node {}", plannedPath.size(), currentMyPlayerPosition);
+        } else
+            logger.debug("Remaining path nodes: {}", plannedPath.size());
     }
 
     // Query
