@@ -2,7 +2,7 @@ package client.main;
 
 import client.ai.AIPlayer;
 import client.ai.FullMapService;
-import client.ai.tsp.BenchmarkNodeTraversalStrategy;
+import client.ai.tsp.*;
 import client.data.PlayerInformation;
 import client.data.UniqueGameIdentifier;
 import client.halfmaplogic.generation.HalfMapGenerator;
@@ -10,24 +10,19 @@ import client.main.exception.CommandLineArgumentsException;
 import client.modelviewcontroller.controller.GameController;
 import client.network.GameSession;
 import client.network.accumulator.FullMapAccumulator;
-import client.modelviewcontroller.model.MapModel;
-import client.modelviewcontroller.model.PlayerModel;
-import client.modelviewcontroller.view.MapView;
-import client.modelviewcontroller.view.PlayerView;
+import client.modelviewcontroller.model.*;
+import client.modelviewcontroller.view.*;
 import client.network.NetworkService;
-
 import client.network.fromclient.FromClientConverter;
 import client.network.fromserver.FromServerConverter;
 import client.network.fromserver.FullMapConverter;
 import client.network.accumulator.FullMapRevealer;
 import client.halfmaplogic.validation.HalfMapValidator;
-import client.halfmaplogic.validation.rule.IHalfMapValidationRule;
-import client.halfmaplogic.validation.rule.BorderRule;
-import client.halfmaplogic.validation.rule.ConnectivityRule;
-import client.halfmaplogic.validation.rule.FortRule;
-import client.halfmaplogic.validation.rule.TerrainRule;
+import client.halfmaplogic.validation.rule.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -107,6 +102,23 @@ public class MainClient {
         return new HalfMapValidator(rules);
     }
 
+    private static AIPlayer createAIPlayer() {
+        var heldKarp = new HeldKarpTraversalStrategy();
+
+        var fullMapService = new FullMapService();
+        var twoOptHelper = new TwoOptHelper();
+
+//        var randomWalk = new RandomWalkTraversalStrategy(new Random());
+        var nearestNeighbour = new NearestNeighbourTraversalStrategy();
+
+        var twoOpt = new TwoOptTraversalStrategy(nearestNeighbour, twoOptHelper);
+        var simulatedAnnealing = new SimulatedAnnealingTraversalStrategy(twoOpt, new Random(), twoOptHelper);
+
+        var nodeTraversalStrategy = new GeneralNodeTraversalStrategy(heldKarp, simulatedAnnealing, 20);
+
+        return new AIPlayer(fullMapService, nodeTraversalStrategy);
+    }
+
     public static void main(String[] args) {
         try {
             validateArguments(args);
@@ -149,10 +161,7 @@ public class MainClient {
         var mapView = new MapView();
         mapModel.subscribeOnFullMapUpdated(mapView::renderFullMap);
 
-        var fullMapService = new FullMapService();
-        var nodeTraversalStrategy = BenchmarkNodeTraversalStrategy.withDefaults();
-
-        var aiPlayer = new AIPlayer(fullMapService, nodeTraversalStrategy);
+        var aiPlayer = createAIPlayer();
 
         var gameController =
                 new GameController(playerModel, mapModel, gameSession, halfMapGenerator, halfMapValidator, aiPlayer);
