@@ -33,7 +33,7 @@
     <!-- If you add an appender "register" them here -->
     <root level="WARN">
         <appender-ref ref="stdout"/>
-        <appender-ref ref="FILE"/>
+<!--        <appender-ref ref="FILE"/>-->
     </root>
 
 </configuration>
