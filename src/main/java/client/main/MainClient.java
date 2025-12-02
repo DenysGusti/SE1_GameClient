@@ -104,7 +104,7 @@ public class MainClient {
     }
 
     private static HalfMapValidator createHalfMapValidator() {
-        Collection<IHalfMapValidationRule> rules = List.of(
+        Set<IHalfMapValidationRule> rules = Set.of(
                 new TerrainRule(), new BorderRule(), new FortRule(), new ConnectivityRule()
         );
         return new HalfMapValidator(rules);

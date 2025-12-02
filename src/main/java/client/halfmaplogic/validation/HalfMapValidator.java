@@ -8,13 +8,14 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Set;
 
 public class HalfMapValidator {
     private static final Logger logger = LoggerFactory.getLogger(HalfMapValidator.class);
 
-    Collection<IHalfMapValidationRule> rules;
+    Set<IHalfMapValidationRule> rules;
 
-    public HalfMapValidator(Collection<IHalfMapValidationRule> rules) {
+    public HalfMapValidator(Set<IHalfMapValidationRule> rules) {
         if (rules == null)
             throw new IllegalArgumentException("rules must not be null");
 
