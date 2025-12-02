@@ -1,5 +1,6 @@
 package client.ai;
 
+import client.ai.graph.FullMapGraph;
 import client.ai.state.AIState;
 import client.ai.state.ScoutingMySideState;
 import client.ai.tsp.NodeTraversalStrategy;

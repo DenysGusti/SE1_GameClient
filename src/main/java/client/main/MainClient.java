@@ -1,7 +1,7 @@
 package client.main;
 
 import client.ai.AIPlayer;
-import client.ai.FullMapGraphFactory;
+import client.ai.graph.FullMapGraphFactory;
 import client.ai.FullMapSplitter;
 import client.ai.tsp.*;
 import client.data.PlayerInformation;

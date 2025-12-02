@@ -1,6 +1,6 @@
 package client.ai.tsp;
 
-import client.ai.FullMapGraph;
+import client.ai.graph.FullMapGraph;
 import client.data.XYPair;
 
 import java.util.List;

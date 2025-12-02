@@ -1,7 +1,7 @@
 package client.modelviewcontroller.controller;
 
 import client.ai.*;
-import client.ai.tsp.*;
+import client.ai.graph.*;
 import client.data.PlayerInformation;
 import client.data.fromclient.EMove;
 import client.data.fromclient.HalfMap;

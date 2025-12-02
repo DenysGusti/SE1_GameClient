@@ -1,4 +1,4 @@
-package client.ai;
+package client.ai.graph;
 
 import client.data.XYPair;
 import org.slf4j.Logger;
