@@ -37,7 +37,7 @@ public class SimulatedAnnealingTraversalStrategy implements NodeTraversalStrateg
         long startTime = System.nanoTime();
         logger.debug("Simulated Annealing started for {} nodes...", nodes.size());
 
-        TraversalResult initialResult = initialStrategy.orderNodes(fullMapGraph, start, nodes);
+        TraversalResult initialResult = initialStrategy.computePath(fullMapGraph, start, nodes);
 
         List<XYPair> currentPath = new ArrayList<>(initialResult.path());
         int currentDistance = initialResult.distance();

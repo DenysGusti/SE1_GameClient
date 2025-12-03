@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 public class ScoutingRadiusEnemySideState extends AIState {
     private static final Logger logger = LoggerFactory.getLogger(ScoutingRadiusEnemySideState.class);

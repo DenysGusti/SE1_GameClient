@@ -1,6 +1,8 @@
 package client.ai;
 
 import client.ai.graph.FullMapGraph;
+import client.ai.mountain.MountainSelector;
+import client.ai.mountain.PathOptimizer;
 import client.ai.state.AIState;
 import client.ai.state.ScoutingMySideState;
 import client.ai.tsp.NodeTraversalStrategy;
@@ -19,8 +21,7 @@ public class AIPlayer {
     private static final int FIRST_VALID_ENEMY_PLAYER_POSITION_MOVE = 8;
 
     private final FullMapSplitter fullMapSplitter;
-    private final NodeTraversalStrategy nodeTraversalStrategy;
-    private final PathOptimizer pathOptimizer;
+    private final MountainSelector mountainSelector;
 
     private FullMapGraph fullMapGraph = null;
 
@@ -31,19 +32,14 @@ public class AIPlayer {
     private AIState currentAIState = new ScoutingMySideState(this);
     private final Queue<XYPair> plannedPath = new ArrayDeque<>();
 
-    public AIPlayer(FullMapSplitter fullMapSplitter, NodeTraversalStrategy nodeTraversalStrategy, PathOptimizer pathOptimizer) {
+    public AIPlayer(FullMapSplitter fullMapSplitter, MountainSelector mountainSelector) {
         if (fullMapSplitter == null)
             throw new IllegalArgumentException("fullMapSplitter is null");
-        if (nodeTraversalStrategy == null)
-            throw new IllegalArgumentException("nodeTraversalStrategy is null");
-        if (pathOptimizer == null)
-            throw new IllegalArgumentException("pathOptimizer is null");
+        if (mountainSelector == null)
+            throw new IllegalArgumentException("mountainSelector is null");
 
         this.fullMapSplitter = fullMapSplitter;
-        this.nodeTraversalStrategy = nodeTraversalStrategy;
-        this.pathOptimizer = pathOptimizer;
-
-        logger.info("AIPlayer initialized with strategy: {}", nodeTraversalStrategy.getClass().getSimpleName());
+        this.mountainSelector = mountainSelector;
     }
 
     public boolean isFullMapGraphInitialized() {
@@ -78,7 +74,7 @@ public class AIPlayer {
     }
 
     // Command
-    public void setPlannedPath(Collection<XYPair> plannedPath) {
+    public void setPlannedPath(List<XYPair> plannedPath) {
         if (plannedPath == null)
             throw new IllegalArgumentException("plannedPath is null");
 
@@ -116,23 +112,8 @@ public class AIPlayer {
         if (unrevealedGrassNodes.isEmpty())
             throw new RuntimeException("unrevealedGrassNodes is empty");
 
-        logger.debug("Ordering traversal for {} nodes using strategy...", unrevealedGrassNodes.size());
-
-        NodeTraversalStrategy.TraversalResult traversalResult =
-                nodeTraversalStrategy.orderNodes(fullMapGraph, currentMyPlayerPosition, unrevealedGrassNodes);
-        Objects.requireNonNull(traversalResult, "traversalResult must not be null");
-
-        if (traversalResult.path().isEmpty())
-            throw new RuntimeException("traversal path is empty");
-
         PathOptimizer.StepPathMetric stepPathMetric =
-                pathOptimizer.calculateBestStepPath(fullMap, fullMapGraph, unrevealedGrassNodes, traversalResult.path());
-        Objects.requireNonNull(stepPathMetric, "stepPathMetric must not be null");
-
-        if (stepPathMetric.path().isEmpty())
-            throw new RuntimeException("step-path is empty");
-
-        logger.debug("Step-path expected goal distance: {}", stepPathMetric.expectedGoalDistance());
+                mountainSelector.selectMountainPath(fullMapGraph, fullMap, unrevealedGrassNodes);
 
         return stepPathMetric.path();
     }

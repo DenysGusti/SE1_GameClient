@@ -28,7 +28,7 @@ public class TwoOptTraversalStrategy implements NodeTraversalStrategy {
         long startTime = System.nanoTime();
         logger.debug("Starting 2-Opt for {} nodes...", nodes.size());
 
-        TraversalResult initialTraversalResult = initialStrategy.orderNodes(fullMapGraph, start, nodes);
+        TraversalResult initialTraversalResult = initialStrategy.computePath(fullMapGraph, start, nodes);
 
         List<XYPair> currentPath = new ArrayList<>(initialTraversalResult.path());
         int currentDistance = initialTraversalResult.distance();

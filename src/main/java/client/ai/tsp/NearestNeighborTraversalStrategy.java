@@ -8,13 +8,13 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class NearestNeighbourTraversalStrategy implements NodeTraversalStrategy {
-    private static final Logger logger = LoggerFactory.getLogger(NearestNeighbourTraversalStrategy.class);
+public class NearestNeighborTraversalStrategy implements NodeTraversalStrategy {
+    private static final Logger logger = LoggerFactory.getLogger(NearestNeighborTraversalStrategy.class);
 
     @Override
     public TraversalResult computePath(FullMapGraph fullMapGraph, XYPair start, Set<XYPair> nodes) {
         long startTime = System.nanoTime();
-        logger.debug("Nearest Neighbour started for {} nodes...", nodes.size());
+        logger.debug("Nearest Neighbor started for {} nodes...", nodes.size());
 
         Set<XYPair> remainingNodes = new HashSet<>(nodes);
         List<XYPair> orderedPath = new ArrayList<>();
@@ -33,7 +33,7 @@ public class NearestNeighbourTraversalStrategy implements NodeTraversalStrategy 
 
         long endTime = System.nanoTime();
         double duration = (endTime - startTime) / 1_000_000_000.;
-        logger.debug("Nearest Neighbour finished: time: {}s, distance: {}", duration, distance);
+        logger.debug("Nearest Neighbor finished: time: {}s, distance: {}", duration, distance);
 
         return new TraversalResult(orderedPath, distance);
     }

@@ -34,10 +34,10 @@ public class GeneralNodeTraversalStrategy implements NodeTraversalStrategy {
         TraversalResult traversalResult;
         if (nodes.size() <= EXACT_STRATEGY_NODES_THRESHOLD) {
             logger.debug("Using exact strategy");
-            traversalResult = exactStrategy.orderNodes(fullMapGraph, start, nodes);
+            traversalResult = exactStrategy.computePath(fullMapGraph, start, nodes);
         } else {
             logger.debug("Using heuristic strategy");
-            traversalResult = heuristicStrategy.orderNodes(fullMapGraph, start, nodes);
+            traversalResult = heuristicStrategy.computePath(fullMapGraph, start, nodes);
         }
 
         long endTime = System.nanoTime();

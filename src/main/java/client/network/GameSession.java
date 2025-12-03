@@ -41,7 +41,7 @@ public class GameSession {
         return networkService.registerPlayer(playerInformation)
                 .doOnNext(playerIdentifier -> {
                     this.playerIdentifier = playerIdentifier;
-                    logger.info("Session established for Player ID: {}", playerIdentifier.uniquePlayerID());
+                    logger.info("Session established for uniquePlayerID: {}", playerIdentifier.uniquePlayerID());
                 })
                 .then();
     }

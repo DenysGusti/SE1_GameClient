@@ -4,7 +4,7 @@ import client.ai.AIPlayer;
 import client.data.fromserver.FullMap;
 
 public abstract class AIState {
-    AIPlayer aiPlayer;
+    protected AIPlayer aiPlayer;
 
     public AIState(AIPlayer aiPlayer) {
         if (aiPlayer == null)

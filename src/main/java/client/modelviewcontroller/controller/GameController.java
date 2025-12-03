@@ -64,22 +64,20 @@ public class GameController {
         gameSession.registerPlayer(playerInformation).block();
         logger.info("Player registration complete.");
 
-        GameState currentState = gameSession.pollForNewGameState()
+        gameSession.pollForNewGameState()
+                .doOnNext(this::updateModels)
                 .filter(GameState::myPlayerMustAct)
                 .next().blockOptional().orElseThrow();
-
-        updateModels(currentState);
 
         HalfMap halfMap = generateHalfMap();
         gameSession.sendHalfMap(halfMap).block();
         logger.info("Half-map sent successfully.");
 
         while (true) {
-            currentState = gameSession.pollForNewGameState()
+            GameState currentState = gameSession.pollForNewGameState()
+                    .doOnNext(this::updateModels)
                     .filter(GameState::myPlayerMustNotWait)
                     .next().blockOptional().orElseThrow();
-
-            updateModels(currentState);
 
             if (currentState.myPlayerWonOrLost()) {
                 logger.info("Game has ended.");
@@ -123,12 +121,12 @@ public class GameController {
             Notification notification = halfMapValidator.validate(halfMap);
 
             if (!notification.hasErrors()) {
-                logger.info("Generated a valid map in {} attempts.", attempt);
+                logger.debug("Generated a valid map in {} attempts.", attempt);
                 mapModel.updateHalfMap(halfMap);
 
                 long endTime = System.nanoTime();
                 double duration = (endTime - startTime) / 1_000_000_000.;
-                logger.info("Half-map generation completed in {}s.", duration);
+                logger.debug("Half-map generation completed in {}s.", duration);
 
                 return halfMap;
             }

@@ -1,4 +1,4 @@
-package client.ai;
+package client.ai.mountain;
 
 import client.ai.graph.FullMapGraph;
 import client.data.XYPair;
@@ -43,7 +43,7 @@ public class PathOptimizer {
         return allPaths.stream().parallel()
                 .map(stepPath -> {
                     double expectedGoalDistance = getExpectedGoalDistance(fullMap, fullMapGraph, unrevealedGrassNodes, stepPath);
-                    logger.trace("Expected goal distance: {}\nStep-path: {}", expectedGoalDistance, stepPath);
+                    logger.trace("Expected step-path goal distance: {}", expectedGoalDistance);
                     return new StepPathMetric(stepPath, expectedGoalDistance);
                 })
                 .min(Comparator.comparingDouble(StepPathMetric::expectedGoalDistance))

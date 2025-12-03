@@ -1,7 +1,7 @@
 package client.main;
 
 import client.ai.AIPlayer;
-import client.ai.PathOptimizer;
+import client.ai.mountain.*;
 import client.ai.graph.FullMapGraphFactory;
 import client.ai.FullMapSplitter;
 import client.ai.tsp.*;
@@ -10,15 +10,12 @@ import client.data.UniqueGameIdentifier;
 import client.halfmaplogic.generation.HalfMapGenerator;
 import client.main.exception.CommandLineArgumentsException;
 import client.modelviewcontroller.controller.GameController;
-import client.network.GameSession;
-import client.network.accumulator.FullMapAccumulator;
+import client.network.*;
+import client.network.accumulator.*;
+import client.network.fromserver.*;
+import client.network.fromclient.FromClientConverter;
 import client.modelviewcontroller.model.*;
 import client.modelviewcontroller.view.*;
-import client.network.NetworkService;
-import client.network.fromclient.FromClientConverter;
-import client.network.fromserver.FromServerConverter;
-import client.network.fromserver.FullMapConverter;
-import client.network.accumulator.FullMapRevealer;
 import client.halfmaplogic.validation.HalfMapValidator;
 import client.halfmaplogic.validation.rule.*;
 
@@ -117,15 +114,15 @@ public class MainClient {
         var fullMapService = new FullMapSplitter();
         var twoOptHelper = new TwoOptHelper();
 
-        var nearestNeighbour = new NearestNeighbourTraversalStrategy();
-        var twoOpt = new TwoOptTraversalStrategy(nearestNeighbour, twoOptHelper);
+        var nearestNeighbor = new NearestNeighborTraversalStrategy();
+        var twoOpt = new TwoOptTraversalStrategy(nearestNeighbor, twoOptHelper);
         var simulatedAnnealing = new SimulatedAnnealingTraversalStrategy(twoOpt, new Random(), twoOptHelper);
-
         var nodeTraversalStrategy = new GeneralNodeTraversalStrategy(heldKarp, simulatedAnnealing);
 
         var pathOptimizer = new PathOptimizer();
+        var mountainSelector = new GreedyMountainSelector(nodeTraversalStrategy, pathOptimizer);
 
-        return new AIPlayer(fullMapService, nodeTraversalStrategy, pathOptimizer);
+        return new AIPlayer(fullMapService, mountainSelector);
     }
 
     public static void main(String[] args) {

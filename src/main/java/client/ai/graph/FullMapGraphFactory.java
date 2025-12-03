@@ -30,7 +30,7 @@ public class FullMapGraphFactory {
         if (fullMap == null)
             throw new IllegalArgumentException("fullMap must not be null");
 
-        long startTime = System.currentTimeMillis();
+        long startTime = System.nanoTime();
 
         List<XYPair> validNodes = fullMap.nodes().keySet().stream()
                 .filter(coordinate -> !fullMap.nodes().get(coordinate).isWater())
@@ -113,7 +113,9 @@ public class FullMapGraphFactory {
                 next[i][j] = arr;
             }
 
-        logger.info("Graph constructed in {}ms. Nodes: {}", System.currentTimeMillis() - startTime, n);
+        long endTime = System.nanoTime();
+        double duration = (endTime - startTime) / 1_000_000_000.;
+        logger.debug("Graph constructed in {}s, nodes: {}", duration, n);
 
         return new FullMapGraph(indexToCoordinate, coordinateToIndex, distances, next);
     }
