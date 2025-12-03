@@ -64,7 +64,7 @@ public class GreedyMountainSelector extends MountainSelector {
                 PathOptimizer.StepPathMetric currentStepPathMetric = pathOptimizer.calculateBestStepPath(
                         fullMap, fullMapGraph, unrevealedGrassNodes, currentTraversalResult.path()
                 );
-                Objects.requireNonNull(currentTraversalResult, "currentStepPathMetric not be null");
+                Objects.requireNonNull(currentStepPathMetric, "currentStepPathMetric not be null");
 
                 logger.trace("Analyzed mountain {} at iteration {}, expected goal distance: {} -> {}",
                         currentCandidateMountain, iteration, bestCandidateStepPathMetric == null ? "null" : bestCandidateStepPathMetric.expectedGoalDistance(),
