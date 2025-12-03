@@ -77,8 +77,8 @@ public class ExhaustiveMountainSelector extends MountainSelector {
 
         Objects.requireNonNull(bestStepPathMetric, "bestStepPathMetric must not be null");
 
-        logger.trace("Selected mountains: {}", bestSelectedMountains);
-        logger.trace("Step-path: {}", bestStepPathMetric.path());
+        logger.debug("Selected mountains: {}", bestSelectedMountains);
+        logger.debug("Step-path: {}", bestStepPathMetric.path());
 
         long endTime = System.nanoTime();
         double duration = (endTime - startTime) / 1_000_000_000.;
