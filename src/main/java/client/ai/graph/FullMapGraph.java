@@ -36,8 +36,13 @@ public class FullMapGraph {
         if (end == null)
             throw new IllegalArgumentException("end must not be null");
 
-        short startIdx = Objects.requireNonNull(coordinateToIndex.get(start), "startIdx must not be null");
-        short endIdx = Objects.requireNonNull(coordinateToIndex.get(end), "endIdx must not be null");
+        if (!coordinateToIndex.containsKey(start))
+            throw new NoSuchElementException("Coordinate " + start + " not found");
+        if (!coordinateToIndex.containsKey(end))
+            throw new NoSuchElementException("Coordinate " + end + " not found");
+
+        short startIdx = coordinateToIndex.get(start);
+        short endIdx = coordinateToIndex.get(end);
 
         return distances[startIdx][endIdx];
     }

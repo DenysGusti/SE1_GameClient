@@ -1,5 +1,6 @@
 package client.data.fromserver;
 
+import StateMachine.InvalidStateException;
 import client.data.XYPair;
 
 import org.slf4j.Logger;
@@ -70,8 +71,10 @@ public record FullMap(Map<XYPair, FullMapNode> nodes, XYPair topLeftCoordinate, 
         if (nodes.isEmpty())
             return new XYPair(0, 0);
 
-        Objects.requireNonNull(bottomRightCoordinate, "bottomRightCoordinate must not be null");
-        Objects.requireNonNull(topLeftCoordinate, "topLeftCoordinate must not be null");
+        if (bottomRightCoordinate == null)
+            throw new IllegalStateException("bottomRightCoordinate must not be null");
+        if (topLeftCoordinate == null)
+            throw new IllegalStateException("topLeftCoordinate must not be null");
 
         return new XYPair(bottomRightCoordinate.x() - topLeftCoordinate.x() + 1,
                 bottomRightCoordinate.y() - topLeftCoordinate.y() + 1);
