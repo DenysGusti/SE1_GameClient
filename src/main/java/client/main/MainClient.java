@@ -116,9 +116,13 @@ public class MainClient {
 
         var nearestNeighbor = new NearestNeighborTraversalStrategy();
         var twoOpt = new TwoOptTraversalStrategy(nearestNeighbor, twoOptHelper);
-        var simulatedAnnealing = new SimulatedAnnealingTraversalStrategy(twoOpt, new Random(), twoOptHelper);
-        var nodeTraversalStrategy = new GeneralNodeTraversalStrategy(heldKarp, simulatedAnnealing);
 
+        long seed = new Random().nextLong();
+        logger.info("Creating SimulatedAnnealingTraversalStrategy with seed {}", seed);
+        var random = new Random(seed);
+        var simulatedAnnealing = new SimulatedAnnealingTraversalStrategy(twoOpt, random, twoOptHelper);
+
+        var nodeTraversalStrategy = new GeneralNodeTraversalStrategy(heldKarp, simulatedAnnealing);
         var pathOptimizer = new PathOptimizer();
         var mountainSelector = new GreedyMountainSelector(nodeTraversalStrategy, pathOptimizer);
 
