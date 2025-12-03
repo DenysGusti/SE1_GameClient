@@ -36,8 +36,6 @@ public class ExhaustiveMountainSelector extends MountainSelector {
         for (int i = 0; i < numMountainSubsets; ++i) {
             Set<XYPair> currentStrategyNodeTargets = new HashSet<>(unrevealedGrassNodes);
             List<XYPair> selectedMountains = new ArrayList<>();
-            String binary = String.format("%32s", Integer.toBinaryString(i)).replace(' ', '0');
-            logger.trace(binary);
 
             for (int mountainBit = 0; mountainBit < n; ++mountainBit)
                 if ((i & (1 << mountainBit)) != 0) {
@@ -70,6 +68,10 @@ public class ExhaustiveMountainSelector extends MountainSelector {
 
             if (bestStepPathMetric == null ||
                     currentStepPathMetric.expectedGoalDistance() < bestStepPathMetric.expectedGoalDistance()) {
+                logger.trace("Found mountains {}, expected goal distance: {} -> {}",
+                        selectedMountains, bestStepPathMetric == null ? "null" : bestStepPathMetric.expectedGoalDistance(),
+                        currentStepPathMetric.expectedGoalDistance());
+
                 bestStepPathMetric = currentStepPathMetric;
                 bestSelectedMountains = selectedMountains;
             }
