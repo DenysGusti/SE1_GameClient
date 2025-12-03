@@ -101,7 +101,7 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
         int currentVisitedNodesMask = allNodesVisitedMask;
         int currentNode = bestEndNode;
 
-        while (Integer.bitCount(currentVisitedNodesMask) > 0) {
+        while (currentVisitedNodesMask > 0) {
             optimalPath.add(allNodes.get(currentNode));
 
             int visitedNode = currentNode;
