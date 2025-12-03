@@ -21,7 +21,7 @@ public class ExhaustiveMountainSelector extends MountainSelector {
     @Override
     protected PathOptimizer.StepPathMetric computePath(FullMapGraph fullMapGraph, FullMap fullMap, Set<XYPair> unrevealedGrassNodes, List<XYPair> neighborMountains) {
         long startTime = System.nanoTime();
-        logger.debug("Exhaustive Mountain Picker started for {} nodes, {} mountains...",
+        logger.debug("Exhaustive Mountain Selector started for {} nodes, {} mountains...",
                 unrevealedGrassNodes.size(), neighborMountains.size());
 
         int n = neighborMountains.size();
@@ -84,7 +84,7 @@ public class ExhaustiveMountainSelector extends MountainSelector {
 
         long endTime = System.nanoTime();
         double duration = (endTime - startTime) / 1_000_000_000.;
-        logger.debug("Greedy Mountain Picker finished: time: {}s, expected goal distance: {}",
+        logger.debug("Exhaustive Mountain Selector finished: time: {}s, expected goal distance: {}",
                 duration, bestStepPathMetric.expectedGoalDistance());
 
         return bestStepPathMetric;

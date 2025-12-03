@@ -22,7 +22,7 @@ public class GreedyMountainSelector extends MountainSelector {
     protected PathOptimizer.StepPathMetric computePath(FullMapGraph fullMapGraph, FullMap fullMap,
                                                        Set<XYPair> unrevealedGrassNodes, List<XYPair> neighborMountains) {
         long startTime = System.nanoTime();
-        logger.debug("Greedy Mountain Picker started for {} nodes, {} mountains...",
+        logger.debug("Greedy Mountain Selector started for {} nodes, {} mountains...",
                 unrevealedGrassNodes.size(), neighborMountains.size());
 
         List<XYPair> currentSelectedMountains = new ArrayList<>();
@@ -101,7 +101,7 @@ public class GreedyMountainSelector extends MountainSelector {
 
         long endTime = System.nanoTime();
         double duration = (endTime - startTime) / 1_000_000_000.;
-        logger.debug("Greedy Mountain Picker finished: iterations: {}, time: {}s, expected goal distance: {}",
+        logger.debug("Greedy Mountain Selector finished: iterations: {}, time: {}s, expected goal distance: {}",
                 iteration, duration, bestStepPathMetric.expectedGoalDistance());
         return bestStepPathMetric;
     }
