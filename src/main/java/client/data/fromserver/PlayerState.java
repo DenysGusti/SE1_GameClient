@@ -5,8 +5,6 @@ import client.data.PlayerInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
-
 public record PlayerState(PlayerInformation playerInformation, boolean hasCollectedTreasure,
                           EPlayerGameState gameState) {
     private static final Logger logger = LoggerFactory.getLogger(PlayerState.class);

@@ -5,7 +5,6 @@ import client.ai.mountain.MountainSelector;
 import client.ai.mountain.PathOptimizer;
 import client.ai.state.AIState;
 import client.ai.state.ScoutingMySideState;
-import client.ai.tsp.NodeTraversalStrategy;
 import client.data.XYPair;
 import client.data.fromclient.EMove;
 import client.data.fromserver.FullMap;

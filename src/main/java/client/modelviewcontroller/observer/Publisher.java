@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class Publisher<T> {
     private static final Logger logger = LoggerFactory.getLogger(Publisher.class);

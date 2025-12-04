@@ -8,8 +8,6 @@ import client.halfmaplogic.validation.exception.TerrainRuleException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
-
 public class TerrainRule implements IHalfMapValidationRule {
     private static final Logger logger = LoggerFactory.getLogger(TerrainRule.class);
 

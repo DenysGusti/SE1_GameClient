@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
-import java.util.Objects;
 
 public class FromServerConverter {
     private static final Logger logger = LoggerFactory.getLogger(FromServerConverter.class);

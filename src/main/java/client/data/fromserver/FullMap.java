@@ -1,6 +1,5 @@
 package client.data.fromserver;
 
-import StateMachine.InvalidStateException;
 import client.data.XYPair;
 
 import org.slf4j.Logger;

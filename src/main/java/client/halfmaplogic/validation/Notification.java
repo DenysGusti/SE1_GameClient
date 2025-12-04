@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 
 public class Notification {
     private static final Logger logger = LoggerFactory.getLogger(Notification.class);

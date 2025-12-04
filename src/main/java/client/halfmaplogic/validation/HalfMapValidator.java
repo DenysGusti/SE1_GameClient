@@ -6,8 +6,6 @@ import client.halfmaplogic.validation.rule.IHalfMapValidationRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.Objects;
 import java.util.Set;
 
 public class HalfMapValidator {
