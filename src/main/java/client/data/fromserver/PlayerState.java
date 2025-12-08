@@ -7,8 +7,6 @@ import org.slf4j.LoggerFactory;
 
 public record PlayerState(PlayerInformation playerInformation, boolean hasCollectedTreasure,
                           EPlayerGameState gameState) {
-    private static final Logger logger = LoggerFactory.getLogger(PlayerState.class);
-
     public PlayerState {
         if (playerInformation == null)
             throw new IllegalArgumentException("playerInformation is null");

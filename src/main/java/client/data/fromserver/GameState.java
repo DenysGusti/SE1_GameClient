@@ -1,13 +1,8 @@
 package client.data.fromserver;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Optional;
 
 public record GameState(String gameStateID, FullMap fullMap, PlayerState myPlayer, PlayerState enemyPlayer) {
-    private static final Logger logger = LoggerFactory.getLogger(GameState.class);
-
     public GameState {
         if (gameStateID == null)
             throw new IllegalArgumentException("gameStateID is null");

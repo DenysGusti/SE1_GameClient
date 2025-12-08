@@ -1,13 +1,8 @@
 package client.data;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.*;
 
 public record XYPair(int x, int y) {
-    private static final Logger logger = LoggerFactory.getLogger(XYPair.class);
-
     // grid starts from (0, 0)
     public List<XYPair> getAdjacentNeighbors(XYPair gridSize) {
         if (gridSize == null)

@@ -11,7 +11,6 @@ public record FullMap(Map<XYPair, FullMapNode> nodes, XYPair topLeftCoordinate, 
                       XYPair myPlayerPosition, XYPair enemyPlayerPosition,
                       XYPair myFortPosition, XYPair enemyFortPosition,
                       XYPair myTreasurePosition, boolean isMyTreasureCollected) {
-    private static final Logger logger = LoggerFactory.getLogger(FullMap.class);
 
     public static FullMap emptyFullMap() {
         return new FullMap(Map.of(), null, null, null, null, null, null, null, false);
