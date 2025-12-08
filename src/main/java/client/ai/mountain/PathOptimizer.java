@@ -64,7 +64,7 @@ public class PathOptimizer {
         if (unrevealedGrassNodes.isEmpty())
             return 0.;
 
-        var remainingGrassNodes = new HashSet<>(unrevealedGrassNodes);
+        Set<XYPair> remainingGrassNodes = new HashSet<>(unrevealedGrassNodes);
         long sumNodeDistance = 0;
         int currentPathDistance = 0;
 

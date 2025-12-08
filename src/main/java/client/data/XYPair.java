@@ -8,7 +8,7 @@ public record XYPair(int x, int y) {
         if (gridSize == null)
             throw new IllegalArgumentException("gridSize is null");
 
-        var gridNeighbors = new ArrayList<XYPair>();
+        List<XYPair> gridNeighbors = new ArrayList<>();
 
         if (x > 0)
             gridNeighbors.add(new XYPair(x - 1, y));
@@ -27,7 +27,7 @@ public record XYPair(int x, int y) {
         if (gridSize == null)
             throw new IllegalArgumentException("gridSize is null");
 
-        var gridNeighbors = new ArrayList<XYPair>();
+        List<XYPair> gridNeighbors = new ArrayList<>();
 
         if (x > 0 && y > 0)
             gridNeighbors.add(new XYPair(x - 1, y - 1));

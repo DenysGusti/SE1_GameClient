@@ -46,7 +46,7 @@ public class FullMapGraphFactory {
         for (short i = 0; i < n; i++)
             coordinateToIndex.put(indexToCoordinate[i], i);
 
-        short[][] distances = new short[n][n];
+        var distances = new short[n][n];
         var tempNext = (Set<Short>[][]) new Set[n][n];
 
         for (short i = 0; i < n; ++i)

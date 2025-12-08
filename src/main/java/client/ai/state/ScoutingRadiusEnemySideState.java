@@ -23,7 +23,7 @@ public class ScoutingRadiusEnemySideState extends AIState {
 
         if (fullMap.getOptionalEnemyFortPosition().isPresent()) {
             logger.info("Enemy Fort spotted during radius search! Switching to CaptureFortState.");
-            var aiState = new CaptureFortState(aiPlayer);
+            AIState aiState = new CaptureFortState(aiPlayer);
             aiPlayer.setAIState(aiState);
             aiState.handleFullMapUpdate(fullMap);
             return;

@@ -22,7 +22,7 @@ public class ScoutingMySideState extends AIState {
 
         if (fullMap.getOptionalMyTreasurePosition().isPresent()) {
             logger.info("My Treasure discovered at {}! Switching to CollectTreasureState.", fullMap.getOptionalMyTreasurePosition().get());
-            var aiState = new CollectTreasureState(aiPlayer);
+            AIState aiState = new CollectTreasureState(aiPlayer);
             aiPlayer.setAIState(aiState);
             aiState.handleFullMapUpdate(fullMap);
             return;

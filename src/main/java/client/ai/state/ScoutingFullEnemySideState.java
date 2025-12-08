@@ -24,7 +24,7 @@ public class ScoutingFullEnemySideState extends AIState {
 
         if (fullMap.getOptionalEnemyFortPosition().isPresent()) {
             logger.warn("Rare case: Enemy Fort spotted! Switching to CaptureFortState.");
-            var aiState = new CaptureFortState(aiPlayer);
+            AIState aiState = new CaptureFortState(aiPlayer);
             aiPlayer.setAIState(aiState);
             aiState.handleFullMapUpdate(fullMap);
             return;
@@ -32,7 +32,7 @@ public class ScoutingFullEnemySideState extends AIState {
 
         if (aiPlayer.isFirstValidEnemyPlayerPositionIdentified()) {
             logger.info("Enemy start position identified. Switching to optimized ScoutingRadiusEnemySideState.");
-            var aiState = new ScoutingRadiusEnemySideState(aiPlayer);
+            AIState aiState = new ScoutingRadiusEnemySideState(aiPlayer);
             aiPlayer.setAIState(aiState);
             aiState.handleFullMapUpdate(fullMap);
             return;
