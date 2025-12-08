@@ -37,7 +37,7 @@ public class NetworkService {
 
     public static Mono<UniqueGameIdentifier> createNewGame(String serverBaseURL, boolean debugMode, boolean dummyCompetition) {
         if (serverBaseURL == null)
-            return Mono.error(new IllegalArgumentException("serverBaseURL must not be null"));
+            return Mono.error(new IllegalArgumentException("serverBaseURL is null"));
 
         logger.info("Attempting to create a new game, debugMode={}, dummyCompetition={}", debugMode, dummyCompetition);
 
@@ -68,11 +68,11 @@ public class NetworkService {
     public NetworkService(WebClient gameWebClient, FromClientConverter fromClientConverter,
                           FromServerConverter fromServerConverter) {
         if (gameWebClient == null)
-            throw new IllegalArgumentException("gameWebClient must not be null");
+            throw new IllegalArgumentException("gameWebClient is null");
         if (fromClientConverter == null)
-            throw new IllegalArgumentException("fromClientConverter must not be null");
+            throw new IllegalArgumentException("fromClientConverter is null");
         if (fromServerConverter == null)
-            throw new IllegalArgumentException("fromServerConverter must not be null");
+            throw new IllegalArgumentException("fromServerConverter is null");
 
         this.gameWebClient = gameWebClient;
         this.fromClientConverter = fromClientConverter;
@@ -81,7 +81,7 @@ public class NetworkService {
 
     public Mono<UniquePlayerIdentifier> registerPlayer(PlayerInformation playerInformation) {
         if (playerInformation == null)
-            return Mono.error(new IllegalArgumentException("playerInformation must not be null"));
+            return Mono.error(new IllegalArgumentException("playerInformation is null"));
 
         PlayerRegistration playerRegistration = fromClientConverter.convertPlayerInformation(playerInformation);
 
@@ -105,7 +105,7 @@ public class NetworkService {
 
     public Mono<GameState> receiveGameState(UniquePlayerIdentifier uniquePlayerIdentifier) {
         if (uniquePlayerIdentifier == null)
-            return Mono.error(new IllegalArgumentException("uniquePlayerIdentifier must not be null"));
+            return Mono.error(new IllegalArgumentException("uniquePlayerIdentifier is null"));
 
         return gameWebClient
                 .method(HttpMethod.GET)
@@ -126,9 +126,9 @@ public class NetworkService {
 
     public Mono<Void> sendHalfMap(UniquePlayerIdentifier uniquePlayerIdentifier, HalfMap halfMap) {
         if (uniquePlayerIdentifier == null)
-            return Mono.error(new IllegalArgumentException("uniquePlayerIdentifier must not be null"));
+            return Mono.error(new IllegalArgumentException("uniquePlayerIdentifier is null"));
         if (halfMap == null)
-            return Mono.error(new IllegalArgumentException("halfMap must not be null"));
+            return Mono.error(new IllegalArgumentException("halfMap is null"));
 
         PlayerHalfMap playerHalfMap = fromClientConverter.convertHalfMap(uniquePlayerIdentifier, halfMap);
 
@@ -150,9 +150,9 @@ public class NetworkService {
 
     public Mono<Void> sendMove(UniquePlayerIdentifier uniquePlayerIdentifier, EMove move) {
         if (uniquePlayerIdentifier == null)
-            return Mono.error(new IllegalArgumentException("uniquePlayerIdentifier must not be null"));
+            return Mono.error(new IllegalArgumentException("uniquePlayerIdentifier is null"));
         if (move == null)
-            return Mono.error(new IllegalArgumentException("move must not be null"));
+            return Mono.error(new IllegalArgumentException("move is null"));
 
         PlayerMove playerMove = fromClientConverter.convertMove(uniquePlayerIdentifier, move);
 

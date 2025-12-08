@@ -35,7 +35,7 @@ public class PathOptimizer {
             throw new IllegalArgumentException("traversalPath is null");
 
         List<List<XYPair>> allPaths = fullMapGraph.getAllPaths(traversalPath);
-        Objects.requireNonNull(allPaths, "allPaths must not be null");
+        Objects.requireNonNull(allPaths, "allPaths is null");
 
         if (allPaths.isEmpty())
             throw new RuntimeException("No paths could be generated from the traversal path.");

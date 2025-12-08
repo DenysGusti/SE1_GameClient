@@ -13,14 +13,14 @@ public class Publisher<T> {
 
     public void subscribe(Subscriber<T> subscriber) {
         if (subscriber == null)
-            throw new IllegalArgumentException("subscriber must not be null");
+            throw new IllegalArgumentException("subscriber is null");
 
         subscribers.add(subscriber);
     }
 
     public void notify(T data) {
         if (data == null)
-            throw new IllegalArgumentException("data must not be null");
+            throw new IllegalArgumentException("data is null");
 
         subscribers.forEach(listener -> listener.update(data));
     }

@@ -17,21 +17,21 @@ public class PlayerModel {
 
     public void subscribeOnMyPlayerStateUpdated(Subscriber<PlayerState> view) {
         if (view == null)
-            throw new IllegalArgumentException("view must not be null");
+            throw new IllegalArgumentException("view is null");
 
         onMyPlayerStateUpdated.subscribe(view);
     }
 
     public void updateMyPlayerState(PlayerState playerState) {
         if (playerState == null)
-            throw new IllegalArgumentException("playerState must not be null");
+            throw new IllegalArgumentException("playerState is null");
 
         onMyPlayerStateUpdated.notify(playerState);
     }
 
     public void subscribeOnEnemyPlayerStateUpdated(Subscriber<PlayerState> view) {
         if (view == null)
-            throw new IllegalArgumentException("view must not be null");
+            throw new IllegalArgumentException("view is null");
 
         onEnemyPlayerStateUpdated.subscribe(view);
     }
@@ -39,21 +39,21 @@ public class PlayerModel {
 
     public void updateEnemyPlayerState(PlayerState playerState) {
         if (playerState == null)
-            throw new IllegalArgumentException("playerState must not be null");
+            throw new IllegalArgumentException("playerState is null");
 
         onEnemyPlayerStateUpdated.notify(playerState);
     }
 
     public void subscribeOnGameEnded(Subscriber<EPlayerGameState> view) {
         if (view == null)
-            throw new IllegalArgumentException("view must not be null");
+            throw new IllegalArgumentException("view is null");
 
         onGameEnded.subscribe(view);
     }
 
     public void updateGameEnd(EPlayerGameState playerGameState) {
         if (playerGameState == null)
-            throw new IllegalArgumentException("playerGameState must not be null");
+            throw new IllegalArgumentException("playerGameState is null");
 
         onGameEnded.notify(playerGameState);
     }

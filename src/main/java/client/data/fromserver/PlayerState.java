@@ -11,9 +11,9 @@ public record PlayerState(PlayerInformation playerInformation, boolean hasCollec
 
     public PlayerState {
         if (playerInformation == null)
-            throw new IllegalArgumentException("playerInformation must not be null");
+            throw new IllegalArgumentException("playerInformation is null");
         if (gameState == null)
-            throw new IllegalArgumentException("gameState must not be null");
+            throw new IllegalArgumentException("gameState is null");
     }
 
     public boolean mustWait() {

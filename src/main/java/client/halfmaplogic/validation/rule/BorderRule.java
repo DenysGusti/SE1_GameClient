@@ -1,4 +1,5 @@
 package client.halfmaplogic.validation.rule;
+
 import client.data.ETerrain;
 import client.data.XYPair;
 import client.data.fromclient.HalfMap;
@@ -24,9 +25,9 @@ public class BorderRule implements IHalfMapValidationRule {
     @Override
     public void validate(HalfMap halfMap, Notification notification) {
         if (halfMap == null)
-            throw new IllegalArgumentException("halfMap must not be null");
+            throw new IllegalArgumentException("halfMap is null");
         if (notification == null)
-            throw new IllegalArgumentException("notification must not be null");
+            throw new IllegalArgumentException("notification is null");
 
         if (invalidBorder(halfMap, TOP_LEFT_CORNER, TOP_RIGHT_CORNER, REQUIRED_SIDE.x()))
             notification.addError(new BorderRuleException("BorderRule: Top border (y=0) is not >= 51% traversable (6 nodes)"));
@@ -42,9 +43,14 @@ public class BorderRule implements IHalfMapValidationRule {
     }
 
     private boolean invalidBorder(HalfMap halfMap, XYPair start, XYPair end, int requiredCount) {
-        Objects.requireNonNull(halfMap, "halfMap must not be null");
-        Objects.requireNonNull(start, "start must not be null");
-        Objects.requireNonNull(end, "end must not be null");
+        if (halfMap == null)
+            throw new IllegalArgumentException("halfMap is null");
+        if (start == null)
+            throw new IllegalArgumentException("start is null");
+        if (end == null)
+            throw new IllegalArgumentException("end is null");
+        if (requiredCount < 0)
+            throw new IllegalArgumentException("requiredCount is negative");
 
         int traversableCount = 0;
         for (int x = start.x(); x <= end.x(); ++x)

@@ -13,9 +13,9 @@ public record HalfMap(Map<XYPair, ETerrain> nodes, Set<XYPair> potentialForts) {
 
     public HalfMap(Map<XYPair, ETerrain> nodes, Set<XYPair> potentialForts) {
         if (nodes == null)
-            throw new IllegalArgumentException("nodes must not be null");
+            throw new IllegalArgumentException("nodes is null");
         if (potentialForts == null)
-            throw new IllegalArgumentException("potentialForts must not be null");
+            throw new IllegalArgumentException("potentialForts is null");
 
         this.nodes = Map.copyOf(nodes);
         this.potentialForts = Set.copyOf(potentialForts);

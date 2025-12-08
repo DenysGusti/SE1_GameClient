@@ -34,7 +34,7 @@ public class FromClientConverter {
 
     public PlayerRegistration convertPlayerInformation(PlayerInformation playerInformation) {
         if (playerInformation == null)
-            throw new IllegalArgumentException("playerInformation must not be null");
+            throw new IllegalArgumentException("playerInformation is null");
 
         return new PlayerRegistration(
                 playerInformation.firstName(),
@@ -45,9 +45,9 @@ public class FromClientConverter {
 
     public PlayerHalfMap convertHalfMap(UniquePlayerIdentifier uniquePlayerIdentifier, HalfMap halfMap) {
         if (uniquePlayerIdentifier == null)
-            throw new IllegalArgumentException("uniquePlayerIdentifier must not be null");
+            throw new IllegalArgumentException("uniquePlayerIdentifier is null");
         if (halfMap == null)
-            throw new IllegalArgumentException("halfMap must not be null");
+            throw new IllegalArgumentException("halfMap is null");
 
         var nodes = new ArrayList<PlayerHalfMapNode>();
         Set<XYPair> potentialForts = halfMap.potentialForts();
@@ -62,9 +62,9 @@ public class FromClientConverter {
 
     public PlayerMove convertMove(UniquePlayerIdentifier uniquePlayerIdentifier, EMove move) {
         if (uniquePlayerIdentifier == null)
-            throw new IllegalArgumentException("uniquePlayerIdentifier must not be null");
+            throw new IllegalArgumentException("uniquePlayerIdentifier is null");
         if (move == null)
-            throw new IllegalArgumentException("move must not be null");
+            throw new IllegalArgumentException("move is null");
 
         return PlayerMove.of(uniquePlayerIdentifier.uniquePlayerID(), moveConverter.get(move));
     }

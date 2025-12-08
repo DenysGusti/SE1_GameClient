@@ -19,9 +19,9 @@ public class TerrainRule implements IHalfMapValidationRule {
     @Override
     public void validate(HalfMap halfMap, Notification notification) {
         if (halfMap == null)
-            throw new IllegalArgumentException("halfMap must not be null");
+            throw new IllegalArgumentException("halfMap is null");
         if (notification == null)
-            throw new IllegalArgumentException("notification must not be null");
+            throw new IllegalArgumentException("notification is null");
 
         if (halfMap.nodes().size() != HALF_MAP_NODES)
             notification.addError( new TerrainRuleException("TerrainRule: Map must have exactly 50 nodes, but found " + halfMap.nodes().size()));

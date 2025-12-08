@@ -9,7 +9,7 @@ public record FullMapNode(ETerrain terrain, boolean isRevealed) {
 
     public FullMapNode {
         if (terrain == null)
-            throw new IllegalArgumentException("terrain must not be null");
+            throw new IllegalArgumentException("terrain is null");
     }
 
     public FullMapNode withIsRevealed(boolean isRevealed) {

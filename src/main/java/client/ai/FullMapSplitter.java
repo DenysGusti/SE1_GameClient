@@ -14,7 +14,7 @@ public class FullMapSplitter {
 
     public Set<XYPair> getUnrevealedGrassNodes(FullMap fullMap, boolean onMySide) {
         if (fullMap == null)
-            throw new IllegalArgumentException("fullMap must not be null");
+            throw new IllegalArgumentException("fullMap is null");
 
         return fullMap.nodes().entrySet().stream()
                 .filter(e -> e.getValue().terrain() == ETerrain.Grass && !e.getValue().isRevealed())
@@ -26,11 +26,11 @@ public class FullMapSplitter {
     // is coordinate on the same side as my fort
     private static boolean IsCoordinateOnMySide(FullMap fullMap, XYPair coordinate) {
         if (fullMap == null)
-            throw new IllegalArgumentException("fullMap must not be null");
+            throw new IllegalArgumentException("fullMap is null");
         if (coordinate == null)
-            throw new IllegalArgumentException("coordinate must not be null");
+            throw new IllegalArgumentException("coordinate is null");
 
-        Objects.requireNonNull(fullMap.myFortPosition(), "fullMap.myFortPosition() must not be null");
+        Objects.requireNonNull(fullMap.myFortPosition(), "fullMap.myFortPosition() is null");
 
         boolean isWideMap = fullMap.bottomRightCoordinate().x() >= HALF_MAP_SIZE.x();
 

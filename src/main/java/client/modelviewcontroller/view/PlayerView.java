@@ -31,23 +31,23 @@ public class PlayerView {
 
     public void renderMyPlayerState(PlayerState playerState) {
         if (playerState == null)
-            throw new IllegalArgumentException("playerState must not be null");
+            throw new IllegalArgumentException("playerState is null");
 
         renderPlayerState("My Player", playerState);
     }
 
     public void renderEnemyPlayerState(PlayerState playerState) {
         if (playerState == null)
-            throw new IllegalArgumentException("playerState must not be null");
+            throw new IllegalArgumentException("playerState is null");
 
         renderPlayerState("Enemy Player", playerState);
     }
 
     private void renderPlayerState(String header, PlayerState playerState) {
         if (header == null)
-            throw new IllegalArgumentException("header must not be null");
+            throw new IllegalArgumentException("header is null");
         if (playerState == null)
-            throw new IllegalArgumentException("playerState must not be null");
+            throw new IllegalArgumentException("playerState is null");
 
         System.out.printf("%-" + HEADER_WIDTH + "s", header + ":");
 
@@ -59,7 +59,7 @@ public class PlayerView {
 
     private void renderPlayerInformation(PlayerInformation playerInformation) {
         if (playerInformation == null)
-            throw new IllegalArgumentException("playerInformation must not be null");
+            throw new IllegalArgumentException("playerInformation is null");
 
         String info = playerInformation.firstName() + " "
                 + playerInformation.lastName() + " "

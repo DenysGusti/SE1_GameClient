@@ -8,7 +8,7 @@ public abstract class AIState {
 
     public AIState(AIPlayer aiPlayer) {
         if (aiPlayer == null)
-            throw new IllegalArgumentException("aiPlayer cannot be null");
+            throw new IllegalArgumentException("aiPlayer is null");
 
         this.aiPlayer = aiPlayer;
     }

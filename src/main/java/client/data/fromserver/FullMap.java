@@ -22,7 +22,7 @@ public record FullMap(Map<XYPair, FullMapNode> nodes, XYPair topLeftCoordinate, 
                    XYPair myFortPosition, XYPair enemyFortPosition,
                    XYPair myTreasurePosition, boolean isMyTreasureCollected) {
         if (nodes == null)
-            throw new IllegalArgumentException("nodes must not be null");
+            throw new IllegalArgumentException("nodes is null");
 
         this.nodes = Map.copyOf(nodes);
         this.topLeftCoordinate = topLeftCoordinate;
@@ -37,7 +37,7 @@ public record FullMap(Map<XYPair, FullMapNode> nodes, XYPair topLeftCoordinate, 
 
     public FullMap withNodes(Map<XYPair, FullMapNode> newNodes) {
         if (newNodes == null)
-            throw new IllegalArgumentException("newNodes must not be null");
+            throw new IllegalArgumentException("newNodes is null");
 
         return new FullMap(newNodes, topLeftCoordinate, bottomRightCoordinate,
                 myPlayerPosition, enemyPlayerPosition,
@@ -71,9 +71,9 @@ public record FullMap(Map<XYPair, FullMapNode> nodes, XYPair topLeftCoordinate, 
             return new XYPair(0, 0);
 
         if (bottomRightCoordinate == null)
-            throw new IllegalStateException("bottomRightCoordinate must not be null");
+            throw new IllegalStateException("bottomRightCoordinate is null");
         if (topLeftCoordinate == null)
-            throw new IllegalStateException("topLeftCoordinate must not be null");
+            throw new IllegalStateException("topLeftCoordinate is null");
 
         return new XYPair(bottomRightCoordinate.x() - topLeftCoordinate.x() + 1,
                 bottomRightCoordinate.y() - topLeftCoordinate.y() + 1);

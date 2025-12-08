@@ -50,7 +50,7 @@ public abstract class MountainSelector {
             throw new IllegalArgumentException("unrevealedGrassNodes is null");
 
         List<XYPair> neighborMountains = getNeighborMountains(fullMap, unrevealedGrassNodes);
-        Objects.requireNonNull(neighborMountains, "neighborMountains must not be null");
+        Objects.requireNonNull(neighborMountains, "neighborMountains is null");
         logger.debug("Neighbor mountains: {}", neighborMountains);
 
         return computePath(fullMapGraph, fullMap, unrevealedGrassNodes, neighborMountains);

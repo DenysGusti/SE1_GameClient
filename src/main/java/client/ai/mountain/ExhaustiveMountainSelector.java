@@ -14,8 +14,8 @@ public class ExhaustiveMountainSelector extends MountainSelector {
     private static final Logger logger = LoggerFactory.getLogger(ExhaustiveMountainSelector.class);
 
     public ExhaustiveMountainSelector(NodeTraversalStrategy nodeTraversalStrategy, PathOptimizer pathOptimizer) {
-        super(Objects.requireNonNull(nodeTraversalStrategy, "nodeTraversalStrategy must not be null"),
-                Objects.requireNonNull(pathOptimizer, "pathOptimizer must not be null"));
+        super(Objects.requireNonNull(nodeTraversalStrategy, "nodeTraversalStrategy is null"),
+                Objects.requireNonNull(pathOptimizer, "pathOptimizer is null"));
     }
 
     @Override
@@ -52,14 +52,14 @@ public class ExhaustiveMountainSelector extends MountainSelector {
 
             NodeTraversalStrategy.TraversalResult traversalResult =
                     nodeTraversalStrategy.orderNodes(fullMapGraph, myPlayerPosition, currentStrategyNodeTargets);
-            Objects.requireNonNull(traversalResult, "traversalResult must not be null");
+            Objects.requireNonNull(traversalResult, "traversalResult is null");
 
             if (traversalResult.path().isEmpty())
                 throw new RuntimeException("Traversal path is empty");
 
             PathOptimizer.StepPathMetric currentStepPathMetric =
                     pathOptimizer.calculateBestStepPath(fullMap, fullMapGraph, unrevealedGrassNodes, traversalResult.path());
-            Objects.requireNonNull(currentStepPathMetric, "currentStepPathMetric must not be null");
+            Objects.requireNonNull(currentStepPathMetric, "currentStepPathMetric is null");
 
             if (currentStepPathMetric.path().isEmpty())
                 throw new RuntimeException("Step-path is empty");
@@ -77,7 +77,7 @@ public class ExhaustiveMountainSelector extends MountainSelector {
             }
         }
 
-        Objects.requireNonNull(bestStepPathMetric, "bestStepPathMetric must not be null");
+        Objects.requireNonNull(bestStepPathMetric, "bestStepPathMetric is null");
 
         logger.debug("Selected mountains: {}", bestSelectedMountains);
         logger.debug("Step-path: {}", bestStepPathMetric.path());

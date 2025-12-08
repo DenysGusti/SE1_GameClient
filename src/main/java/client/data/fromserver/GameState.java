@@ -10,16 +10,16 @@ public record GameState(String gameStateID, FullMap fullMap, PlayerState myPlaye
 
     public GameState {
         if (gameStateID == null)
-            throw new IllegalArgumentException("gameStateID must not be null");
+            throw new IllegalArgumentException("gameStateID is null");
         if (fullMap == null)
-            throw new IllegalArgumentException("fullMap must not be null");
+            throw new IllegalArgumentException("fullMap is null");
         if (myPlayer == null)
-            throw new IllegalArgumentException("myPlayer must not be null");
+            throw new IllegalArgumentException("myPlayer is null");
     }
 
     public GameState withFullMap(FullMap fullMap) {
         if (fullMap == null)
-            throw new IllegalArgumentException("fullMap must not be null");
+            throw new IllegalArgumentException("fullMap is null");
 
         return new GameState(gameStateID, fullMap, myPlayer, enemyPlayer);
     }

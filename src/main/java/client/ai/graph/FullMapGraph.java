@@ -16,13 +16,13 @@ public class FullMapGraph {
 
     public FullMapGraph(XYPair[] indexToCoordinate, Map<XYPair, Short> coordinateToIndex, short[][] distances, short[][][] next) {
         if (indexToCoordinate == null)
-            throw new IllegalArgumentException("indexToCoordinate must not be null");
+            throw new IllegalArgumentException("indexToCoordinate is null");
         if (coordinateToIndex == null)
-            throw new IllegalArgumentException("coordinateToIndex must not be null");
+            throw new IllegalArgumentException("coordinateToIndex is null");
         if (distances == null)
-            throw new IllegalArgumentException("distances must not be null");
+            throw new IllegalArgumentException("distances is null");
         if (next == null)
-            throw new IllegalArgumentException("next must not be null");
+            throw new IllegalArgumentException("next is null");
 
         this.indexToCoordinate = indexToCoordinate;
         this.coordinateToIndex = coordinateToIndex;
@@ -32,9 +32,9 @@ public class FullMapGraph {
 
     public int getDistance(XYPair start, XYPair end) {
         if (start == null)
-            throw new IllegalArgumentException("start must not be null");
+            throw new IllegalArgumentException("start is null");
         if (end == null)
-            throw new IllegalArgumentException("end must not be null");
+            throw new IllegalArgumentException("end is null");
 
         if (!coordinateToIndex.containsKey(start))
             throw new NoSuchElementException("Coordinate " + start + " not found");
@@ -49,7 +49,7 @@ public class FullMapGraph {
 
     public int getDistance(List<XYPair> waypoints) {
         if (waypoints == null)
-            throw new IllegalArgumentException("waypoints must not be null");
+            throw new IllegalArgumentException("waypoints is null");
         if (waypoints.size() <= 1)
             throw new IllegalArgumentException("waypoint must have at least start and end");
 
@@ -65,13 +65,13 @@ public class FullMapGraph {
 
     public List<List<XYPair>> getAllPaths(XYPair start, XYPair end) {
         if (start == null)
-            throw new IllegalArgumentException("start must not be null");
+            throw new IllegalArgumentException("start is null");
         if (end == null)
-            throw new IllegalArgumentException("end must not be null");
+            throw new IllegalArgumentException("end is null");
 
         List<List<XYPair>> allPaths = new ArrayList<>();
 
-        short endIdx = Objects.requireNonNull(coordinateToIndex.get(end), "endIdx must not be null");
+        short endIdx = Objects.requireNonNull(coordinateToIndex.get(end), "endIdx is null");
 
         Queue<PathState> queue = new ArrayDeque<>();
         queue.add(new PathState(start, List.of(start)));
@@ -86,7 +86,7 @@ public class FullMapGraph {
                 continue;
             }
 
-            short currentIdx = Objects.requireNonNull(coordinateToIndex.get(current), "currentIdx must not be null");
+            short currentIdx = Objects.requireNonNull(coordinateToIndex.get(current), "currentIdx is null");
             short[] nextIndices = next[currentIdx][endIdx];
 
             Set<XYPair> nextCoordinates = new HashSet<>();
@@ -109,7 +109,7 @@ public class FullMapGraph {
 
     public List<List<XYPair>> getAllPaths(List<XYPair> waypoints) {
         if (waypoints == null)
-            throw new IllegalArgumentException("waypoints must not be null");
+            throw new IllegalArgumentException("waypoints is null");
         if (waypoints.size() <= 1)
             throw new IllegalArgumentException("waypoint must have at least start and end");
 

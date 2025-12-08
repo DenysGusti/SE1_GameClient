@@ -14,13 +14,13 @@ public class CaptureFortState extends AIState {
     private static final Logger logger = LoggerFactory.getLogger(CaptureFortState.class);
 
     public CaptureFortState(AIPlayer aiPlayer) {
-        super(Objects.requireNonNull(aiPlayer, "aiPlayer must not be null"));
+        super(Objects.requireNonNull(aiPlayer, "aiPlayer is null"));
     }
 
     @Override
     public void handleFullMapUpdate(FullMap fullMap) {
         if (fullMap == null)
-            throw new IllegalArgumentException("fullMap must not be null");
+            throw new IllegalArgumentException("fullMap is null");
 
         if (aiPlayer.hasMoves())
             return;

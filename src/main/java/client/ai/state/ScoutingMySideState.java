@@ -13,12 +13,12 @@ public class ScoutingMySideState extends AIState {
     private static final Logger logger = LoggerFactory.getLogger(ScoutingMySideState.class);
 
     public ScoutingMySideState(AIPlayer aiPlayer) {
-        super(Objects.requireNonNull(aiPlayer, "aiPlayer must not be null"));
+        super(Objects.requireNonNull(aiPlayer, "aiPlayer is null"));
     }
 
     @Override
     public void handleFullMapUpdate(FullMap fullMap) {
-        if (fullMap == null) throw new IllegalArgumentException("fullMap must not be null");
+        if (fullMap == null) throw new IllegalArgumentException("fullMap is null");
 
         if (fullMap.getOptionalMyTreasurePosition().isPresent()) {
             logger.info("My Treasure discovered at {}! Switching to CollectTreasureState.", fullMap.getOptionalMyTreasurePosition().get());

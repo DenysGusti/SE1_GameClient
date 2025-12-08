@@ -34,19 +34,19 @@ public class GameController {
                           HalfMapGenerator halfMapGenerator, HalfMapValidator halfMapValidator, AIPlayer aiPlayer,
                           FullMapGraphFactory fullMapGraphFactory) {
         if (playerModel == null)
-            throw new IllegalArgumentException("playerModel must not be null");
+            throw new IllegalArgumentException("playerModel is null");
         if (mapModel == null)
-            throw new IllegalArgumentException("mapModel must not be null");
+            throw new IllegalArgumentException("mapModel is null");
         if (gameSession == null)
-            throw new IllegalArgumentException("gameSession must not be null");
+            throw new IllegalArgumentException("gameSession is null");
         if (halfMapGenerator == null)
-            throw new IllegalArgumentException("halfMapGenerator must not be null");
+            throw new IllegalArgumentException("halfMapGenerator is null");
         if (halfMapValidator == null)
-            throw new IllegalArgumentException("halfMapValidator must not be null");
+            throw new IllegalArgumentException("halfMapValidator is null");
         if (aiPlayer == null)
-            throw new IllegalArgumentException("aiPlayer must not be null");
+            throw new IllegalArgumentException("aiPlayer is null");
         if (fullMapGraphFactory == null)
-            throw new IllegalArgumentException("fullMapGraphFactory must not be null");
+            throw new IllegalArgumentException("fullMapGraphFactory is null");
 
         this.playerModel = playerModel;
         this.mapModel = mapModel;
@@ -59,7 +59,7 @@ public class GameController {
 
     public void runGame(PlayerInformation playerInformation) {
         if (playerInformation == null)
-            throw new IllegalArgumentException("playerInformation must not be null");
+            throw new IllegalArgumentException("playerInformation is null");
 
         gameSession.registerPlayer(playerInformation).block();
         logger.info("Player registration complete.");
@@ -105,7 +105,7 @@ public class GameController {
 
     private void updateModels(GameState gameState) {
         if (gameState == null)
-            throw new IllegalArgumentException("gameState must not be null");
+            throw new IllegalArgumentException("gameState is null");
 
         playerModel.updateMyPlayerState(gameState.myPlayer());
         gameState.getOptionalEnemyPlayer().ifPresent(playerModel::updateEnemyPlayerState);

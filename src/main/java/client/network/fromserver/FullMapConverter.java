@@ -23,7 +23,7 @@ public class FullMapConverter {
 
     public FullMap convertFullMap(messagesbase.messagesfromserver.FullMap fullMap, boolean isMyTreasureCollected) {
         if (fullMap == null)
-            throw new IllegalArgumentException("fullMap must not be null");
+            throw new IllegalArgumentException("fullMap is null");
 
         if (fullMap.isEmpty())
             return FullMap.emptyFullMap();
@@ -69,7 +69,7 @@ public class FullMapConverter {
 
     private static boolean representsEnemyPlayer(EPlayerPositionState state) {
         if (state == null)
-            throw new IllegalArgumentException("state must not be null");
+            throw new IllegalArgumentException("state is null");
         return state == EPlayerPositionState.EnemyPlayerPosition || state == EPlayerPositionState.BothPlayerPosition;
     }
 }

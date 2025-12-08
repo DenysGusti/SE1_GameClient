@@ -25,23 +25,23 @@ public class FromServerConverter {
 
     public FromServerConverter(FullMapConverter fullMapConverter) {
         if (fullMapConverter == null)
-            throw new IllegalArgumentException("fullMapConverter must not be null");
+            throw new IllegalArgumentException("fullMapConverter is null");
 
         this.fullMapConverter = fullMapConverter;
     }
 
     public UniquePlayerIdentifier convertPlayerID(messagesbase.UniquePlayerIdentifier uniquePlayerIdentifier) {
         if (uniquePlayerIdentifier == null)
-            throw new IllegalArgumentException("uniquePlayerIdentifier must not be null");
+            throw new IllegalArgumentException("uniquePlayerIdentifier is null");
 
         return new UniquePlayerIdentifier(uniquePlayerIdentifier.getUniquePlayerID());
     }
 
     public GameState convertGameState(UniquePlayerIdentifier uniquePlayerIdentifier, messagesbase.messagesfromserver.GameState gameState) {
         if (uniquePlayerIdentifier == null)
-            throw new IllegalArgumentException("uniquePlayerIdentifier must not be null");
+            throw new IllegalArgumentException("uniquePlayerIdentifier is null");
         if (gameState == null)
-            throw new IllegalArgumentException("gameState must not be null");
+            throw new IllegalArgumentException("gameState is null");
 
         PlayerState myPlayerState = gameState.getPlayers().stream()
                 .filter(player -> player.equals(messagesbase.UniquePlayerIdentifier.of(uniquePlayerIdentifier.uniquePlayerID())))
@@ -61,7 +61,7 @@ public class FromServerConverter {
 
     private PlayerState convertPlayerState(messagesbase.messagesfromserver.PlayerState playerState) {
         if (playerState == null)
-            throw new IllegalArgumentException("playerState must not be null");
+            throw new IllegalArgumentException("playerState is null");
 
         var playerInformation = new PlayerInformation(
                 playerState.getFirstName(),

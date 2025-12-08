@@ -40,7 +40,7 @@ public class MapView {
 
     public void renderFullMap(FullMap fullMap) {
         if (fullMap == null)
-            throw new IllegalArgumentException("fullMap must not be null");
+            throw new IllegalArgumentException("fullMap is null");
 
         XYPair size = fullMap.size();
         XYPair topLeft = fullMap.getOptionalTopLeftCoordinate().orElse(new XYPair(0, 0));
@@ -121,9 +121,9 @@ public class MapView {
 
     private String[] stringifyHalfMapTile(HalfMap halfMap, XYPair coordinate) {
         if (halfMap == null)
-            throw new IllegalArgumentException("halfMap must not be null");
+            throw new IllegalArgumentException("halfMap is null");
         if (coordinate == null)
-            throw new IllegalArgumentException("coordinate must not be null");
+            throw new IllegalArgumentException("coordinate is null");
 
         ETerrain terrain = halfMap.nodes().get(coordinate);
 
@@ -160,12 +160,12 @@ public class MapView {
 
     private String[] stringifyFullMapTile(FullMap fullMap, XYPair coordinate) {
         if (fullMap == null)
-            throw new IllegalArgumentException("fullMap must not be null");
+            throw new IllegalArgumentException("fullMap is null");
         if (coordinate == null)
-            throw new IllegalArgumentException("coordinate must not be null");
+            throw new IllegalArgumentException("coordinate is null");
 
         FullMapNode fullMapNode = fullMap.nodes().get(coordinate);
-        Objects.requireNonNull(fullMapNode, "fullMapNode must not be null");
+        Objects.requireNonNull(fullMapNode, "fullMapNode is null");
 
         String terrainEmoji = terrainEmojiConverter.get(fullMapNode.terrain());
 

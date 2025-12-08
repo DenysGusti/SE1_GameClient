@@ -28,7 +28,7 @@ public class FullMapGraphFactory {
     @SuppressWarnings("unchecked")
     public FullMapGraph createGraph(FullMap fullMap) {
         if (fullMap == null)
-            throw new IllegalArgumentException("fullMap must not be null");
+            throw new IllegalArgumentException("fullMap is null");
 
         long startTime = System.nanoTime();
 

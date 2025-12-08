@@ -17,9 +17,9 @@ public class FortRule implements IHalfMapValidationRule {
     @Override
     public void validate(HalfMap halfMap, Notification notification) {
         if (halfMap == null)
-            throw new IllegalArgumentException("halfMap must not be null");
+            throw new IllegalArgumentException("halfMap is null");
         if (notification == null)
-            throw new IllegalArgumentException("notification must not be null");
+            throw new IllegalArgumentException("notification is null");
 
         if (halfMap.potentialForts().size() != REQUIRED_FORTS)
             notification.addError(new FortRuleException("FortRule: Wrong number of forts. Found " + halfMap.potentialForts().size() + ", Required " + REQUIRED_FORTS));

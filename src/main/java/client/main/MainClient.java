@@ -37,7 +37,7 @@ public class MainClient {
 
     public static void validateArguments(String[] args) throws CommandLineArgumentsException {
         if (args == null)
-            throw new IllegalArgumentException("args must not be null");
+            throw new IllegalArgumentException("args is null");
 
         if (args.length != 2 && args.length != 3)
             throw new CommandLineArgumentsException("Wrong number of arguments!");
@@ -65,9 +65,9 @@ public class MainClient {
 
     private static NetworkService createNetworkService(String serverBaseURL, UniqueGameIdentifier uniqueGameIdentifier) {
         if (serverBaseURL == null)
-            throw new IllegalArgumentException("serverBaseURL must not be null");
+            throw new IllegalArgumentException("serverBaseURL is null");
         if (uniqueGameIdentifier == null)
-            throw new IllegalArgumentException("uniqueGameIdentifier must not be null");
+            throw new IllegalArgumentException("uniqueGameIdentifier is null");
 
         var gameWebClient = WebClient.builder()
                 .baseUrl(serverBaseURL + "/games/" + uniqueGameIdentifier.uniqueGameID())
@@ -87,9 +87,9 @@ public class MainClient {
 
     private static GameSession createGameSession(NetworkService networkService, FullMapAccumulator fullMapAccumulator) {
         if (networkService == null)
-            throw new IllegalArgumentException("networkService must not be null");
+            throw new IllegalArgumentException("networkService is null");
         if (fullMapAccumulator == null)
-            throw new IllegalArgumentException("fullMapAccumulator must not be null");
+            throw new IllegalArgumentException("fullMapAccumulator is null");
 
         return new GameSession(networkService, fullMapAccumulator);
     }

@@ -17,7 +17,7 @@ public class FullMapRevealer {
 
     public FullMap revealCoordinatesFromMyPlayer(FullMap fullMap) {
         if (fullMap == null)
-            throw new IllegalArgumentException("fullMap must not be null");
+            throw new IllegalArgumentException("fullMap is null");
 
         Set<XYPair> coordinatesToReveal = getCoordinatesToRevealFromMyPlayer(fullMap);
         Map<XYPair, FullMapNode> newNodes = new HashMap<>(fullMap.nodes());
@@ -31,9 +31,9 @@ public class FullMapRevealer {
 
     public FullMap combineRevealedMyTreasure(FullMap oldFullMap, FullMap newFullMap) {
         if (oldFullMap == null)
-            throw new IllegalArgumentException("oldFullMap must not be null");
+            throw new IllegalArgumentException("oldFullMap is null");
         if (newFullMap == null)
-            throw new IllegalArgumentException("newFullMap must not be null");
+            throw new IllegalArgumentException("newFullMap is null");
 
         XYPair myTreasurePosition = oldFullMap.getOptionalMyTreasurePosition().orElse(newFullMap.myTreasurePosition());
 
@@ -43,9 +43,9 @@ public class FullMapRevealer {
 
     public FullMap combineRevealedNodes(FullMap oldFullMap, FullMap newFullMap) {
         if (oldFullMap == null)
-            throw new IllegalArgumentException("oldFullMap must not be null");
+            throw new IllegalArgumentException("oldFullMap is null");
         if (newFullMap == null)
-            throw new IllegalArgumentException("newFullMap must not be null");
+            throw new IllegalArgumentException("newFullMap is null");
 
         Map<XYPair, FullMapNode> newNodes = new HashMap<>(newFullMap.nodes());
 
@@ -61,7 +61,7 @@ public class FullMapRevealer {
 
     private Set<XYPair> getCoordinatesToRevealFromMyPlayer(FullMap fullMap) {
         if (fullMap == null)
-            throw new IllegalArgumentException("fullMap must not be null");
+            throw new IllegalArgumentException("fullMap is null");
 
         return fullMap.getOptionalMyPlayerPosition()
                 .map(coordinate -> {

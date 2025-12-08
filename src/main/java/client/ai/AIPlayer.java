@@ -146,7 +146,7 @@ public class AIPlayer {
             throw new IllegalStateException("currentMyPlayerPosition is null");
 
         XYPair nextPosition = plannedPath.element();  // throws an exception if queue is empty
-        Objects.requireNonNull(nextPosition, "nextPosition must not be null");
+        Objects.requireNonNull(nextPosition, "nextPosition is null");
 
         var delta = new XYPair(
                 nextPosition.x() - currentMyPlayerPosition.x(),
@@ -175,7 +175,7 @@ public class AIPlayer {
             throw new IllegalStateException("fullMapGraph is null");
 
         Set<XYPair> nodesToTraverse = fullMapSplitter.getUnrevealedGrassNodes(fullMap, onMySide);
-        Objects.requireNonNull(nodesToTraverse, "nodesToTraverse must not be null");
+        Objects.requireNonNull(nodesToTraverse, "nodesToTraverse is null");
 
         int originalSize = nodesToTraverse.size();
 

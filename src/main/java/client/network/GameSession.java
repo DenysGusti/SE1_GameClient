@@ -26,9 +26,9 @@ public class GameSession {
 
     public GameSession(NetworkService networkService, FullMapAccumulator fullMapAccumulator) {
         if (networkService == null)
-            throw new IllegalArgumentException("networkService must not be null");
+            throw new IllegalArgumentException("networkService is null");
         if (fullMapAccumulator == null)
-            throw new IllegalArgumentException("fullMapAccumulator must not be null");
+            throw new IllegalArgumentException("fullMapAccumulator is null");
 
         this.networkService = networkService;
         this.fullMapAccumulator = fullMapAccumulator;
@@ -36,7 +36,7 @@ public class GameSession {
 
     public Mono<Void> registerPlayer(PlayerInformation playerInformation) {
         if (playerInformation == null)
-            return Mono.error(new IllegalArgumentException("playerInformation must not be null"));
+            return Mono.error(new IllegalArgumentException("playerInformation is null"));
 
         return networkService.registerPlayer(playerInformation)
                 .doOnNext(playerIdentifier -> {
@@ -48,7 +48,7 @@ public class GameSession {
 
     public Flux<GameState> pollForNewGameState() {
         if (playerIdentifier == null)
-            return Flux.error(new IllegalStateException("playerIdentifier must not be null"));
+            return Flux.error(new IllegalStateException("playerIdentifier is null"));
 
         return Flux.interval(Duration.ofMillis(POLL_DELAY_MS))
                 .doOnNext(tick -> logger.trace("Polling for game state..."))
@@ -60,21 +60,21 @@ public class GameSession {
 
     public Mono<Void> sendHalfMap(HalfMap halfMap) {
         if (playerIdentifier == null)
-            return Mono.error(new IllegalStateException("playerIdentifier must not be null"));
+            return Mono.error(new IllegalStateException("playerIdentifier is null"));
 
         return networkService.sendHalfMap(playerIdentifier, halfMap);
     }
 
     public Mono<Void> sendMove(EMove move) {
         if (playerIdentifier == null)
-            return Mono.error(new IllegalStateException("playerIdentifier must not be null"));
+            return Mono.error(new IllegalStateException("playerIdentifier is null"));
 
         return networkService.sendMove(playerIdentifier, move);
     }
 
     private boolean isNewGameState(GameState gameState) {
         if (gameState == null)
-            throw new IllegalArgumentException("gameState must not be null");
+            throw new IllegalArgumentException("gameState is null");
 
         // null-safe comparison, if lastGameStateID is null
         return !Objects.equals(lastGameStateID, gameState.gameStateID());
@@ -83,7 +83,7 @@ public class GameSession {
     // Command
     private void updateInternalState(GameState gameState) {
         if (gameState == null)
-            throw new IllegalArgumentException("gameState must not be null");
+            throw new IllegalArgumentException("gameState is null");
 
         lastGameStateID = gameState.gameStateID();
         logger.debug("Received new GameState ID: {}", lastGameStateID);
@@ -94,7 +94,7 @@ public class GameSession {
     // Query
     private GameState injectAccumulatedMap(GameState gameState) {
         if (gameState == null)
-            throw new IllegalArgumentException("gameState must not be null");
+            throw new IllegalArgumentException("gameState is null");
 
         return gameState.withFullMap(fullMapAccumulator.getFullMap());
     }

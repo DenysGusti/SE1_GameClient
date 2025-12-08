@@ -14,8 +14,8 @@ public class GreedyMountainSelector extends MountainSelector {
     private static final Logger logger = LoggerFactory.getLogger(GreedyMountainSelector.class);
 
     public GreedyMountainSelector(NodeTraversalStrategy nodeTraversalStrategy, PathOptimizer pathOptimizer) {
-        super(Objects.requireNonNull(nodeTraversalStrategy, "nodeTraversalStrategy must not be null"),
-                Objects.requireNonNull(pathOptimizer, "pathOptimizer must not be null"));
+        super(Objects.requireNonNull(nodeTraversalStrategy, "nodeTraversalStrategy is null"),
+                Objects.requireNonNull(pathOptimizer, "pathOptimizer is null"));
     }
 
     @Override
@@ -94,7 +94,7 @@ public class GreedyMountainSelector extends MountainSelector {
             }
         }
 
-        Objects.requireNonNull(bestStepPathMetric, "bestStepPathMetric must not be null");
+        Objects.requireNonNull(bestStepPathMetric, "bestStepPathMetric is null");
 
         logger.debug("Selected mountains: {}", currentSelectedMountains);
         logger.debug("Step-path: {}", bestStepPathMetric.path());

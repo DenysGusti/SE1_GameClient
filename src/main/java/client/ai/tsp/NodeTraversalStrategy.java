@@ -10,9 +10,9 @@ public interface NodeTraversalStrategy {
     record TraversalResult(List<XYPair> path, int distance) {
         public TraversalResult {
             if (path == null)
-                throw new IllegalArgumentException("path is null");
+                throw new IllegalArgumentException("path must not be null");
             if (distance < 0)
-                throw new IllegalArgumentException("distance is negative");
+                throw new IllegalArgumentException("distance must not be negative");
         }
     }
 
@@ -24,7 +24,7 @@ public interface NodeTraversalStrategy {
         if (nodes == null)
             throw new IllegalArgumentException("nodes must not be null");
         if (nodes.contains(start))
-            throw new IllegalArgumentException("nodes contains start");
+            throw new IllegalArgumentException("nodes must not contain start");
 
         return computePath(fullMapGraph, start, nodes);
     }
