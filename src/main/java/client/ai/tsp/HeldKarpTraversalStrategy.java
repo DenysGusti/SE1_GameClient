@@ -15,8 +15,8 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
 
     @Override
     public TraversalResult computePath(FullMapGraph fullMapGraph, XYPair start, Set<XYPair> nodes) {
-        if (nodes.size() > MAX_NODES_LIMIT)
-            throw new RuntimeException("(1 << n) is too big for Java heap space");
+//        if (nodes.size() > MAX_NODES_LIMIT)
+//            throw new RuntimeException("(1 << n) is too big for Java heap space");
 
         long startTime = System.nanoTime();
         logger.debug("Held-Karp started for {} nodes...", nodes.size());
@@ -39,8 +39,6 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
         for (var row : dp)
             Arrays.fill(row, (byte) INF);
 
-        var parent = new byte[n][1 << n];
-
         for (int i = 0; i < n; ++i) {
             int distance = fullMapGraph.getDistance(start, allNodes.get(i));
             if (distance >= INF)
@@ -52,8 +50,8 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
         // nodeFrom -> nodeTo, visiting all nodes in mask visitedNodes
         for (int visitedNodesMask = 1; visitedNodesMask <= allNodesVisitedMask; ++visitedNodesMask) {
             // flip all the bits after the rightmost 1-bit and remove that 1-bit -> nodeFromMask without nodeFrom
-            for (int nodeFromMask = visitedNodesMask; nodeFromMask > 0; nodeFromMask &= nodeFromMask - 1) {
-                byte nodeFrom = (byte) Integer.numberOfTrailingZeros(nodeFromMask); // rightmost 1-bit index
+            for (int nodeFromMask = visitedNodesMask; nodeFromMask != 0; nodeFromMask &= nodeFromMask - 1) {
+                var nodeFrom = (byte) Integer.numberOfTrailingZeros(nodeFromMask); // rightmost 1-bit index
 
                 int distanceFrom = Byte.toUnsignedInt(dp[nodeFrom][visitedNodesMask]);
                 if (distanceFrom == INF)
@@ -61,8 +59,8 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
 
                 // nodeToMask - unvisitedNodesMask, all except visited
                 // flip all the bits after the rightmost 1-bit and remove that 1-bit -> nodeToMask without nodeTo
-                for (int nodeToMask = allNodesVisitedMask ^ visitedNodesMask; nodeToMask > 0; nodeToMask &= nodeToMask - 1) {
-                    byte nodeTo = (byte) Integer.numberOfTrailingZeros(nodeToMask); // rightmost 1-bit index
+                for (int nodeToMask = allNodesVisitedMask ^ visitedNodesMask; nodeToMask != 0; nodeToMask &= nodeToMask - 1) {
+                    var nodeTo = (byte) Integer.numberOfTrailingZeros(nodeToMask); // rightmost 1-bit index
 
                     int visitedNodesAfterVisitedNodeToMask = visitedNodesMask | (1 << nodeTo);
 
@@ -74,10 +72,8 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
 
                     int currentCost = Byte.toUnsignedInt(dp[nodeTo][visitedNodesAfterVisitedNodeToMask]);
 
-                    if (newDistance < currentCost) {
+                    if (newDistance < currentCost)
                         dp[nodeTo][visitedNodesAfterVisitedNodeToMask] = (byte) newDistance;
-                        parent[nodeTo][visitedNodesAfterVisitedNodeToMask] = nodeFrom;
-                    }
                 }
             }
         }
@@ -101,16 +97,45 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
         int currentVisitedNodesMask = allNodesVisitedMask;
         int currentNode = bestEndNode;
 
-        while (currentVisitedNodesMask > 0) {
+        while (true) {
             optimalPath.add(allNodes.get(currentNode));
 
-            int visitedNode = currentNode;
-            currentNode = parent[currentNode][currentVisitedNodesMask];
-            currentVisitedNodesMask ^= (1 << visitedNode);  // currentVisitedNodesMask without visitedNode
+            // prevVisitedMask is currentVisitedNodesMask without currentNode
+            int prevVisitedMask = currentVisitedNodesMask ^ (1 << currentNode);
+            if (prevVisitedMask == 0)
+                break;
+
+            int currentDistance = Byte.toUnsignedInt(dp[currentNode][currentVisitedNodesMask]);
+            int prevNode = -1;
+
+            for (int parentNodeMask = prevVisitedMask; parentNodeMask != 0; parentNodeMask &= parentNodeMask - 1) {
+                var parentNode = (byte) Integer.numberOfTrailingZeros(parentNodeMask); // rightmost 1-bit index
+
+                int parentCost = Byte.toUnsignedInt(dp[parentNode][prevVisitedMask]);
+                int parentToCurrentDistance = Byte.toUnsignedInt(dist[parentNode][currentNode]);
+
+                if (parentToCurrentDistance == INF)
+                    throw new RuntimeException("parentToCurrentDistance is INF");
+
+                int distance = parentCost + parentToCurrentDistance;
+                if (distance == currentDistance) {
+                    prevNode = parentNode;
+                    break;
+                }
+            }
+
+            if (prevNode == -1)
+                throw new RuntimeException("Path reconstruction failed: Broken DP chain.");
+
+            currentNode = prevNode;
+            currentVisitedNodesMask = prevVisitedMask;
         }
 
         optimalPath.add(start);
         Collections.reverse(optimalPath);
+
+        if (fullMapGraph.getDistance(optimalPath) != minDistance)
+            throw new RuntimeException("Path is wrong.");
 
         long endTime = System.nanoTime();
         double duration = (endTime - startTime) / 1_000_000_000.;
