@@ -10,7 +10,7 @@ import java.util.*;
 public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
     private static final Logger logger = LoggerFactory.getLogger(HeldKarpTraversalStrategy.class);
 
-    private static final int MAX_NODES_LIMIT = 27;
+    private static final int MAX_NODES_LIMIT = 28;
     private static final int INF = 255;
 
     @Override
@@ -33,19 +33,19 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
                 dist[i][j] = (byte) distance;
             }
 
-        // dp[mask][i] means the minimum cost to visit the set of nodes marked by mask, ending the journey at node i
+        // dp[i][mask] means the minimum cost to visit the set of nodes marked by mask, ending the journey at node i
         // mask is a bitmask where the k-th bit set means node k is visited
-        var dp = new byte[1 << n][n];
+        var dp = new byte[n][1 << n];
         for (var row : dp)
             Arrays.fill(row, (byte) INF);
 
-        var parent = new byte[1 << n][n];
+        var parent = new byte[n][1 << n];
 
         for (int i = 0; i < n; ++i) {
             int distance = fullMapGraph.getDistance(start, allNodes.get(i));
             if (distance >= INF)
                 throw new RuntimeException("distance exceeded INF");
-            dp[1 << i][i] = (byte) distance;
+            dp[i][1 << i] = (byte) distance;
         }
 
         int allNodesVisitedMask = (1 << n) - 1;
@@ -55,7 +55,7 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
             for (int nodeFromMask = visitedNodesMask; nodeFromMask > 0; nodeFromMask &= nodeFromMask - 1) {
                 byte nodeFrom = (byte) Integer.numberOfTrailingZeros(nodeFromMask); // rightmost 1-bit index
 
-                int distanceFrom = Byte.toUnsignedInt(dp[visitedNodesMask][nodeFrom]);
+                int distanceFrom = Byte.toUnsignedInt(dp[nodeFrom][visitedNodesMask]);
                 if (distanceFrom == INF)
                     throw new RuntimeException("distanceFrom is INF");
 
@@ -72,11 +72,11 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
                     if (newDistance >= INF)
                         throw new RuntimeException("newDistance exceeded INF");
 
-                    int currentCost = Byte.toUnsignedInt(dp[visitedNodesAfterVisitedNodeToMask][nodeTo]);
+                    int currentCost = Byte.toUnsignedInt(dp[nodeTo][visitedNodesAfterVisitedNodeToMask]);
 
                     if (newDistance < currentCost) {
-                        dp[visitedNodesAfterVisitedNodeToMask][nodeTo] = (byte) newDistance;
-                        parent[visitedNodesAfterVisitedNodeToMask][nodeTo] = nodeFrom;
+                        dp[nodeTo][visitedNodesAfterVisitedNodeToMask] = (byte) newDistance;
+                        parent[nodeTo][visitedNodesAfterVisitedNodeToMask] = nodeFrom;
                     }
                 }
             }
@@ -86,7 +86,7 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
         int bestEndNode = -1;
 
         for (int i = 0; i < n; ++i) {
-            int currentDistance = Byte.toUnsignedInt(dp[allNodesVisitedMask][i]);
+            int currentDistance = Byte.toUnsignedInt(dp[i][allNodesVisitedMask]);
 
             if (currentDistance < minDistance) {
                 minDistance = currentDistance;
@@ -105,7 +105,7 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
             optimalPath.add(allNodes.get(currentNode));
 
             int visitedNode = currentNode;
-            currentNode = parent[currentVisitedNodesMask][currentNode];
+            currentNode = parent[currentNode][currentVisitedNodesMask];
             currentVisitedNodesMask ^= (1 << visitedNode);  // currentVisitedNodesMask without visitedNode
         }
 
