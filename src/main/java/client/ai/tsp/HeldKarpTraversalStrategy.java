@@ -135,7 +135,7 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
         Collections.reverse(optimalPath);
 
         if (fullMapGraph.getDistance(optimalPath) != minDistance)
-            throw new RuntimeException("Path is wrong.");
+            throw new RuntimeException("optimalPath is wrong!");
 
         long endTime = System.nanoTime();
         double duration = (endTime - startTime) / 1_000_000_000.;
