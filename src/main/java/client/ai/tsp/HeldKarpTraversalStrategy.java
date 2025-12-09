@@ -10,13 +10,13 @@ import java.util.*;
 public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
     private static final Logger logger = LoggerFactory.getLogger(HeldKarpTraversalStrategy.class);
 
-    private static final int MAX_NODES_LIMIT = 28;
+    private static final int MAX_NODES_LIMIT = 30;
     private static final int INF = 255;
 
     @Override
     public TraversalResult computePath(FullMapGraph fullMapGraph, XYPair start, Set<XYPair> nodes) {
-//        if (nodes.size() > MAX_NODES_LIMIT)
-//            throw new RuntimeException("(1 << n) is too big for Java heap space");
+        if (nodes.size() > MAX_NODES_LIMIT)
+            throw new RuntimeException("Node count too high for Java Heap");
 
         long startTime = System.nanoTime();
         logger.debug("Held-Karp started for {} nodes...", nodes.size());
@@ -35,7 +35,9 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
 
         // dp[i][mask] means the minimum cost to visit the set of nodes marked by mask, ending the journey at node i
         // mask is a bitmask where the k-th bit set means node k is visited
-        var dp = new byte[n][1 << n];
+        // only valid states (where node i is in the mask) are stored
+        int compressedMaskSize = 1 << (n - 1);
+        var dp = new byte[n][compressedMaskSize];
         for (var row : dp)
             Arrays.fill(row, (byte) INF);
 
@@ -43,7 +45,8 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
             int distance = fullMapGraph.getDistance(start, allNodes.get(i));
             if (distance >= INF)
                 throw new RuntimeException("distance exceeded INF");
-            dp[i][1 << i] = (byte) distance;
+
+            dp[i][0] = (byte) distance; // for a single-bit mask (1 << i), removing bit i results in 0
         }
 
         int allNodesVisitedMask = (1 << n) - 1;
@@ -51,16 +54,17 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
         for (int visitedNodesMask = 1; visitedNodesMask <= allNodesVisitedMask; ++visitedNodesMask) {
             // flip all the bits after the rightmost 1-bit and remove that 1-bit -> nodeFromMask without nodeFrom
             for (int nodeFromMask = visitedNodesMask; nodeFromMask != 0; nodeFromMask &= nodeFromMask - 1) {
-                var nodeFrom = (byte) Integer.numberOfTrailingZeros(nodeFromMask); // rightmost 1-bit index
+                int nodeFrom = Integer.numberOfTrailingZeros(nodeFromMask); // rightmost 1-bit index
 
-                int distanceFrom = Byte.toUnsignedInt(dp[nodeFrom][visitedNodesMask]);
+                int indexFrom = compress(visitedNodesMask, nodeFrom);
+                int distanceFrom = Byte.toUnsignedInt(dp[nodeFrom][indexFrom]);
                 if (distanceFrom == INF)
                     throw new RuntimeException("distanceFrom is INF");
 
                 // nodeToMask - unvisitedNodesMask, all except visited
                 // flip all the bits after the rightmost 1-bit and remove that 1-bit -> nodeToMask without nodeTo
                 for (int nodeToMask = allNodesVisitedMask ^ visitedNodesMask; nodeToMask != 0; nodeToMask &= nodeToMask - 1) {
-                    var nodeTo = (byte) Integer.numberOfTrailingZeros(nodeToMask); // rightmost 1-bit index
+                    int nodeTo = Integer.numberOfTrailingZeros(nodeToMask); // rightmost 1-bit index
 
                     int visitedNodesAfterVisitedNodeToMask = visitedNodesMask | (1 << nodeTo);
 
@@ -70,10 +74,11 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
                     if (newDistance >= INF)
                         throw new RuntimeException("newDistance exceeded INF");
 
-                    int currentCost = Byte.toUnsignedInt(dp[nodeTo][visitedNodesAfterVisitedNodeToMask]);
+                    int indexTo = compress(visitedNodesAfterVisitedNodeToMask, nodeTo);
+                    int currentCost = Byte.toUnsignedInt(dp[nodeTo][indexTo]);
 
                     if (newDistance < currentCost)
-                        dp[nodeTo][visitedNodesAfterVisitedNodeToMask] = (byte) newDistance;
+                        dp[nodeTo][indexTo] = (byte) newDistance;
                 }
             }
         }
@@ -81,9 +86,11 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
         int minDistance = INF;
         int bestEndNode = -1;
 
-        for (int i = 0; i < n; ++i) {
-            int currentDistance = Byte.toUnsignedInt(dp[i][allNodesVisitedMask]);
+        // removing any bit 'i' results in all 1s
+        int allNodesVisitedCompressedMaskIndex = compressedMaskSize - 1;
 
+        for (int i = 0; i < n; ++i) {
+            int currentDistance = Byte.toUnsignedInt(dp[i][allNodesVisitedCompressedMaskIndex]);
             if (currentDistance < minDistance) {
                 minDistance = currentDistance;
                 bestEndNode = i;
@@ -105,13 +112,16 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
             if (prevVisitedMask == 0)
                 break;
 
-            int currentDistance = Byte.toUnsignedInt(dp[currentNode][currentVisitedNodesMask]);
+            int currentIndex = compress(currentVisitedNodesMask, currentNode);
+            int currentDistance = Byte.toUnsignedInt(dp[currentNode][currentIndex]);
+
             int prevNode = -1;
 
             for (int parentNodeMask = prevVisitedMask; parentNodeMask != 0; parentNodeMask &= parentNodeMask - 1) {
-                var parentNode = (byte) Integer.numberOfTrailingZeros(parentNodeMask); // rightmost 1-bit index
+                int parentNode = Integer.numberOfTrailingZeros(parentNodeMask); // rightmost 1-bit index
 
-                int parentCost = Byte.toUnsignedInt(dp[parentNode][prevVisitedMask]);
+                int prevIndex = compress(prevVisitedMask, parentNode);
+                int parentCost = Byte.toUnsignedInt(dp[parentNode][prevIndex]);
                 int parentToCurrentDistance = Byte.toUnsignedInt(dist[parentNode][currentNode]);
 
                 if (parentToCurrentDistance == INF)
@@ -135,12 +145,17 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
         Collections.reverse(optimalPath);
 
         if (fullMapGraph.getDistance(optimalPath) != minDistance)
-            throw new RuntimeException("optimalPath is wrong!");
+            throw new RuntimeException("Path verification failed.");
 
         long endTime = System.nanoTime();
         double duration = (endTime - startTime) / 1_000_000_000.;
         logger.debug("Held-Karp finished: time: {}s, distance: {}", duration, minDistance);
 
         return new TraversalResult(optimalPath, minDistance);
+    }
+
+    private static int compress(int mask, int bitToRemove) {
+        // all bits above the bit we want to remove | all bits below the bit we want to remove
+        return (mask >>> (bitToRemove + 1)) << bitToRemove | (mask & ((1 << bitToRemove) - 1));
     }
 }
