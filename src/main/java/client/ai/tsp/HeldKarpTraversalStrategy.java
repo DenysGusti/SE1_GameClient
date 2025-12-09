@@ -33,7 +33,7 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
                 dist[i][j] = (byte) distance;
             }
 
-        // dp[i][mask] means the minimum cost to visit the set of nodes marked by mask, ending the journey at node i
+        // dp[i][mask] means the minimum distance to visit the set of nodes marked by mask, ending the journey at node i
         // mask is a bitmask where the k-th bit set means node k is visited
         // only valid states (where node i is in the mask) are stored
         int compressedMaskSize = 1 << (n - 1);
@@ -75,9 +75,9 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
                         throw new RuntimeException("newDistance exceeded INF");
 
                     int indexTo = compress(visitedNodesAfterVisitedNodeToMask, nodeTo);
-                    int currentCost = Byte.toUnsignedInt(dp[nodeTo][indexTo]);
+                    int currentDistance = Byte.toUnsignedInt(dp[nodeTo][indexTo]);
 
-                    if (newDistance < currentCost)
+                    if (newDistance < currentDistance)
                         dp[nodeTo][indexTo] = (byte) newDistance;
                 }
             }
@@ -121,13 +121,13 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
                 int parentNode = Integer.numberOfTrailingZeros(parentNodeMask); // rightmost 1-bit index
 
                 int prevIndex = compress(prevVisitedMask, parentNode);
-                int parentCost = Byte.toUnsignedInt(dp[parentNode][prevIndex]);
+                int parentDistance = Byte.toUnsignedInt(dp[parentNode][prevIndex]);
                 int parentToCurrentDistance = Byte.toUnsignedInt(dist[parentNode][currentNode]);
 
                 if (parentToCurrentDistance == INF)
                     throw new RuntimeException("parentToCurrentDistance is INF");
 
-                int distance = parentCost + parentToCurrentDistance;
+                int distance = parentDistance + parentToCurrentDistance;
                 if (distance == currentDistance) {
                     prevNode = parentNode;
                     break;
