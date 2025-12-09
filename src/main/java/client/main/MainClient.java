@@ -1,35 +1,24 @@
 package client.main;
 
 import client.ai.AIPlayer;
-import client.ai.mountain.*;
-import client.ai.graph.FullMapGraphFactory;
-import client.ai.FullMapSplitter;
-import client.ai.tsp.*;
 import client.data.PlayerInformation;
 import client.data.UniqueGameIdentifier;
 import client.halfmaplogic.generation.HalfMapGenerator;
+import client.halfmaplogic.validation.HalfMapValidator;
 import client.main.exception.CommandLineArgumentsException;
 import client.modelviewcontroller.controller.GameController;
-import client.network.*;
-import client.network.accumulator.*;
-import client.network.fromserver.*;
-import client.network.fromclient.FromClientConverter;
-import client.modelviewcontroller.model.*;
-import client.modelviewcontroller.view.*;
-import client.halfmaplogic.validation.HalfMapValidator;
-import client.halfmaplogic.validation.rule.*;
+import client.network.GameSession;
+import client.network.NetworkService;
+import client.network.accumulator.FullMapAccumulator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.web.reactive.function.client.WebClient;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.Objects;
+import java.util.Properties;
 
 public class MainClient {
     private static final Logger logger = LoggerFactory.getLogger(MainClient.class);
@@ -38,7 +27,6 @@ public class MainClient {
     public static void validateArguments(String[] args) throws CommandLineArgumentsException {
         if (args == null)
             throw new IllegalArgumentException("args is null");
-
         if (args.length != 2 && args.length != 3)
             throw new CommandLineArgumentsException("Wrong number of arguments!");
         if (!args[0].equals("TR"))
@@ -54,79 +42,6 @@ public class MainClient {
             properties.load(inputStream);
         }
         return properties;
-    }
-
-    private static PlayerInformation loadPlayerInformation(Properties properties) {
-        String firstName = properties.getProperty("player.firstName");
-        String lastName = properties.getProperty("player.lastName");
-        String uAccount = properties.getProperty("player.uAccount");
-        return new PlayerInformation(firstName, lastName, uAccount);
-    }
-
-    private static NetworkService createNetworkService(String serverBaseURL, UniqueGameIdentifier uniqueGameIdentifier) {
-        if (serverBaseURL == null)
-            throw new IllegalArgumentException("serverBaseURL is null");
-        if (uniqueGameIdentifier == null)
-            throw new IllegalArgumentException("uniqueGameIdentifier is null");
-
-        var gameWebClient = WebClient.builder()
-                .baseUrl(serverBaseURL + "/games/" + uniqueGameIdentifier.uniqueGameID())
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE)
-                .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE)
-                .build();
-        var fromClientConverter = new FromClientConverter();
-        var fullMapConverter = new FullMapConverter();
-        var fromServerConverter = new FromServerConverter(fullMapConverter);
-        return new NetworkService(gameWebClient, fromClientConverter, fromServerConverter);
-    }
-
-    private static FullMapAccumulator createFullMapAccumulator() {
-        var fullMapRevealer = new FullMapRevealer();
-        return new FullMapAccumulator(fullMapRevealer);
-    }
-
-    private static GameSession createGameSession(NetworkService networkService, FullMapAccumulator fullMapAccumulator) {
-        if (networkService == null)
-            throw new IllegalArgumentException("networkService is null");
-        if (fullMapAccumulator == null)
-            throw new IllegalArgumentException("fullMapAccumulator is null");
-
-        return new GameSession(networkService, fullMapAccumulator);
-    }
-
-    private static HalfMapGenerator createHalfMapGenerator() {
-        long seed = new Random().nextLong();
-        logger.info("Creating HalfMapGenerator with seed {}", seed);
-        var random = new Random(seed);
-        return new HalfMapGenerator(random);
-    }
-
-    private static HalfMapValidator createHalfMapValidator() {
-        Set<IHalfMapValidationRule> rules = Set.of(
-                new TerrainRule(), new BorderRule(), new FortRule(), new ConnectivityRule()
-        );
-        return new HalfMapValidator(rules);
-    }
-
-    private static AIPlayer createAIPlayer() {
-        var heldKarp = new HeldKarpTraversalStrategy();
-
-        var fullMapService = new FullMapSplitter();
-        var twoOptHelper = new TwoOptHelper();
-
-        var nearestNeighbor = new NearestNeighborTraversalStrategy();
-        var twoOpt = new TwoOptTraversalStrategy(nearestNeighbor, twoOptHelper);
-
-        long seed = new Random().nextLong();
-        logger.info("Creating SimulatedAnnealingTraversalStrategy with seed {}", seed);
-        var random = new Random(seed);
-        var simulatedAnnealing = new SimulatedAnnealingTraversalStrategy(twoOpt, random, twoOptHelper);
-
-        var nodeTraversalStrategy = new GeneralNodeTraversalStrategy(heldKarp, simulatedAnnealing);
-        var pathOptimizer = new PathOptimizer();
-        var mountainSelector = new GreedyMountainSelector(nodeTraversalStrategy, pathOptimizer);
-
-        return new AIPlayer(fullMapService, mountainSelector);
     }
 
     public static void main(String[] args) {
@@ -145,6 +60,8 @@ public class MainClient {
             return;
         }
 
+        var gameClientFactory = new GameClientFactory();
+
         String serverBaseURL = args[1];
         UniqueGameIdentifier uniqueGameIdentifier;
         if (args.length > 2)
@@ -159,29 +76,19 @@ public class MainClient {
             uniqueGameIdentifier = NetworkService.createNewGame(serverBaseURL, debugMode, dummyCompetition).block();
         }
 
-        NetworkService networkService = createNetworkService(serverBaseURL, uniqueGameIdentifier);
-        FullMapAccumulator fullMapAccumulator = createFullMapAccumulator();
-        GameSession gameSession = createGameSession(networkService, fullMapAccumulator);
+        NetworkService networkService = gameClientFactory.createNetworkService(serverBaseURL, uniqueGameIdentifier);
+        FullMapAccumulator fullMapAccumulator = gameClientFactory.createFullMapAccumulator();
+        GameSession gameSession = gameClientFactory.createGameSession(networkService, fullMapAccumulator);
 
-        HalfMapGenerator halfMapGenerator = createHalfMapGenerator();
-        HalfMapValidator halfMapValidator = createHalfMapValidator();
+        HalfMapGenerator halfMapGenerator = gameClientFactory.createHalfMapGenerator();
+        HalfMapValidator halfMapValidator = gameClientFactory.createHalfMapValidator();
+        AIPlayer aiPlayer = gameClientFactory.createAIPlayer();
 
-        var playerModel = new PlayerModel();
-        var playerView = new PlayerView();
-        playerModel.subscribeOnMyPlayerStateUpdated(playerView::renderMyPlayerState);
-        playerModel.subscribeOnEnemyPlayerStateUpdated(playerView::renderEnemyPlayerState);
+        GameController gameController = gameClientFactory.createGameController(
+                gameSession, halfMapGenerator, halfMapValidator, aiPlayer
+        );
 
-        var mapModel = new MapModel();
-        var mapView = new MapView();
-        mapModel.subscribeOnFullMapUpdated(mapView::renderFullMap);
-
-        var aiPlayer = createAIPlayer();
-        var fullMapGraphFactory = new FullMapGraphFactory();
-
-        var gameController = new GameController(playerModel, mapModel, gameSession, halfMapGenerator, halfMapValidator,
-                aiPlayer, fullMapGraphFactory);
-
-        PlayerInformation playerInformation = loadPlayerInformation(properties);
+        PlayerInformation playerInformation = gameClientFactory.createPlayerInformation(properties);
         gameController.runGame(playerInformation);
     }
 }
