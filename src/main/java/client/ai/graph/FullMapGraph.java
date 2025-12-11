@@ -10,11 +10,12 @@ public class FullMapGraph {
     private static final Logger logger = LoggerFactory.getLogger(FullMapGraph.class);
 
     private final XYPair[] indexToCoordinate;
-    private final Map<XYPair, Short> coordinateToIndex;
-    private final short[][] distances;
-    private final short[][][] next;
+    private final Map<XYPair, Integer> coordinateToIndex;
+    private final byte[][] distances;
+    private final byte[][][] next;
 
-    public FullMapGraph(XYPair[] indexToCoordinate, Map<XYPair, Short> coordinateToIndex, short[][] distances, short[][][] next) {
+    public FullMapGraph(XYPair[] indexToCoordinate, Map<XYPair, Integer> coordinateToIndex,
+                        byte[][] distances, byte[][][] next) {
         if (indexToCoordinate == null)
             throw new IllegalArgumentException("indexToCoordinate is null");
         if (coordinateToIndex == null)
@@ -41,10 +42,10 @@ public class FullMapGraph {
         if (!coordinateToIndex.containsKey(end))
             throw new NoSuchElementException("Coordinate " + end + " not found");
 
-        short startIdx = coordinateToIndex.get(start);
-        short endIdx = coordinateToIndex.get(end);
+        int startIdx = coordinateToIndex.get(start);
+        int endIdx = coordinateToIndex.get(end);
 
-        return distances[startIdx][endIdx];
+        return Byte.toUnsignedInt(distances[startIdx][endIdx]);
     }
 
     public int getDistance(List<XYPair> waypoints) {
@@ -60,6 +61,21 @@ public class FullMapGraph {
         return totalDistance;
     }
 
+    public byte[][] getDistanceMatrix(List<XYPair> nodes) {
+        if (nodes == null)
+            throw new IllegalArgumentException("nodes is null");
+
+        int n = nodes.size();
+
+        var dist = new byte[n][n];
+        for (int i = 0; i < n; ++i)
+            for (int j = 0; j < n; ++j) {
+                int distance = getDistance(nodes.get(i), nodes.get(j));
+                dist[i][j] = (byte) distance;
+            }
+        return dist;
+    }
+
     private record PathState(XYPair coordinate, List<XYPair> path) {
     }
 
@@ -71,7 +87,7 @@ public class FullMapGraph {
 
         List<List<XYPair>> allPaths = new ArrayList<>();
 
-        short endIdx = Objects.requireNonNull(coordinateToIndex.get(end), "endIdx is null");
+        int endIdx = Objects.requireNonNull(coordinateToIndex.get(end), "endIdx is null");
 
         Queue<PathState> queue = new ArrayDeque<>();
         queue.add(new PathState(start, List.of(start)));
@@ -86,17 +102,16 @@ public class FullMapGraph {
                 continue;
             }
 
-            short currentIdx = Objects.requireNonNull(coordinateToIndex.get(current), "currentIdx is null");
-            short[] nextIndices = next[currentIdx][endIdx];
+            int currentIdx = Objects.requireNonNull(coordinateToIndex.get(current), "currentIdx is null");
+            byte[] nextIndices = next[currentIdx][endIdx];
 
             Set<XYPair> nextCoordinates = new HashSet<>();
-            for (short idx : nextIndices)
+            for (byte i : nextIndices) {
+                int idx = Byte.toUnsignedInt(i);
                 nextCoordinates.add(indexToCoordinate[idx]);
+            }
 
             for (XYPair nextCoordinate : nextCoordinates) {
-                if (currentPath.contains(nextCoordinate))
-                    throw new RuntimeException("Cycling path found!");
-
                 List<XYPair> newPath = new ArrayList<>(currentPath);
                 newPath.add(nextCoordinate);
 

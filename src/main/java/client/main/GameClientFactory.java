@@ -86,19 +86,20 @@ public class GameClientFactory {
     }
 
     public AIPlayer createAIPlayer() {
-        var heldKarp = new HeldKarpTraversalStrategy();
         var fullMapService = new FullMapSplitter();
-        var twoOptHelper = new TwoOptHelper();
+
+        var heldKarp = new HeldKarpTraversalStrategy();
 
         var nearestNeighbor = new NearestNeighborTraversalStrategy();
-        var twoOpt = new TwoOptTraversalStrategy(nearestNeighbor, twoOptHelper);
 
         long seed = new Random().nextLong();
         logger.info("Creating SimulatedAnnealingTraversalStrategy with seed {}", seed);
         var random = new Random(seed);
-        var simulatedAnnealing = new SimulatedAnnealingTraversalStrategy(twoOpt, random, twoOptHelper);
+        var metropolis = new MetropolisTraversalStrategy(nearestNeighbor, random);
 
-        var nodeTraversalStrategy = new GeneralNodeTraversalStrategy(heldKarp, simulatedAnnealing);
+        var twoOpt = new TwoOptTraversalStrategy(metropolis);
+
+        var nodeTraversalStrategy = new GeneralNodeTraversalStrategy(heldKarp, twoOpt);
         var pathOptimizer = new PathOptimizer();
         var mountainSelector = new GreedyMountainSelector(nodeTraversalStrategy, pathOptimizer);
 

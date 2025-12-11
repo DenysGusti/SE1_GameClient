@@ -1,8 +1,5 @@
 package client.ai.tsp;
 
-import client.ai.graph.FullMapGraph;
-import client.data.XYPair;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,30 +12,31 @@ public class RandomWalkTraversalStrategy implements NodeTraversalStrategy {
 
     public RandomWalkTraversalStrategy(Random random) {
         if (random == null)
-            throw new IllegalArgumentException("random must not be null");
+            throw new IllegalArgumentException("random is null");
 
         this.random = random;
     }
 
     @Override
-    public TraversalResult computePath(FullMapGraph fullMapGraph, XYPair start, Set<XYPair> nodes) {
+    public int[] computePath(byte[][] distanceMatrix) {
         long startTime = System.nanoTime();
-        logger.debug("Random Walk started for {} nodes...", nodes.size());
+        int n = distanceMatrix.length;
+        logger.debug("Random Walk started for {} nodes...", n);
 
-        List<XYPair> targets = new ArrayList<>(nodes);
+        var path = new int[n];
+        for (int i = 0; i < n; ++i)
+            path[i] = i;
 
-        Collections.shuffle(targets, random);
+        for (int i = n - 1; i > 1; --i) {
+            int j = 1 + random.nextInt(i);  // start (0) is fixed
+            int tmp = path[i];
+            path[i] = path[j];
+            path[j] = tmp;
+        }
 
-        List<XYPair> path = new ArrayList<>();
-        path.add(start);
-        path.addAll(targets);
-
-        int distance = fullMapGraph.getDistance(path);
-
-        long endTime = System.nanoTime();
-        double duration = (endTime - startTime) / 1_000_000_000.;
-        logger.debug("Random Walk finished: time: {}s, distance: {}", duration, distance);
-
-        return new TraversalResult(path, distance);
+        double duration = (System.nanoTime() - startTime) / 1_000_000_000.;
+        logger.debug("Random Walk finished in {}s, distance: {}", duration,
+                calculateTotalDistance(distanceMatrix, path));
+        return path;
     }
 }

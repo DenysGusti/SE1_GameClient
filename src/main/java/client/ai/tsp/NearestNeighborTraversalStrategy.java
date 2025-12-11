@@ -1,46 +1,47 @@
 package client.ai.tsp;
 
-import client.ai.graph.FullMapGraph;
-import client.data.XYPair;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
 
 public class NearestNeighborTraversalStrategy implements NodeTraversalStrategy {
     private static final Logger logger = LoggerFactory.getLogger(NearestNeighborTraversalStrategy.class);
 
-    @Override
-    public TraversalResult computePath(FullMapGraph fullMapGraph, XYPair start, Set<XYPair> nodes) {
+    public int[] computePath(byte[][] distanceMatrix) {
         long startTime = System.nanoTime();
-        logger.debug("Nearest Neighbor started for {} nodes...", nodes.size());
+        int n = distanceMatrix.length;
+        logger.debug("Nearest Neighbor started for {} nodes...", n);
 
-        Set<XYPair> remainingNodes = new HashSet<>(nodes);
-        List<XYPair> orderedPath = new ArrayList<>();
-        orderedPath.add(start);
-        XYPair current = start;
+        var path = new int[n];
+        var visited = new boolean[n];
 
-        while (!remainingNodes.isEmpty()) {
-            XYPair nearest = getNearestNode(fullMapGraph, current, remainingNodes);
+        path[0] = 0;  // start (0) is fixed
+        visited[0] = true;
 
-            orderedPath.add(nearest);
-            remainingNodes.remove(nearest);
-            current = nearest;
+        for (int i = 1; i < n; ++i) {
+            int currentNode = path[i - 1];
+            int nearestNode = -1;
+            int shortestDistance = Integer.MAX_VALUE;
+
+            for (int candidateNode = 0; candidateNode < n; ++candidateNode)
+                if (!visited[candidateNode]) {
+                    int currentDistance = Byte.toUnsignedInt(distanceMatrix[currentNode][candidateNode]);
+
+                    if (currentDistance < shortestDistance) {
+                        shortestDistance = currentDistance;
+                        nearestNode = candidateNode;
+                    }
+                }
+
+            if (nearestNode == -1)
+                throw new RuntimeException("Nearest Neighbor traversal failed");
+
+            path[i] = nearestNode;
+            visited[nearestNode] = true;
         }
 
-        int distance = fullMapGraph.getDistance(orderedPath);
-
-        long endTime = System.nanoTime();
-        double duration = (endTime - startTime) / 1_000_000_000.;
-        logger.debug("Nearest Neighbor finished: time: {}s, distance: {}", duration, distance);
-
-        return new TraversalResult(orderedPath, distance);
-    }
-
-    private XYPair getNearestNode(FullMapGraph fullMapGraph, XYPair current, Set<XYPair> remainingNodes) {
-        return remainingNodes.stream()
-                .min(Comparator.comparingInt(node -> fullMapGraph.getDistance(current, node)))
-                .orElseThrow();
+        double duration = (System.nanoTime() - startTime) / 1_000_000_000.;
+        logger.debug("Nearest Neighbor finished in {}s, distance: {}", duration,
+                calculateTotalDistance(distanceMatrix, path));
+        return path;
     }
 }

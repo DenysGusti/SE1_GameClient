@@ -11,18 +11,21 @@ import java.util.*;
 
 public class FullMapGraphFactory {
     private static final Logger logger = LoggerFactory.getLogger(FullMapGraphFactory.class);
+    private static final int INF = 255;
 
-    private static final Map<ETerrain, Short> terrainMovementCost = Map.of(
-            ETerrain.Grass, (short) 1,
-            ETerrain.Mountain, (short) 2
+    private static final Map<ETerrain, Byte> terrainMovementCost = Map.of(
+            ETerrain.Grass, (byte) 1,
+            ETerrain.Mountain, (byte) 2
     );
 
-    private static short getMovementCost(ETerrain from, ETerrain to) {
-        int cost = terrainMovementCost.get(from) + terrainMovementCost.get(to);
-        if (cost >= Short.MAX_VALUE)
+    private static byte getMovementDistance(ETerrain from, ETerrain to) {
+        int fromDistance = Byte.toUnsignedInt(terrainMovementCost.get(from));
+        int toDistance = Byte.toUnsignedInt(terrainMovementCost.get(to));
+        int cost = fromDistance + toDistance;
+        if (cost >= INF)
             throw new RuntimeException("Movement Cost Overflow!");
 
-        return (short) cost;
+        return (byte) cost;
     }
 
     @SuppressWarnings("unchecked")
@@ -32,83 +35,87 @@ public class FullMapGraphFactory {
 
         long startTime = System.nanoTime();
 
-        List<XYPair> validNodes = fullMap.nodes().keySet().stream()
-                .filter(coordinate -> !fullMap.nodes().get(coordinate).isWater())
+        Map<XYPair, FullMapNode> nodes = fullMap.nodes();
+
+        List<XYPair> validNodes = nodes.keySet().stream()
+                .filter(coordinate -> !nodes.get(coordinate).isWater())
                 .toList();
 
-        if (validNodes.size() >= Short.MAX_VALUE)
+        if (validNodes.size() >= INF)
             throw new IllegalArgumentException("Too many valid nodes!");
 
-        short n = (short) validNodes.size();
+        int n = validNodes.size();
 
         XYPair[] indexToCoordinate = validNodes.toArray(new XYPair[0]);
-        Map<XYPair, Short> coordinateToIndex = new HashMap<>(n);
-        for (short i = 0; i < n; i++)
+        Map<XYPair, Integer> coordinateToIndex = new HashMap<>(n);
+        for (int i = 0; i < n; ++i)
             coordinateToIndex.put(indexToCoordinate[i], i);
 
-        var distances = new short[n][n];
-        var tempNext = (Set<Short>[][]) new Set[n][n];
+        var distances = new byte[n][n];
+        var tempNext = (Set<Byte>[][]) new Set[n][n];
 
-        for (short i = 0; i < n; ++i)
-            for (short j = 0; j < n; ++j) {
+        for (int i = 0; i < n; ++i)
+            for (int j = 0; j < n; ++j) {
                 if (i == j) {
                     distances[i][j] = 0;
                     tempNext[i][j] = Collections.emptySet();
                 } else {
-                    distances[i][j] = Short.MAX_VALUE;
+                    distances[i][j] = (byte) INF;
                     tempNext[i][j] = new HashSet<>();
                 }
             }
 
-        for (short i = 0; i < n; ++i) {
+        for (int i = 0; i < n; ++i) {
             XYPair coordinateFrom = indexToCoordinate[i];
-            FullMapNode nodeFrom = fullMap.nodes().get(coordinateFrom);
+            FullMapNode nodeFrom = nodes.get(coordinateFrom);
 
             List<XYPair> traversableAdjacentNeighbors = coordinateFrom.getAdjacentNeighbors(fullMap.size()).stream()
                     .filter(coordinateToIndex::containsKey)
                     .toList();
 
             for (XYPair coordinateTo : traversableAdjacentNeighbors) {
-                short j = coordinateToIndex.get(coordinateTo);
-                FullMapNode nodeTo = fullMap.nodes().get(coordinateTo);
+                int j = coordinateToIndex.get(coordinateTo);
+                FullMapNode nodeTo = nodes.get(coordinateTo);
 
-                distances[i][j] = getMovementCost(nodeFrom.terrain(), nodeTo.terrain());
-                tempNext[i][j].add(j);
+                distances[i][j] = getMovementDistance(nodeFrom.terrain(), nodeTo.terrain());
+                tempNext[i][j].add((byte) j);
             }
         }
 
         // Floyd-Warshall Algorithm O(n^3)
-        for (short k = 0; k < n; ++k) {
-            for (short i = 0; i < n; ++i) {
-                if (distances[i][k] == Short.MAX_VALUE)
+        for (int k = 0; k < n; ++k) {
+            for (int i = 0; i < n; ++i) {
+                int distance_ik = Byte.toUnsignedInt(distances[i][k]);
+                if (distance_ik == INF)
                     continue;
 
-                for (short j = 0; j < n; ++j) {
-                    if (distances[k][j] == Short.MAX_VALUE)
+                for (int j = 0; j < n; ++j) {
+                    int distance_kj = Byte.toUnsignedInt(distances[k][j]);
+                    if (distance_kj == INF)
                         continue;
 
-                    int newCostTmp = distances[i][k] + distances[k][j];
-                    if (newCostTmp >= Short.MAX_VALUE)
+                    int newDistance = distance_ik + distance_kj;
+                    if (newDistance >= INF)
                         throw new RuntimeException("Cost Overflow!");
-                    var newDistance = (short) newCostTmp;
 
-                    if (distances[i][j] > newDistance) {
-                        distances[i][j] = newDistance;
+                    int currentDistance = Byte.toUnsignedInt(distances[i][j]);
+                    if (currentDistance > newDistance) {
+                        distances[i][j] = (byte) newDistance;
                         tempNext[i][j].clear();
                         tempNext[i][j].addAll(tempNext[i][k]);
-                    } else if (distances[i][j] == newDistance)
+                    } else if (currentDistance == newDistance)
                         tempNext[i][j].addAll(tempNext[i][k]);
                 }
             }
         }
 
-        var next = new short[n][n][];
-        for (short i = 0; i < n; ++i)
-            for (short j = 0; j < n; ++j) {
-                Set<Short> nextIndices = tempNext[i][j];
-                var arr = new short[nextIndices.size()];
-                short idx = 0;
-                for (short val : nextIndices)
+        var next = new byte[n][n][];
+        for (int i = 0; i < n; ++i)
+            for (int j = 0; j < n; ++j) {
+                Set<Byte> nextIndices = tempNext[i][j];
+                var arr = new byte[nextIndices.size()];
+                int idx = 0;
+                for (byte val : nextIndices)
                     arr[idx++] = val;
                 next[i][j] = arr;
             }
