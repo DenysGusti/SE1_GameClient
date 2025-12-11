@@ -66,9 +66,9 @@ public class GreedyMountainSelector extends MountainSelector {
                 );
                 Objects.requireNonNull(currentStepPathMetric, "currentStepPathMetric not be null");
 
-                logger.trace("Analyzed mountain {} at iteration {}, expected goal distance: {} -> {}",
-                        currentCandidateMountain, iteration, bestCandidateStepPathMetric == null ? "null" : bestCandidateStepPathMetric.expectedGoalDistance(),
-                        currentStepPathMetric.expectedGoalDistance());
+//                logger.trace("Analyzed mountain {} at iteration {}, expected goal distance: {} -> {}",
+//                        currentCandidateMountain, iteration, bestCandidateStepPathMetric == null ? "null" : bestCandidateStepPathMetric.expectedGoalDistance(),
+//                        currentStepPathMetric.expectedGoalDistance());
 
                 if (currentStepPathMetric.expectedGoalDistance() < bestStepPathMetric.expectedGoalDistance())
                     if (bestCandidateStepPathMetric == null ||
@@ -97,7 +97,6 @@ public class GreedyMountainSelector extends MountainSelector {
         Objects.requireNonNull(bestStepPathMetric, "bestStepPathMetric is null");
 
         logger.debug("Selected mountains: {}", currentSelectedMountains);
-        logger.debug("Step-path: {}", bestStepPathMetric.path());
 
         long endTime = System.nanoTime();
         double duration = (endTime - startTime) / 1_000_000_000.;
