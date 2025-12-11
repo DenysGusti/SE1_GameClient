@@ -73,9 +73,9 @@ public class GreedyMountainSelector extends MountainSelector {
                 if (currentStepPathMetric.expectedGoalDistance() < bestStepPathMetric.expectedGoalDistance())
                     if (bestCandidateStepPathMetric == null ||
                             currentStepPathMetric.expectedGoalDistance() < bestCandidateStepPathMetric.expectedGoalDistance()) {
-                        logger.trace("Found mountain {} at iteration {}, expected goal distance: {} -> {}",
-                                currentCandidateMountain, iteration, bestCandidateStepPathMetric == null ? "null" : bestCandidateStepPathMetric.expectedGoalDistance(),
-                                currentStepPathMetric.expectedGoalDistance());
+//                        logger.trace("Found mountain {} at iteration {}, expected goal distance: {} -> {}",
+//                                currentCandidateMountain, iteration, bestCandidateStepPathMetric == null ? "null" : bestCandidateStepPathMetric.expectedGoalDistance(),
+//                                currentStepPathMetric.expectedGoalDistance());
 
                         bestCandidateMountain = currentCandidateMountain;
                         bestCandidateStepPathMetric = currentStepPathMetric;

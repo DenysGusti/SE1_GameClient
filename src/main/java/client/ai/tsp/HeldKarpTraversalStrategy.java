@@ -1,5 +1,6 @@
 package client.ai.tsp;
 
+import client.ai.graph.DistanceMatrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,22 +13,21 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
     private static final int INF = 255;
 
     @Override
-    public int[] computePath(byte[][] distanceMatrix) {
+    public int[] computePath(DistanceMatrix distanceMatrix) {
         long startTime = System.nanoTime();
-        int n = distanceMatrix.length;
-        logger.debug("Held-Karp started for {} nodes...", n);
+        logger.debug("Held-Karp started for {} nodes...", distanceMatrix.size());
 
-        if (n > MAX_NODES_LIMIT)
-            throw new RuntimeException("Node count " + n + " too high for Java Heap");
+        if (distanceMatrix.size() > MAX_NODES_LIMIT)
+            throw new RuntimeException("Node count (" + distanceMatrix.size() + ") too high for Java Heap");
 
-        if (n <= 2) {
-            var path = new int[n];
-            for (int i = 0; i < n; ++i)
+        if (distanceMatrix.size() <= 2) {
+            var path = new int[distanceMatrix.size()];
+            for (int i = 0; i < distanceMatrix.size(); ++i)
                 path[i] = i;
             return path;
         }
 
-        int flexibleNodeSize = n - 1;
+        int flexibleNodeSize = distanceMatrix.size() - 1;
 
         // dp[i][mask] means the minimum distance to visit the set of nodes marked by mask, ending the journey at node 'i'
         // mask is a bitmask where the k-th bit set means node k is visited
@@ -38,7 +38,7 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
             Arrays.fill(row, (byte) INF);
 
         for (int i = 0; i < flexibleNodeSize; ++i) {
-            int distance = Byte.toUnsignedInt(distanceMatrix[0][i + 1]);
+            int distance = distanceMatrix.getDistance(0, i + 1);
             dp[i][0] = (byte) distance; // for a single-bit mask (1 << i), removing bit i results in 0
         }
 
@@ -61,7 +61,7 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
 
                     int visitedNodesAfterVisitedNodeToMask = visitedNodesMask | (1 << nodeTo);
 
-                    int distance = Byte.toUnsignedInt(distanceMatrix[nodeFrom + 1][nodeTo + 1]);
+                    int distance = distanceMatrix.getDistance(nodeFrom + 1, nodeTo + 1);
                     int newDistance = distanceFrom + distance;
 
                     if (newDistance >= INF)
@@ -93,13 +93,13 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
         if (bestEndNode == -1)
             throw new RuntimeException("Held-Karp failed: could not find a valid end node.");
 
-        var path = new int[n];
+        var path = new int[distanceMatrix.size()];
         path[0] = 0;  // start (0) is fixed
 
         int currentVisitedNodesMask = allNodesVisitedMask;
         int currentNode = bestEndNode;
 
-        for (int pathIndex = n - 1; pathIndex > 1; --pathIndex) {
+        for (int pathIndex = distanceMatrix.size() - 1; pathIndex > 1; --pathIndex) {
             path[pathIndex] = currentNode + 1; // convert 0-based flexible index back to 1-based matrix index
 
             // prevVisitedMask is currentVisitedNodesMask without currentNode
@@ -117,7 +117,7 @@ public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
 
                 int prevIndex = compress(prevVisitedMask, parentNode);
                 int parentDistance = Byte.toUnsignedInt(dp[parentNode][prevIndex]);
-                int parentToCurrentDistance = Byte.toUnsignedInt(distanceMatrix[parentNode + 1][currentNode + 1]);
+                int parentToCurrentDistance = distanceMatrix.getDistance(parentNode + 1, currentNode + 1);
 
                 if (parentToCurrentDistance == INF)
                     throw new RuntimeException("parentToCurrentDistance is INF");

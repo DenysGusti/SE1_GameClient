@@ -1,5 +1,6 @@
 package client.ai.tsp;
 
+import client.ai.graph.DistanceMatrix;
 import client.ai.graph.FullMapGraph;
 import client.data.XYPair;
 
@@ -31,7 +32,7 @@ public interface NodeTraversalStrategy {
         allNodes.add(start);
         allNodes.addAll(nodes);
 
-        byte[][] distanceMatrix = fullMapGraph.getDistanceMatrix(allNodes);
+        DistanceMatrix distanceMatrix = fullMapGraph.getDistanceMatrix(allNodes);
         if (distanceMatrix == null)
             throw new IllegalArgumentException("distanceMatrix is null");
 
@@ -41,7 +42,7 @@ public interface NodeTraversalStrategy {
         for (int idx : indexPath)
             path.add(allNodes.get(idx));
 
-        int distance = calculateTotalDistance(distanceMatrix, indexPath);
+        int distance = distanceMatrix.calculateTotalDistance(indexPath);
 
         if (distance != fullMapGraph.getDistance(path))
             throw new RuntimeException("distance does not match");
@@ -49,13 +50,6 @@ public interface NodeTraversalStrategy {
         return new TraversalResult(path, distance);
     }
 
-    default int calculateTotalDistance(byte[][] distanceMatrix, int[] path) {
-        int distance = 0;
-        for (int i = 0; i < path.length - 1; ++i)
-            distance += Byte.toUnsignedInt(distanceMatrix[path[i]][path[i + 1]]);
-        return distance;
-    }
-
     // 0 index is always start node and is fixed
-    int[] computePath(byte[][] distanceMatrix);
+    int[] computePath(DistanceMatrix distanceMatrix);
 }

@@ -1,34 +1,34 @@
 package client.ai.tsp;
 
+import client.ai.graph.DistanceMatrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.random.RandomGenerator;
 
 public class RandomWalkTraversalStrategy implements NodeTraversalStrategy {
     private static final Logger logger = LoggerFactory.getLogger(RandomWalkTraversalStrategy.class);
 
-    private final Random random;
+    private final RandomGenerator randomGenerator;
 
-    public RandomWalkTraversalStrategy(Random random) {
-        if (random == null)
+    public RandomWalkTraversalStrategy(RandomGenerator randomGenerator) {
+        if (randomGenerator == null)
             throw new IllegalArgumentException("random is null");
 
-        this.random = random;
+        this.randomGenerator = randomGenerator;
     }
 
     @Override
-    public int[] computePath(byte[][] distanceMatrix) {
+    public int[] computePath(DistanceMatrix distanceMatrix) {
         long startTime = System.nanoTime();
-        int n = distanceMatrix.length;
-        logger.debug("Random Walk started for {} nodes...", n);
+        logger.debug("Random Walk started for {} nodes...", distanceMatrix.size());
 
-        var path = new int[n];
-        for (int i = 0; i < n; ++i)
+        var path = new int[distanceMatrix.size()];
+        for (int i = 0; i < distanceMatrix.size(); ++i)
             path[i] = i;
 
-        for (int i = n - 1; i > 1; --i) {
-            int j = 1 + random.nextInt(i);  // start (0) is fixed
+        for (int i = distanceMatrix.size() - 1; i > 1; --i) {
+            int j = 1 + randomGenerator.nextInt(i);  // start (0) is fixed
             int tmp = path[i];
             path[i] = path[j];
             path[j] = tmp;
@@ -36,7 +36,7 @@ public class RandomWalkTraversalStrategy implements NodeTraversalStrategy {
 
         double duration = (System.nanoTime() - startTime) / 1_000_000_000.;
         logger.debug("Random Walk finished in {}s, distance: {}", duration,
-                calculateTotalDistance(distanceMatrix, path));
+                distanceMatrix.calculateTotalDistance(path));
         return path;
     }
 }

@@ -72,10 +72,10 @@ public class GameClientFactory {
     }
 
     public HalfMapGenerator createHalfMapGenerator() {
-        long seed = new Random().nextLong();
+        long seed = new SplittableRandom().nextLong();
         logger.info("Creating HalfMapGenerator with seed {}", seed);
-        var random = new Random(seed);
-        return new HalfMapGenerator(random);
+        var splittableRandom = new SplittableRandom(seed);
+        return new HalfMapGenerator(splittableRandom);
     }
 
     public HalfMapValidator createHalfMapValidator() {
@@ -89,17 +89,30 @@ public class GameClientFactory {
         var fullMapService = new FullMapSplitter();
 
         var heldKarp = new HeldKarpTraversalStrategy();
-
         var nearestNeighbor = new NearestNeighborTraversalStrategy();
+        var twoOpt = new TwoOptTraversalStrategy(nearestNeighbor);
 
-        long seed = new Random().nextLong();
-        logger.info("Creating SimulatedAnnealingTraversalStrategy with seed {}", seed);
-        var random = new Random(seed);
-        var metropolis = new MetropolisTraversalStrategy(nearestNeighbor, random);
+        long seedRW0 = new SplittableRandom().nextLong();
+        logger.info("Creating Random Walk 0 with seed {}", seedRW0);
+        var splittableRandomRW0 = new SplittableRandom(seedRW0);
+        var randomWalk0 = new RandomWalkTraversalStrategy(splittableRandomRW0);
 
-        var twoOpt = new TwoOptTraversalStrategy(metropolis);
+        long seedRW1 = new SplittableRandom().nextLong();
+        logger.info("Creating Random Walk 1 with seed {}", seedRW1);
+        var splittableRandomRW1 = new SplittableRandom(seedRW1);
+        var randomWalk1 = new RandomWalkTraversalStrategy(splittableRandomRW1);
 
-        var nodeTraversalStrategy = new GeneralNodeTraversalStrategy(heldKarp, twoOpt);
+        long seedM = new SplittableRandom().nextLong();
+        logger.info("Creating Metropolis with seed {}", seedM);
+        var splittableRandomM = new SplittableRandom(seedM);
+        var metropolis = new MetropolisTraversalStrategy(randomWalk0, splittableRandomM);
+
+        long seedSA = new SplittableRandom().nextLong();
+        logger.info("Creating Simulated Annealing with seed {}", seedSA);
+        var splittableRandomSA = new SplittableRandom(seedSA);
+        var simulatedAnnealing = new SimulatedAnnealingTraversalStrategy(randomWalk1, splittableRandomSA);
+
+        var nodeTraversalStrategy = new GeneralNodeTraversalStrategy(heldKarp, metropolis, simulatedAnnealing);
         var pathOptimizer = new PathOptimizer();
         var mountainSelector = new GreedyMountainSelector(nodeTraversalStrategy, pathOptimizer);
 

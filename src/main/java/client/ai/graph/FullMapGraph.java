@@ -61,19 +61,19 @@ public class FullMapGraph {
         return totalDistance;
     }
 
-    public byte[][] getDistanceMatrix(List<XYPair> nodes) {
+    public DistanceMatrix getDistanceMatrix(List<XYPair> nodes) {
         if (nodes == null)
             throw new IllegalArgumentException("nodes is null");
 
         int n = nodes.size();
 
-        var dist = new byte[n][n];
+        var dist = new byte[n * n];
         for (int i = 0; i < n; ++i)
             for (int j = 0; j < n; ++j) {
                 int distance = getDistance(nodes.get(i), nodes.get(j));
-                dist[i][j] = (byte) distance;
+                dist[i * n + j] = (byte) distance;
             }
-        return dist;
+        return new DistanceMatrix(dist, n);
     }
 
     private record PathState(XYPair coordinate, List<XYPair> path) {

@@ -1,30 +1,30 @@
 package client.ai.tsp;
 
+import client.ai.graph.DistanceMatrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class NearestNeighborTraversalStrategy implements NodeTraversalStrategy {
     private static final Logger logger = LoggerFactory.getLogger(NearestNeighborTraversalStrategy.class);
 
-    public int[] computePath(byte[][] distanceMatrix) {
+    public int[] computePath(DistanceMatrix distanceMatrix) {
         long startTime = System.nanoTime();
-        int n = distanceMatrix.length;
-        logger.debug("Nearest Neighbor started for {} nodes...", n);
+        logger.debug("Nearest Neighbor started for {} nodes...", distanceMatrix.size());
 
-        var path = new int[n];
-        var visited = new boolean[n];
+        var path = new int[distanceMatrix.size()];
+        var visited = new boolean[distanceMatrix.size()];
 
         path[0] = 0;  // start (0) is fixed
         visited[0] = true;
 
-        for (int i = 1; i < n; ++i) {
+        for (int i = 1; i < distanceMatrix.size(); ++i) {
             int currentNode = path[i - 1];
             int nearestNode = -1;
             int shortestDistance = Integer.MAX_VALUE;
 
-            for (int candidateNode = 0; candidateNode < n; ++candidateNode)
+            for (int candidateNode = 0; candidateNode < distanceMatrix.size(); ++candidateNode)
                 if (!visited[candidateNode]) {
-                    int currentDistance = Byte.toUnsignedInt(distanceMatrix[currentNode][candidateNode]);
+                    int currentDistance = distanceMatrix.getDistance(currentNode, candidateNode);
 
                     if (currentDistance < shortestDistance) {
                         shortestDistance = currentDistance;
@@ -41,7 +41,7 @@ public class NearestNeighborTraversalStrategy implements NodeTraversalStrategy {
 
         double duration = (System.nanoTime() - startTime) / 1_000_000_000.;
         logger.debug("Nearest Neighbor finished in {}s, distance: {}", duration,
-                calculateTotalDistance(distanceMatrix, path));
+                distanceMatrix.calculateTotalDistance(path));
         return path;
     }
 }

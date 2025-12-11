@@ -1,19 +1,21 @@
 package client.ai.tsp;
 
+import client.ai.graph.DistanceMatrix;
+
 public interface TwoOpt {
-    default int calculateDelta(byte[][] distanceMatrix, int[] path, int i, int j) {
+    default int calculateDelta(DistanceMatrix distanceMatrix, int[] path, int i, int j) {
         int nodeBeforeI = path[i - 1];
         int nodeI = path[i];
         int nodeJ = path[j];
 
-        int currentDistance = Byte.toUnsignedInt(distanceMatrix[nodeBeforeI][nodeI]);
-        int newDistance = Byte.toUnsignedInt(distanceMatrix[nodeBeforeI][nodeJ]);
+        int currentDistance = distanceMatrix.getDistance(nodeBeforeI, nodeI);
+        int newDistance = distanceMatrix.getDistance(nodeBeforeI, nodeJ);
 
         if (j + 1 < path.length) {
             int nodeAfterJ = path[j + 1];
 
-            currentDistance += Byte.toUnsignedInt(distanceMatrix[nodeJ][nodeAfterJ]);
-            newDistance += Byte.toUnsignedInt(distanceMatrix[nodeI][nodeAfterJ]);
+            currentDistance += distanceMatrix.getDistance(nodeJ, nodeAfterJ);
+            newDistance += distanceMatrix.getDistance(nodeI, nodeAfterJ);
         }
 
         return newDistance - currentDistance;

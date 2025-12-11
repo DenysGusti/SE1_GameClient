@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.random.RandomGenerator;
 import java.util.stream.Collectors;
 
 public class HalfMapGenerator {
@@ -20,13 +21,13 @@ public class HalfMapGenerator {
     private static final int REQUIRED_FORTS = 1;
     private static final ETerrain[] allTerrains = {ETerrain.Grass, ETerrain.Water, ETerrain.Mountain};
 
-    private final Random random;
+    private final RandomGenerator randomGenerator;
 
-    public HalfMapGenerator(Random random) {
-        if (random == null)
-            throw new IllegalArgumentException("random is null");
+    public HalfMapGenerator(RandomGenerator randomGenerator) {
+        if (randomGenerator == null)
+            throw new IllegalArgumentException("randomGenerator is null");
 
-        this.random = random;
+        this.randomGenerator = randomGenerator;
     }
 
     public HalfMap generateHalfMap() {
@@ -46,7 +47,7 @@ public class HalfMapGenerator {
         for (int i = 0; i < remaining; ++i)
             terrainPool.add(getRandomTerrain());
 
-        Collections.shuffle(terrainPool, random);
+        Collections.shuffle(terrainPool, randomGenerator);
         Map<XYPair, ETerrain> nodes = new HashMap<>();
         int index = 0;
         for (int x = 0; x < HALF_MAP_SIZE.x(); ++x)
@@ -57,7 +58,7 @@ public class HalfMapGenerator {
     }
 
     private ETerrain getRandomTerrain() {
-        return allTerrains[random.nextInt(allTerrains.length)];
+        return allTerrains[randomGenerator.nextInt(allTerrains.length)];
     }
 
     private Set<XYPair> placePotentialForts(Map<XYPair, ETerrain> nodes) {
@@ -69,7 +70,7 @@ public class HalfMapGenerator {
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
 
-        Collections.shuffle(grassTiles, random);
+        Collections.shuffle(grassTiles, randomGenerator);
         return new HashSet<>(grassTiles.subList(0, REQUIRED_FORTS));
     }
 }

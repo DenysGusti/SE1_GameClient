@@ -1,5 +1,6 @@
 package client.ai.tsp;
 
+import client.ai.graph.DistanceMatrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,10 +17,9 @@ public class TwoOptTraversalStrategy implements NodeTraversalStrategy, TwoOpt {
     }
 
     @Override
-    public int[] computePath(byte[][] distanceMatrix) {
+    public int[] computePath(DistanceMatrix distanceMatrix) {
         long startTime = System.nanoTime();
-        int n = distanceMatrix.length;
-        logger.debug("2-Opt started for {} nodes...", n);
+        logger.debug("2-Opt started for {} nodes...", distanceMatrix.size());
 
         int[] path = initialStrategy.computePath(distanceMatrix);
 
@@ -29,8 +29,8 @@ public class TwoOptTraversalStrategy implements NodeTraversalStrategy, TwoOpt {
 
             // we start at i = 1 because the start node (0) is fixed
             // we go up to size - 2 because we need at least one edge j after i to swap
-            for (int i = 1; i < n - 1; ++i)
-                for (int j = i + 1; j < n; ++j) {
+            for (int i = 1; i < distanceMatrix.size() - 1; ++i)
+                for (int j = i + 1; j < distanceMatrix.size(); ++j) {
                     int delta = calculateDelta(distanceMatrix, path, i, j);
 
                     if (delta < 0) {
@@ -42,7 +42,7 @@ public class TwoOptTraversalStrategy implements NodeTraversalStrategy, TwoOpt {
 
         double duration = (System.nanoTime() - startTime) / 1_000_000_000.;
         logger.debug("2-Opt finished in {}s: iterations: {}, distance: {}", duration, iteration,
-                calculateTotalDistance(distanceMatrix, path));
+                distanceMatrix.calculateTotalDistance(path));
         return path;
     }
 }

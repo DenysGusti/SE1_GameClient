@@ -7,19 +7,17 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.random.RandomGenerator;
 
-public class MetropolisTraversalStrategy implements NodeTraversalStrategy, TwoOpt {
+public class SimulatedAnnealingTraversalStrategy implements NodeTraversalStrategy, TwoOpt {
     private static final Logger logger = LoggerFactory.getLogger(MetropolisTraversalStrategy.class);
-    private static final int ITERATIONS_PER_NODE = 100_000;
-    private static final double[] DELTA_ACCEPTANCE_THRESHOLD = new double[64];
-    static {
-        for (int i = 0; i < DELTA_ACCEPTANCE_THRESHOLD.length; ++i)
-            DELTA_ACCEPTANCE_THRESHOLD[i] = Math.exp(-i);
-    }
+
+    private static final double STARTING_TEMPERATURE = 100.;
+    private static final double COOLING_RATE = 0.999995;
+    private static final double MIN_TEMPERATURE = 0.01;
 
     private final NodeTraversalStrategy initialStrategy;
     private final RandomGenerator randomGenerator;
 
-    public MetropolisTraversalStrategy(NodeTraversalStrategy initialStrategy, RandomGenerator randomGenerator) {
+    public SimulatedAnnealingTraversalStrategy(NodeTraversalStrategy initialStrategy, RandomGenerator randomGenerator) {
         if (initialStrategy == null)
             throw new IllegalArgumentException("initialStrategy is null");
         if (randomGenerator == null)
@@ -32,7 +30,7 @@ public class MetropolisTraversalStrategy implements NodeTraversalStrategy, TwoOp
     @Override
     public int[] computePath(DistanceMatrix distanceMatrix) {
         long startTime = System.nanoTime();
-        logger.debug("Metropolis started for {} nodes...", distanceMatrix.size());
+        logger.debug("Simulated Annealing started for {} nodes...", distanceMatrix.size());
 
         int[] currentPath = initialStrategy.computePath(distanceMatrix);
         int currentDistance = distanceMatrix.calculateTotalDistance(currentPath);
@@ -44,9 +42,9 @@ public class MetropolisTraversalStrategy implements NodeTraversalStrategy, TwoOp
         int[] bestPath = Arrays.copyOf(currentPath, n);
         int bestDistance = currentDistance;
 
-        int numberOfIterations = n * ITERATIONS_PER_NODE;
-        for (int iteration = 0; iteration < numberOfIterations; ++iteration) {
-
+        int iteration = 0;
+        for (double temperature = STARTING_TEMPERATURE; temperature > MIN_TEMPERATURE;
+             temperature *= COOLING_RATE, ++iteration) {
             int i = 1 + randomGenerator.nextInt(n - 2);
             int j = 1 + i + randomGenerator.nextInt(n - i - 1);
 
@@ -62,17 +60,14 @@ public class MetropolisTraversalStrategy implements NodeTraversalStrategy, TwoOp
                     System.arraycopy(currentPath, 0, bestPath, 0, n);
                     bestDistance = currentDistance;
                 }
-            } else if (delta < DELTA_ACCEPTANCE_THRESHOLD.length) {
-                if (DELTA_ACCEPTANCE_THRESHOLD[delta] > randomGenerator.nextDouble()) {
-                    reverseSegment(currentPath, i, j);
-                    currentDistance += delta;
-                }
+            } else if (Math.exp(-delta / temperature) > randomGenerator.nextDouble()) {
+                reverseSegment(currentPath, i, j);
+                currentDistance += delta;
             }
         }
 
         double duration = (System.nanoTime() - startTime) / 1_000_000_000.;
-        logger.debug("Metropolis finished in {}s: iterations: {}, distance: {}",
-                duration, numberOfIterations, bestDistance);
+        logger.debug("Simulated Annealing finished in {}s: iterations: {}, distance: {}", duration, iteration, bestDistance);
         return bestPath;
     }
 }
