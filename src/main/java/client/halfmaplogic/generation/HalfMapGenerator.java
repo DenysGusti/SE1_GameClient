@@ -44,7 +44,7 @@ public class HalfMapGenerator {
 
         int remaining = HALF_MAP_NODES - terrainPool.size();
         for (int i = 0; i < remaining; ++i)
-            terrainPool.add(ETerrain.Grass);
+            terrainPool.add(getRandomTerrain());
 
         Collections.shuffle(terrainPool, random);
         Map<XYPair, ETerrain> nodes = new HashMap<>();
