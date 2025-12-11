@@ -40,10 +40,10 @@ public class PathOptimizer {
         if (allPaths.isEmpty())
             throw new RuntimeException("No paths could be generated from the traversal path.");
 
-        return allPaths.stream().parallel()
+        return allPaths.stream()
                 .map(stepPath -> {
                     double expectedGoalDistance = getExpectedGoalDistance(fullMap, fullMapGraph, unrevealedGrassNodes, stepPath);
-                    logger.trace("Expected step-path goal distance: {}", expectedGoalDistance);
+//                    logger.trace("Expected step-path goal distance: {}", expectedGoalDistance);
                     return new StepPathMetric(stepPath, expectedGoalDistance);
                 })
                 .min(Comparator.comparingDouble(StepPathMetric::expectedGoalDistance))
