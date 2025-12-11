@@ -26,7 +26,7 @@ public class MetropolisTraversalStrategy implements NodeTraversalStrategy, TwoOp
     public int[] computePath(byte[][] distanceMatrix) {
         long startTime = System.nanoTime();
         int n = distanceMatrix.length;
-        logger.debug("Simulated Annealing started for {} nodes...", n);
+        logger.debug("Metropolis started for {} nodes...", n);
 
         int[] currentPath = initialStrategy.computePath(distanceMatrix);
         int currentDistance = calculateTotalDistance(distanceMatrix, currentPath);
@@ -68,8 +68,7 @@ public class MetropolisTraversalStrategy implements NodeTraversalStrategy, TwoOp
         }
 
         double duration = (System.nanoTime() - startTime) / 1_000_000_000.;
-        logger.debug("Simulated Annealing finished in {}s: iterations: {}, distance: {}", duration, iteration,
-                bestDistance);
+        logger.debug("Metropolis finished in {}s: distance: {}", duration, bestDistance);
         return bestPath;
     }
 }
