@@ -34,9 +34,8 @@ public class TwoOptTraversalStrategy implements NodeTraversalStrategy, TwoOpt {
                     int delta = calculateDelta(distanceMatrix, path, i, j);
 
                     if (delta < 0) {
-                        throw new RuntimeException("test");
-//                        reverseSegment(path, i, j);
-//                        improvementMade = true;
+                        reverseSegment(path, i, j);
+                        improvementMade = true;
                     }
                 }
         }
