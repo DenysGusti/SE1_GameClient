@@ -3,9 +3,6 @@ package client.data.fromclient;
 import client.data.ETerrain;
 import client.data.XYPair;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.*;
 
 public record HalfMap(Map<XYPair, ETerrain> nodes, Set<XYPair> potentialForts) {

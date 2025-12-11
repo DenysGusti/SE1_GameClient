@@ -2,9 +2,6 @@ package client.data.fromserver;
 
 import client.data.PlayerInformation;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public record PlayerState(PlayerInformation playerInformation, boolean hasCollectedTreasure,
                           EPlayerGameState gameState) {
     public PlayerState {

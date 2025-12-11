@@ -2,9 +2,6 @@ package client.data.fromserver;
 
 import client.data.XYPair;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.*;
 
 public record FullMap(Map<XYPair, FullMapNode> nodes, XYPair topLeftCoordinate, XYPair bottomRightCoordinate,

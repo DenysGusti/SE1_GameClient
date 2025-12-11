@@ -9,8 +9,6 @@ import client.halfmaplogic.validation.exception.BorderRuleException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
-
 public class BorderRule implements IHalfMapValidationRule {
     private static final Logger logger = LoggerFactory.getLogger(BorderRule.class);
 

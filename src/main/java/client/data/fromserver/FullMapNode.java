@@ -1,8 +1,6 @@
 package client.data.fromserver;
 
 import client.data.ETerrain;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public record FullMapNode(ETerrain terrain, boolean isRevealed) {
     public FullMapNode {
