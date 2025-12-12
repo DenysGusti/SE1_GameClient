@@ -62,12 +62,11 @@ public class MetropolisTraversalStrategy implements NodeTraversalStrategy, TwoOp
                     System.arraycopy(currentPath, 0, bestPath, 0, n);
                     bestDistance = currentDistance;
                 }
-            } else if (delta < DELTA_ACCEPTANCE_THRESHOLD.length) {
+            } else if (delta < DELTA_ACCEPTANCE_THRESHOLD.length)
                 if (DELTA_ACCEPTANCE_THRESHOLD[delta] > randomGenerator.nextDouble()) {
                     reverseSegment(currentPath, i, j);
                     currentDistance += delta;
                 }
-            }
         }
 
         double duration = (System.nanoTime() - startTime) / 1_000_000_000.;
