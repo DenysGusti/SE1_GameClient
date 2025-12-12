@@ -79,7 +79,7 @@ public class GameClientFactory {
     }
 
     public HalfMapValidator createHalfMapValidator() {
-        Set<IHalfMapValidationRule> rules = Set.of(
+        Set<HalfMapValidationRule> rules = Set.of(
                 new TerrainRule(), new BorderRule(), new FortRule(), new ConnectivityRule()
         );
         return new HalfMapValidator(rules);
