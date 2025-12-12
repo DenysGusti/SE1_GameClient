@@ -19,22 +19,7 @@ public class NearestNeighborStrategy implements NodeTraversalStrategy {
 
         for (int i = 1; i < distanceMatrix.size(); ++i) {
             int currentNode = path[i - 1];
-            int nearestNode = -1;
-            int shortestDistance = Integer.MAX_VALUE;
-
-            for (int candidateNode = 0; candidateNode < distanceMatrix.size(); ++candidateNode)
-                if (!visited[candidateNode]) {
-                    int currentDistance = distanceMatrix.getDistance(currentNode, candidateNode);
-
-                    if (currentDistance < shortestDistance) {
-                        shortestDistance = currentDistance;
-                        nearestNode = candidateNode;
-                    }
-                }
-
-            if (nearestNode == -1)
-                throw new RuntimeException("Nearest Neighbor traversal failed");
-
+            int nearestNode = getNearestNode(distanceMatrix, visited, currentNode);
             path[i] = nearestNode;
             visited[nearestNode] = true;
         }
@@ -43,5 +28,25 @@ public class NearestNeighborStrategy implements NodeTraversalStrategy {
         logger.debug("Nearest Neighbor finished in {}s, distance: {}", duration,
                 distanceMatrix.calculateTotalDistance(path));
         return path;
+    }
+
+    private static int getNearestNode(DistanceMatrix distanceMatrix, boolean[] visited, int currentNode) {
+        int nearestNode = -1;
+        int shortestDistance = Integer.MAX_VALUE;
+
+        for (int candidateNode = 0; candidateNode < distanceMatrix.size(); ++candidateNode)
+            if (!visited[candidateNode]) {
+                int currentDistance = distanceMatrix.getDistance(currentNode, candidateNode);
+
+                if (currentDistance < shortestDistance) {
+                    shortestDistance = currentDistance;
+                    nearestNode = candidateNode;
+                }
+            }
+
+        if (nearestNode == -1)
+            throw new RuntimeException("Nearest Neighbor traversal failed");
+
+        return nearestNode;
     }
 }
