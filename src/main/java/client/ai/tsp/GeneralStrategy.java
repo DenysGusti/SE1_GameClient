@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 
 public class GeneralStrategy implements NodeTraversalStrategy {
     private static final Logger logger = LoggerFactory.getLogger(GeneralStrategy.class);
-    private static final int EXACT_STRATEGY_NODES_THRESHOLD = 20;
+    private static final int EXACT_STRATEGY_NODES_THRESHOLD = 18;
 
     private final NodeTraversalStrategy exactStrategy;
     private final NodeTraversalStrategy heuristicStrategy;
