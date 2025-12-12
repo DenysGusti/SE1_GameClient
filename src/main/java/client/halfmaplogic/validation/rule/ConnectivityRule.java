@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class ConnectivityRule implements IHalfMapValidationRule {
+public class ConnectivityRule implements HalfMapValidationRule {
     private static final Logger logger = LoggerFactory.getLogger(ConnectivityRule.class);
 
     private static final XYPair HALF_MAP_SIZE = new XYPair(10, 5);

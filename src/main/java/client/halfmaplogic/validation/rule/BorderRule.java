@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BorderRule implements IHalfMapValidationRule {
+public class BorderRule implements HalfMapValidationRule {
     private static final Logger logger = LoggerFactory.getLogger(BorderRule.class);
 
     private static final XYPair HALF_MAP_SIZE = new XYPair(10, 5);

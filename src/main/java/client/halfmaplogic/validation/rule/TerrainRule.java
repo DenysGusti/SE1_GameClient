@@ -2,7 +2,6 @@ package client.halfmaplogic.validation.rule;
 
 import client.data.ETerrain;
 import client.data.fromclient.HalfMap;
-import client.halfmaplogic.validation.Notification;
 
 import client.halfmaplogic.validation.exception.HalfMapGenerationException;
 import client.halfmaplogic.validation.exception.TerrainRuleException;
@@ -12,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TerrainRule implements IHalfMapValidationRule {
+public class TerrainRule implements HalfMapValidationRule {
     private static final Logger logger = LoggerFactory.getLogger(TerrainRule.class);
 
     private static final int HALF_MAP_NODES = 50;

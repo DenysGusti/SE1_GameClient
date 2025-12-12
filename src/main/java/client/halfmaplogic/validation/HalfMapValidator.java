@@ -11,9 +11,9 @@ import java.util.Set;
 public class HalfMapValidator {
     private static final Logger logger = LoggerFactory.getLogger(HalfMapValidator.class);
 
-    Set<IHalfMapValidationRule> rules;
+    Set<HalfMapValidationRule> rules;
 
-    public HalfMapValidator(Set<IHalfMapValidationRule> rules) {
+    public HalfMapValidator(Set<HalfMapValidationRule> rules) {
         if (rules == null)
             throw new IllegalArgumentException("rules is null");
 
@@ -25,7 +25,7 @@ public class HalfMapValidator {
             throw new IllegalArgumentException("halfMap is null");
 
         var notification = new Notification();
-        for (IHalfMapValidationRule rule : rules)
+        for (HalfMapValidationRule rule : rules)
             notification.addErrors(rule.validate(halfMap));
 
         return notification;

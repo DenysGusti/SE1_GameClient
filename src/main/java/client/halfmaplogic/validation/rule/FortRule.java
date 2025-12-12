@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FortRule implements IHalfMapValidationRule {
+public class FortRule implements HalfMapValidationRule {
     private static final Logger logger = LoggerFactory.getLogger(FortRule.class);
 
     private static final int REQUIRED_FORTS = 1;

@@ -5,6 +5,6 @@ import client.halfmaplogic.validation.exception.HalfMapGenerationException;
 
 import java.util.List;
 
-public interface IHalfMapValidationRule {
+public interface HalfMapValidationRule {
     List<HalfMapGenerationException> validate(HalfMap halfMap);
 }
