@@ -2,7 +2,7 @@ package client.halfmaplogic.validation;
 
 import client.data.fromclient.HalfMap;
 
-import client.halfmaplogic.validation.rule.IHalfMapValidationRule;
+import client.halfmaplogic.validation.rule.HalfMapValidationRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +18,13 @@ public class HalfMapValidator {
             throw new IllegalArgumentException("rules is null");
 
         this.rules = rules;
+    }
+
+    public void addRule(HalfMapValidationRule rule) {
+        if (rule == null)
+            throw new IllegalArgumentException("rule is null");
+
+        rules.add(rule);
     }
 
     public Notification validate(HalfMap halfMap) {

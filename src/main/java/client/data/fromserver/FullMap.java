@@ -41,13 +41,6 @@ public record FullMap(Map<XYPair, FullMapNode> nodes, XYPair topLeftCoordinate, 
                 myTreasurePosition, isMyTreasureCollected);
     }
 
-    public FullMap withMyPlayerPosition(XYPair myPlayerPosition) {
-        return new FullMap(nodes, topLeftCoordinate, bottomRightCoordinate,
-                myPlayerPosition, enemyPlayerPosition,
-                myFortPosition, enemyFortPosition,
-                myTreasurePosition, isMyTreasureCollected);
-    }
-
     public FullMap withMyTreasurePosition(XYPair newMyTreasurePosition) {
         return new FullMap(nodes, topLeftCoordinate, bottomRightCoordinate,
                 myPlayerPosition, enemyPlayerPosition,
@@ -55,11 +48,8 @@ public record FullMap(Map<XYPair, FullMapNode> nodes, XYPair topLeftCoordinate, 
                 newMyTreasurePosition, isMyTreasureCollected);
     }
 
-    public FullMap withMyFortPosition(XYPair newMyFortPosition) {
-        return new FullMap(nodes, topLeftCoordinate, bottomRightCoordinate,
-                myPlayerPosition, enemyPlayerPosition,
-                newMyFortPosition, enemyFortPosition,
-                myTreasurePosition, isMyTreasureCollected);
+    public boolean isEmpty() {
+        return nodes.isEmpty();
     }
 
     public XYPair size() {

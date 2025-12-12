@@ -64,7 +64,7 @@ public class GameController {
         gameSession.registerPlayer(playerInformation).block();
         logger.info("Player registration complete.");
 
-        gameSession.pollForNewGameState()
+        GameState currentState = gameSession.pollForNewGameState()
                 .doOnNext(this::updateModels)
                 .filter(GameState::myPlayerMustAct)
                 .next().blockOptional().orElseThrow();
@@ -74,7 +74,7 @@ public class GameController {
         logger.info("Half-map sent successfully.");
 
         while (true) {
-            GameState currentState = gameSession.pollForNewGameState()
+            currentState = gameSession.pollForNewGameState()
                     .doOnNext(this::updateModels)
                     .filter(GameState::myPlayerMustNotWait)
                     .next().blockOptional().orElseThrow();

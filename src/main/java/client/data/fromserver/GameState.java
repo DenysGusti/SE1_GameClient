@@ -39,7 +39,7 @@ public record GameState(String gameStateID, FullMap fullMap, PlayerState myPlaye
         return myPlayer.gameState();
     }
 
-    public boolean myPlayerHasCollectedTreasure() {
-        return myPlayer.hasCollectedTreasure();
+    public boolean fullMapIsEmpty() {
+        return fullMap.isEmpty();
     }
 }
