@@ -86,37 +86,25 @@ public class GameClientFactory {
     }
 
     public AIPlayer createAIPlayer() {
-        var fullMapService = new FullMapSplitter();
+        var heldKarp = new HeldKarpStrategy();
+        var nearestNeighbor = new NearestNeighborStrategy();
 
-        var heldKarp = new HeldKarpTraversalStrategy();
-        var nearestNeighbor = new NearestNeighborTraversalStrategy();
-        var twoOpt = new TwoOptTraversalStrategy(nearestNeighbor);
+        long seedRW = new SplittableRandom().nextLong();
+        logger.info("Creating Random Walk with seed {}", seedRW);
+        var randomWalk = new RandomWalkStrategy(new SplittableRandom(seedRW));
 
-        long seedRW0 = new SplittableRandom().nextLong();
-        logger.info("Creating Random Walk 0 with seed {}", seedRW0);
-        var splittableRandomRW0 = new SplittableRandom(seedRW0);
-        var randomWalk0 = new RandomWalkTraversalStrategy(splittableRandomRW0);
+        long seedM0 = new SplittableRandom().nextLong();
+        logger.info("Creating Metropolis 0 with seed {}", seedM0);
+        var metropolis0 = new TwoOptStrategy(new MetropolisStrategy(nearestNeighbor, new SplittableRandom(seedM0)));
 
-        long seedRW1 = new SplittableRandom().nextLong();
-        logger.info("Creating Random Walk 1 with seed {}", seedRW1);
-        var splittableRandomRW1 = new SplittableRandom(seedRW1);
-        var randomWalk1 = new RandomWalkTraversalStrategy(splittableRandomRW1);
+        long seedM1 = new SplittableRandom().nextLong();
+        logger.info("Creating Metropolis 1 with seed {}", seedM1);
+        var metropolis1 = new TwoOptStrategy(new MetropolisStrategy(randomWalk, new SplittableRandom(seedM1)));
 
-        long seedM = new SplittableRandom().nextLong();
-        logger.info("Creating Metropolis with seed {}", seedM);
-        var splittableRandomM = new SplittableRandom(seedM);
-        var metropolis = new MetropolisTraversalStrategy(randomWalk0, splittableRandomM);
+        var nodeTraversalStrategy = new GeneralStrategy(heldKarp, metropolis0, metropolis1);
+        var mountainSelector = new GreedyMountainSelector(nodeTraversalStrategy, new PathOptimizer());
 
-        long seedSA = new SplittableRandom().nextLong();
-        logger.info("Creating Simulated Annealing with seed {}", seedSA);
-        var splittableRandomSA = new SplittableRandom(seedSA);
-        var simulatedAnnealing = new SimulatedAnnealingTraversalStrategy(randomWalk1, splittableRandomSA);
-
-        var nodeTraversalStrategy = new GeneralNodeTraversalStrategy(heldKarp, metropolis, simulatedAnnealing);
-        var pathOptimizer = new PathOptimizer();
-        var mountainSelector = new GreedyMountainSelector(nodeTraversalStrategy, pathOptimizer);
-
-        return new AIPlayer(fullMapService, mountainSelector);
+        return new AIPlayer(new FullMapSplitter(), mountainSelector);
     }
 
     public GameController createGameController(GameSession gameSession,
