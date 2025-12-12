@@ -9,7 +9,7 @@ import java.util.random.RandomGenerator;
 
 public class MetropolisStrategy implements NodeTraversalStrategy, TwoOpt {
     private static final Logger logger = LoggerFactory.getLogger(MetropolisStrategy.class);
-    private static final int ITERATIONS_PER_NODE = 100_000;
+    private static final int ITERATIONS_PER_NODE = 50_000;
     private static final int RESTART_PERIOD = 500_000;
     private static final double[] DELTA_ACCEPTANCE_THRESHOLD = new double[64];
 
