@@ -10,7 +10,9 @@ import java.util.random.RandomGenerator;
 public class MetropolisStrategy implements NodeTraversalStrategy, TwoOpt {
     private static final Logger logger = LoggerFactory.getLogger(MetropolisStrategy.class);
     private static final int ITERATIONS_PER_NODE = 100_000;
+    private static final int RESTART_PERIOD = 500_000;
     private static final double[] DELTA_ACCEPTANCE_THRESHOLD = new double[64];
+
     static {
         for (int i = 0; i < DELTA_ACCEPTANCE_THRESHOLD.length; ++i)
             DELTA_ACCEPTANCE_THRESHOLD[i] = Math.exp(-i);
@@ -46,6 +48,10 @@ public class MetropolisStrategy implements NodeTraversalStrategy, TwoOpt {
 
         int numberOfIterations = n * ITERATIONS_PER_NODE;
         for (int iteration = 0; iteration < numberOfIterations; ++iteration) {
+            if (iteration % RESTART_PERIOD == 0) {
+                System.arraycopy(bestPath, 0, currentPath, 0, n);
+                currentDistance = bestDistance;
+            }
 
             int i = 1 + randomGenerator.nextInt(n - 2);
             int j = 1 + i + randomGenerator.nextInt(n - i - 1);
@@ -56,7 +62,7 @@ public class MetropolisStrategy implements NodeTraversalStrategy, TwoOpt {
                 currentDistance += delta;
 
                 if (currentDistance < bestDistance) {
-//                    logger.trace("Improvement at iteration {}: distance: {} -> {}",
+//                    logger.debug("Improvement at iteration {}: distance: {} -> {}",
 //                            iteration, bestDistance, currentDistance);
 
                     System.arraycopy(currentPath, 0, bestPath, 0, n);
