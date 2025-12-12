@@ -29,21 +29,21 @@ public class BorderRule implements HalfMapValidationRule {
         if (halfMap == null)
             throw new IllegalArgumentException("halfMap is null");
 
-        List<HalfMapGenerationException> exceptions = new ArrayList<>();
+        List<HalfMapGenerationException> errors = new ArrayList<>();
 
         if (invalidBorder(halfMap, TOP_LEFT_CORNER, TOP_RIGHT_CORNER, REQUIRED_TRAVERSABLE_SIDE.x(), REQUIRED_NON_TRAVERSABLE_SIDE.x()))
-            exceptions.add(new BorderRuleException("BorderRule: Top border (y=0) violation."));
+            errors.add(new BorderRuleException("BorderRule: Top border (y=0) violation."));
 
         if (invalidBorder(halfMap, BOTTOM_LEFT_CORNER, BOTTOM_RIGHT_CORNER, REQUIRED_TRAVERSABLE_SIDE.x(), REQUIRED_NON_TRAVERSABLE_SIDE.x()))
-            exceptions.add(new BorderRuleException("BorderRule: Bottom border (y=4) violation."));
+            errors.add(new BorderRuleException("BorderRule: Bottom border (y=4) violation."));
 
         if (invalidBorder(halfMap, TOP_LEFT_CORNER, BOTTOM_LEFT_CORNER, REQUIRED_TRAVERSABLE_SIDE.y(), REQUIRED_NON_TRAVERSABLE_SIDE.y()))
-            exceptions.add(new BorderRuleException("BorderRule: Left border (x=0) violation."));
+            errors.add(new BorderRuleException("BorderRule: Left border (x=0) violation."));
 
         if (invalidBorder(halfMap, TOP_RIGHT_CORNER, BOTTOM_RIGHT_CORNER, REQUIRED_TRAVERSABLE_SIDE.y(), REQUIRED_NON_TRAVERSABLE_SIDE.y()))
-            exceptions.add(new BorderRuleException("BorderRule: Right border (x=9) violation."));
+            errors.add(new BorderRuleException("BorderRule: Right border (x=9) violation."));
 
-        return exceptions;
+        return errors;
     }
 
     private static boolean invalidBorder(HalfMap halfMap, XYPair start, XYPair end,

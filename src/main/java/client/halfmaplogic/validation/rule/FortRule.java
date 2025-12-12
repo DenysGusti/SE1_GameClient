@@ -22,15 +22,15 @@ public class FortRule implements HalfMapValidationRule {
         if (halfMap == null)
             throw new IllegalArgumentException("halfMap is null");
 
-        List<HalfMapGenerationException> exceptions = new ArrayList<>();
+        List<HalfMapGenerationException> errors = new ArrayList<>();
 
         if (halfMap.potentialForts().size() != REQUIRED_FORTS)
-            exceptions.add(new FortRuleException("FortRule: Wrong number of forts. Found " + halfMap.potentialForts().size() + ", Required " + REQUIRED_FORTS));
+            errors.add(new FortRuleException("FortRule: Wrong number of forts. Found " + halfMap.potentialForts().size() + ", Required " + REQUIRED_FORTS));
 
         for (XYPair fortPosition : halfMap.potentialForts())
             if (halfMap.nodes().get(fortPosition) != ETerrain.Grass)
-                exceptions.add(new FortRuleException("FortRule: A fort was placed on a non-Grass tile at " + fortPosition));
+                errors.add(new FortRuleException("FortRule: A fort was placed on a non-Grass tile at " + fortPosition));
 
-        return exceptions;
+        return errors;
     }
 }

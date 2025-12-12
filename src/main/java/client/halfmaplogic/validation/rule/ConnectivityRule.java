@@ -21,7 +21,7 @@ public class ConnectivityRule implements HalfMapValidationRule {
         if (halfMap == null)
             throw new IllegalArgumentException("halfMap is null");
 
-        List<HalfMapGenerationException> exceptions = new ArrayList<>();
+        List<HalfMapGenerationException> errors = new ArrayList<>();
 
         XYPair startNode = halfMap.nodes().entrySet().stream()
                 .filter(e -> e.getValue() != ETerrain.Water)
@@ -30,8 +30,8 @@ public class ConnectivityRule implements HalfMapValidationRule {
                 .orElse(null);
 
         if (startNode == null) {
-            exceptions.add(new ConnectivityRuleException("ConnectivityRule: Half map has no traversable nodes at all."));
-            return exceptions;
+            errors.add(new ConnectivityRuleException("ConnectivityRule: Half map has no traversable nodes at all."));
+            return errors;
         }
 
         Set<XYPair> visited = new HashSet<>();
@@ -56,9 +56,9 @@ public class ConnectivityRule implements HalfMapValidationRule {
                 .count();
 
         if (visited.size() != totalWalkableNodes)
-            exceptions.add(new ConnectivityRuleException("ConnectivityRule: Map has islands. Total walkable nodes: "
+            errors.add(new ConnectivityRuleException("ConnectivityRule: Map has islands. Total walkable nodes: "
                     + totalWalkableNodes + ", but only " + visited.size() + " are reachable."));
 
-        return exceptions;
+        return errors;
     }
 }
