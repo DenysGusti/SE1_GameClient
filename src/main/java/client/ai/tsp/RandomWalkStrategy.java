@@ -27,16 +27,21 @@ public class RandomWalkStrategy implements NodeTraversalStrategy {
         for (int i = 0; i < distanceMatrix.size(); ++i)
             path[i] = i;
 
-        for (int i = distanceMatrix.size() - 1; i > 1; --i) {
-            int j = 1 + randomGenerator.nextInt(i);  // start (0) is fixed
-            int tmp = path[i];
-            path[i] = path[j];
-            path[j] = tmp;
-        }
+        shuffle(path);
 
         double duration = (System.nanoTime() - startTime) / 1_000_000_000.;
         logger.debug("Random Walk finished in {}s, distance: {}", duration,
                 distanceMatrix.calculateTotalDistance(path));
         return path;
+    }
+
+    // Fisher–Yates shuffle
+    private void shuffle(int[] path) {
+        for (int i = path.length - 1; i > 1; --i) {
+            int j = 1 + randomGenerator.nextInt(i);  // start (0) is fixed
+            int tmp = path[i];
+            path[i] = path[j];
+            path[j] = tmp;
+        }
     }
 }
