@@ -9,6 +9,7 @@ import client.data.fromserver.GameState;
 import client.halfmaplogic.generation.HalfMapGenerator;
 import client.halfmaplogic.validation.HalfMapValidator;
 import client.halfmaplogic.validation.exception.HalfMapGenerationException;
+import client.halfmaplogic.validation.rule.SecondHalfMapTransitionRule;
 import client.modelviewcontroller.model.MapModel;
 import client.modelviewcontroller.model.PlayerModel;
 import client.network.GameSession;
@@ -20,7 +21,7 @@ import org.slf4j.LoggerFactory;
 public class GameController {
     private static final Logger logger = LoggerFactory.getLogger(GameController.class);
 
-    private static final int HALF_MAP_GENERATION_ATTEMPTS = 100_000;
+    private static final int HALF_MAP_GENERATION_ATTEMPTS = 1_000_000;
 
     private final PlayerModel playerModel;
     private final MapModel mapModel;
@@ -68,6 +69,11 @@ public class GameController {
                 .doOnNext(this::updateModels)
                 .filter(GameState::myPlayerMustAct)
                 .next().blockOptional().orElseThrow();
+
+        if (!currentState.fullMapIsEmpty()) {
+            logger.warn("My player is the second.");
+            halfMapValidator.addRule(new SecondHalfMapTransitionRule(currentState.fullMap()));
+        }
 
         HalfMap halfMap = generateHalfMap();
         gameSession.sendHalfMap(halfMap).block();

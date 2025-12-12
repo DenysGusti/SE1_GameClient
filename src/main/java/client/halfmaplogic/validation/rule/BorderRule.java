@@ -48,29 +48,20 @@ public class BorderRule implements HalfMapValidationRule {
 
     private static boolean invalidBorder(HalfMap halfMap, XYPair start, XYPair end,
                                          int requiredTraversableCount, int requiredNonTraversableCount) {
-        if (halfMap == null)
-            throw new IllegalArgumentException("halfMap is null");
-        if (start == null)
-            throw new IllegalArgumentException("start is null");
-        if (end == null)
-            throw new IllegalArgumentException("end is null");
-        if (requiredTraversableCount < 0)
-            throw new IllegalArgumentException("requiredTraversableCount is negative");
-        if (requiredNonTraversableCount < 0)
-            throw new IllegalArgumentException("requiredNonTraversableCount is negative");
-
         int traversableCount = 0;
         int nonTraversableCount = 0;
+        var delta = new XYPair(Integer.compare(end.x(), start.x()), Integer.compare(end.y(), start.y()));
+        int length = Math.max(end.x() - start.x(), end.y() - start.y()) + 1;
 
-        for (int x = start.x(); x <= end.x(); ++x)
-            for (int y = start.y(); y <= end.y(); y++) {
-                ETerrain terrain = halfMap.nodes().get(new XYPair(x, y));
+        for (int i = 0; i < length; ++i) {
+            var coordinate = new XYPair(start.x() + i * delta.x(), start.y() + i * delta.y());
+            ETerrain terrain = halfMap.nodes().get(coordinate);
 
-                if (terrain == ETerrain.Water)
-                    ++nonTraversableCount;
-                else
-                    ++traversableCount;
-            }
+            if (terrain == ETerrain.Water)
+                ++nonTraversableCount;
+            else
+                ++traversableCount;
+        }
 
         return traversableCount < requiredTraversableCount || nonTraversableCount < requiredNonTraversableCount;
     }

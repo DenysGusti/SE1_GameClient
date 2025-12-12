@@ -6,6 +6,7 @@ import client.halfmaplogic.validation.rule.HalfMapValidationRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class HalfMapValidator {
@@ -17,7 +18,7 @@ public class HalfMapValidator {
         if (rules == null)
             throw new IllegalArgumentException("rules is null");
 
-        this.rules = rules;
+        this.rules = new HashSet<>(rules);
     }
 
     public void addRule(HalfMapValidationRule rule) {
