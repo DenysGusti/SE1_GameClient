@@ -3,9 +3,9 @@ package client.halfmaplogic.validation.rule;
 import client.data.ETerrain;
 import client.data.XYPair;
 import client.data.fromclient.HalfMap;
-import client.halfmaplogic.validation.Notification;
 
 import client.halfmaplogic.validation.exception.ConnectivityRuleException;
+import client.halfmaplogic.validation.exception.HalfMapGenerationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,11 +17,11 @@ public class ConnectivityRule implements IHalfMapValidationRule {
     private static final XYPair HALF_MAP_SIZE = new XYPair(10, 5);
 
     @Override
-    public void validate(HalfMap halfMap, Notification notification) {
+    public List<HalfMapGenerationException> validate(HalfMap halfMap) {
         if (halfMap == null)
             throw new IllegalArgumentException("halfMap is null");
-        if (notification == null)
-            throw new IllegalArgumentException("notification is null");
+
+        List<HalfMapGenerationException> exceptions = new ArrayList<>();
 
         XYPair startNode = halfMap.nodes().entrySet().stream()
                 .filter(e -> e.getValue() != ETerrain.Water)
@@ -30,8 +30,8 @@ public class ConnectivityRule implements IHalfMapValidationRule {
                 .orElse(null);
 
         if (startNode == null) {
-            notification.addError(new ConnectivityRuleException("ConnectivityRule: Half map has no traversable nodes at all."));
-            return;
+            exceptions.add(new ConnectivityRuleException("ConnectivityRule: Half map has no traversable nodes at all."));
+            return exceptions;
         }
 
         Set<XYPair> visited = new HashSet<>();
@@ -56,7 +56,9 @@ public class ConnectivityRule implements IHalfMapValidationRule {
                 .count();
 
         if (visited.size() != totalWalkableNodes)
-            notification.addError(new ConnectivityRuleException("ConnectivityRule: Map has islands. Total walkable nodes: "
+            exceptions.add(new ConnectivityRuleException("ConnectivityRule: Map has islands. Total walkable nodes: "
                     + totalWalkableNodes + ", but only " + visited.size() + " are reachable."));
+
+        return exceptions;
     }
 }

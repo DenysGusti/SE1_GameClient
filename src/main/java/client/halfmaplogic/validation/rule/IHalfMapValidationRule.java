@@ -1,8 +1,10 @@
 package client.halfmaplogic.validation.rule;
 
 import client.data.fromclient.HalfMap;
-import client.halfmaplogic.validation.Notification;
+import client.halfmaplogic.validation.exception.HalfMapGenerationException;
+
+import java.util.List;
 
 public interface IHalfMapValidationRule {
-    void validate(HalfMap halfMap, Notification notification);
+    List<HalfMapGenerationException> validate(HalfMap halfMap);
 }

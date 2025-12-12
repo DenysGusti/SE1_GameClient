@@ -13,18 +13,18 @@ public class Notification {
 
     private final Collection<HalfMapGenerationException> errors = new ArrayList<>();
 
-    public void addError(HalfMapGenerationException exception) {
-        if (exception == null)
-            throw new IllegalArgumentException("exception is null");
+    public void addErrors(List<HalfMapGenerationException> exceptions) {
+        if (exceptions == null)
+            throw new IllegalArgumentException("exceptions is null");
 
-        errors.add(exception);
+        errors.addAll(exceptions);
     }
 
     public boolean hasErrors() {
         return !errors.isEmpty();
     }
 
-    public Collection<HalfMapGenerationException> getErrors() {
+    public List<HalfMapGenerationException> getErrors() {
         return List.copyOf(errors);
     }
 }

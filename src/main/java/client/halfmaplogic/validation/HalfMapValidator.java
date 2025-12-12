@@ -25,7 +25,9 @@ public class HalfMapValidator {
             throw new IllegalArgumentException("halfMap is null");
 
         var notification = new Notification();
-        rules.forEach(rule -> rule.validate(halfMap, notification));
+        for (IHalfMapValidationRule rule : rules)
+            notification.addErrors(rule.validate(halfMap));
+
         return notification;
     }
 }
