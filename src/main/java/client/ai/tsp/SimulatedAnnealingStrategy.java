@@ -8,7 +8,7 @@ import java.util.*;
 import java.util.random.RandomGenerator;
 
 public class SimulatedAnnealingStrategy implements NodeTraversalStrategy, TwoOpt {
-    private static final Logger logger = LoggerFactory.getLogger(MetropolisStrategy.class);
+    private static final Logger logger = LoggerFactory.getLogger(SimulatedAnnealingStrategy.class);
 
     private static final double STARTING_TEMPERATURE = 100.;
     private static final double COOLING_RATE = 0.999995;
