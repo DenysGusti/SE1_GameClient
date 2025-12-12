@@ -49,8 +49,8 @@ public class GeneralNodeTraversalStrategy implements NodeTraversalStrategy {
             int tmpDistance = distanceMatrix.calculateTotalDistance(tmp);
 
             if (resultPathDistance != tmpDistance)
-                throw new RuntimeException("Heuristic strategies not good enough! M: "
-                        + resultPathDistance + " != SA: " + tmpDistance);
+                throw new RuntimeException("Heuristic strategies not good enough! "
+                        + resultPathDistance + " != " + tmpDistance);
         }
 
         double duration = (System.nanoTime() - startTime) / 1_000_000_000.;
