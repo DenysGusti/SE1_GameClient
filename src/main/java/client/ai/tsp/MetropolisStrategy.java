@@ -7,8 +7,8 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.random.RandomGenerator;
 
-public class MetropolisTraversalStrategy implements NodeTraversalStrategy, TwoOpt {
-    private static final Logger logger = LoggerFactory.getLogger(MetropolisTraversalStrategy.class);
+public class MetropolisStrategy implements NodeTraversalStrategy, TwoOpt {
+    private static final Logger logger = LoggerFactory.getLogger(MetropolisStrategy.class);
     private static final int ITERATIONS_PER_NODE = 100_000;
     private static final double[] DELTA_ACCEPTANCE_THRESHOLD = new double[64];
     static {
@@ -19,7 +19,7 @@ public class MetropolisTraversalStrategy implements NodeTraversalStrategy, TwoOp
     private final NodeTraversalStrategy initialStrategy;
     private final RandomGenerator randomGenerator;
 
-    public MetropolisTraversalStrategy(NodeTraversalStrategy initialStrategy, RandomGenerator randomGenerator) {
+    public MetropolisStrategy(NodeTraversalStrategy initialStrategy, RandomGenerator randomGenerator) {
         if (initialStrategy == null)
             throw new IllegalArgumentException("initialStrategy is null");
         if (randomGenerator == null)

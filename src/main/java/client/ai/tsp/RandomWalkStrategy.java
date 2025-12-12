@@ -6,12 +6,12 @@ import org.slf4j.LoggerFactory;
 
 import java.util.random.RandomGenerator;
 
-public class RandomWalkTraversalStrategy implements NodeTraversalStrategy {
-    private static final Logger logger = LoggerFactory.getLogger(RandomWalkTraversalStrategy.class);
+public class RandomWalkStrategy implements NodeTraversalStrategy {
+    private static final Logger logger = LoggerFactory.getLogger(RandomWalkStrategy.class);
 
     private final RandomGenerator randomGenerator;
 
-    public RandomWalkTraversalStrategy(RandomGenerator randomGenerator) {
+    public RandomWalkStrategy(RandomGenerator randomGenerator) {
         if (randomGenerator == null)
             throw new IllegalArgumentException("random is null");
 

@@ -4,15 +4,15 @@ import client.ai.graph.DistanceMatrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GeneralNodeTraversalStrategy implements NodeTraversalStrategy {
-    private static final Logger logger = LoggerFactory.getLogger(GeneralNodeTraversalStrategy.class);
+public class GeneralStrategy implements NodeTraversalStrategy {
+    private static final Logger logger = LoggerFactory.getLogger(GeneralStrategy.class);
     private static final int EXACT_STRATEGY_NODES_THRESHOLD = 20;
 
     private final NodeTraversalStrategy exactStrategy;
     private final NodeTraversalStrategy heuristicStrategy;
     private final NodeTraversalStrategy heuristicStrategyBackup;
 
-    public GeneralNodeTraversalStrategy(NodeTraversalStrategy exactStrategy, NodeTraversalStrategy heuristicStrategy, NodeTraversalStrategy heuristicStrategyBackup) {
+    public GeneralStrategy(NodeTraversalStrategy exactStrategy, NodeTraversalStrategy heuristicStrategy, NodeTraversalStrategy heuristicStrategyBackup) {
         if (exactStrategy == null)
             throw new IllegalArgumentException("exactStrategy is null");
         if (heuristicStrategy == null)

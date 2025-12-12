@@ -7,8 +7,8 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.random.RandomGenerator;
 
-public class SimulatedAnnealingTraversalStrategy implements NodeTraversalStrategy, TwoOpt {
-    private static final Logger logger = LoggerFactory.getLogger(MetropolisTraversalStrategy.class);
+public class SimulatedAnnealingStrategy implements NodeTraversalStrategy, TwoOpt {
+    private static final Logger logger = LoggerFactory.getLogger(MetropolisStrategy.class);
 
     private static final double STARTING_TEMPERATURE = 100.;
     private static final double COOLING_RATE = 0.999995;
@@ -17,7 +17,7 @@ public class SimulatedAnnealingTraversalStrategy implements NodeTraversalStrateg
     private final NodeTraversalStrategy initialStrategy;
     private final RandomGenerator randomGenerator;
 
-    public SimulatedAnnealingTraversalStrategy(NodeTraversalStrategy initialStrategy, RandomGenerator randomGenerator) {
+    public SimulatedAnnealingStrategy(NodeTraversalStrategy initialStrategy, RandomGenerator randomGenerator) {
         if (initialStrategy == null)
             throw new IllegalArgumentException("initialStrategy is null");
         if (randomGenerator == null)

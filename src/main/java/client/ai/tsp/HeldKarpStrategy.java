@@ -6,8 +6,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class HeldKarpTraversalStrategy implements NodeTraversalStrategy {
-    private static final Logger logger = LoggerFactory.getLogger(HeldKarpTraversalStrategy.class);
+public class HeldKarpStrategy implements NodeTraversalStrategy {
+    private static final Logger logger = LoggerFactory.getLogger(HeldKarpStrategy.class);
 
     private static final int MAX_NODES_LIMIT = 31;
     private static final int INF = 255;

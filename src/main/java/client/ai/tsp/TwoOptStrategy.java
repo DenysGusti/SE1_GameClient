@@ -4,12 +4,12 @@ import client.ai.graph.DistanceMatrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TwoOptTraversalStrategy implements NodeTraversalStrategy, TwoOpt {
-    private static final Logger logger = LoggerFactory.getLogger(TwoOptTraversalStrategy.class);
+public class TwoOptStrategy implements NodeTraversalStrategy, TwoOpt {
+    private static final Logger logger = LoggerFactory.getLogger(TwoOptStrategy.class);
 
     private final NodeTraversalStrategy initialStrategy;
 
-    public TwoOptTraversalStrategy(NodeTraversalStrategy initialStrategy) {
+    public TwoOptStrategy(NodeTraversalStrategy initialStrategy) {
         if (initialStrategy == null)
             throw new IllegalArgumentException("initialStrategy is null");
 

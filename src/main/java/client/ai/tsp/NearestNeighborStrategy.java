@@ -4,8 +4,8 @@ import client.ai.graph.DistanceMatrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NearestNeighborTraversalStrategy implements NodeTraversalStrategy {
-    private static final Logger logger = LoggerFactory.getLogger(NearestNeighborTraversalStrategy.class);
+public class NearestNeighborStrategy implements NodeTraversalStrategy {
+    private static final Logger logger = LoggerFactory.getLogger(NearestNeighborStrategy.class);
 
     public int[] computePath(DistanceMatrix distanceMatrix) {
         long startTime = System.nanoTime();
