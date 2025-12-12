@@ -62,7 +62,7 @@ public class MetropolisStrategy implements NodeTraversalStrategy, TwoOpt {
                 currentDistance += delta;
 
                 if (currentDistance < bestDistance) {
-//                    logger.debug("Improvement at iteration {}: distance: {} -> {}",
+//                    logger.trace("Improvement at iteration {}: distance: {} -> {}",
 //                            iteration, bestDistance, currentDistance);
 
                     System.arraycopy(currentPath, 0, bestPath, 0, n);
