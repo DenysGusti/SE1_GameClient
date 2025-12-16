@@ -10,17 +10,25 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class GreedyMountainSelector extends MountainSelector {
+public class GreedyMountainSelector implements MountainSelector {
     private static final Logger logger = LoggerFactory.getLogger(GreedyMountainSelector.class);
 
+    private final NodeTraversalStrategy nodeTraversalStrategy;
+    private final PathOptimizer pathOptimizer;
+
     public GreedyMountainSelector(NodeTraversalStrategy nodeTraversalStrategy, PathOptimizer pathOptimizer) {
-        super(Objects.requireNonNull(nodeTraversalStrategy, "nodeTraversalStrategy is null"),
-                Objects.requireNonNull(pathOptimizer, "pathOptimizer is null"));
+        if (nodeTraversalStrategy == null)
+            throw new IllegalArgumentException("nodeTraversalStrategy is null");
+        if (pathOptimizer == null)
+            throw new IllegalArgumentException("pathOptimizer is null");
+
+        this.nodeTraversalStrategy = nodeTraversalStrategy;
+        this.pathOptimizer = pathOptimizer;
     }
 
     @Override
-    protected PathOptimizer.StepPathMetric computePath(FullMapGraph fullMapGraph, FullMap fullMap,
-                                                       Set<XYPair> unrevealedGrassNodes, List<XYPair> neighborMountains) {
+    public StepPathMetric computePath(FullMapGraph fullMapGraph, FullMap fullMap,
+                                      Set<XYPair> unrevealedGrassNodes, List<XYPair> neighborMountains) {
         long startTime = System.nanoTime();
         logger.debug("Greedy Mountain Selector started for {} nodes, {} mountains...",
                 unrevealedGrassNodes.size(), neighborMountains.size());
@@ -32,9 +40,8 @@ public class GreedyMountainSelector extends MountainSelector {
         NodeTraversalStrategy.TraversalResult traversalResult =
                 nodeTraversalStrategy.orderNodes(fullMapGraph, myPlayerPosition, currentStrategyTargets);
 
-        PathOptimizer.StepPathMetric bestStepPathMetric = pathOptimizer.calculateBestStepPath(
-                fullMap, fullMapGraph, currentStrategyTargets, traversalResult.path()
-        );
+        StepPathMetric bestStepPathMetric =
+                pathOptimizer.calculateBestStepPath(fullMap, fullMapGraph, currentStrategyTargets, traversalResult.path());
 
         logger.debug("Baseline (no mountains) expected distance: {}", bestStepPathMetric.expectedGoalDistance());
 
@@ -45,7 +52,7 @@ public class GreedyMountainSelector extends MountainSelector {
         for (boolean improvementMade = true; improvementMade && !availableMountains.isEmpty(); ++iteration) {
             improvementMade = false;
             XYPair bestCandidateMountain = null;
-            PathOptimizer.StepPathMetric bestCandidateStepPathMetric = null;
+            StepPathMetric bestCandidateStepPathMetric = null;
 
             for (XYPair currentCandidateMountain : availableMountains) {
                 Set<XYPair> trialNodes = new HashSet<>(unrevealedGrassNodes);
@@ -61,22 +68,14 @@ public class GreedyMountainSelector extends MountainSelector {
                         nodeTraversalStrategy.orderNodes(fullMapGraph, myPlayerPosition, trialNodes);
                 Objects.requireNonNull(currentTraversalResult, "currentTraversalResult not be null");
 
-                PathOptimizer.StepPathMetric currentStepPathMetric = pathOptimizer.calculateBestStepPath(
+                StepPathMetric currentStepPathMetric = pathOptimizer.calculateBestStepPath(
                         fullMap, fullMapGraph, unrevealedGrassNodes, currentTraversalResult.path()
                 );
                 Objects.requireNonNull(currentStepPathMetric, "currentStepPathMetric not be null");
 
-//                logger.trace("Analyzed mountain {} at iteration {}, expected goal distance: {} -> {}",
-//                        currentCandidateMountain, iteration, bestCandidateStepPathMetric == null ? "null" : bestCandidateStepPathMetric.expectedGoalDistance(),
-//                        currentStepPathMetric.expectedGoalDistance());
-
                 if (currentStepPathMetric.expectedGoalDistance() < bestStepPathMetric.expectedGoalDistance())
                     if (bestCandidateStepPathMetric == null ||
                             currentStepPathMetric.expectedGoalDistance() < bestCandidateStepPathMetric.expectedGoalDistance()) {
-//                        logger.trace("Found mountain {} at iteration {}, expected goal distance: {} -> {}",
-//                                currentCandidateMountain, iteration, bestCandidateStepPathMetric == null ? "null" : bestCandidateStepPathMetric.expectedGoalDistance(),
-//                                currentStepPathMetric.expectedGoalDistance());
-
                         bestCandidateMountain = currentCandidateMountain;
                         bestCandidateStepPathMetric = currentStepPathMetric;
                     }
@@ -96,12 +95,9 @@ public class GreedyMountainSelector extends MountainSelector {
 
         Objects.requireNonNull(bestStepPathMetric, "bestStepPathMetric is null");
 
-        logger.debug("Selected mountains: {}", currentSelectedMountains);
-
-        long endTime = System.nanoTime();
-        double duration = (endTime - startTime) / 1_000_000_000.;
-        logger.debug("Greedy Mountain Selector finished: iterations: {}, time: {}s, expected goal distance: {}",
-                iteration, duration, bestStepPathMetric.expectedGoalDistance());
+        double duration = (System.nanoTime() - startTime) / 1_000_000_000.;
+        logger.debug("Greedy Mountain Selector finished: time: {}s, selected mountains: {}, expected goal distance: {}",
+                duration, currentSelectedMountains, bestStepPathMetric.expectedGoalDistance());
         return bestStepPathMetric;
     }
 }

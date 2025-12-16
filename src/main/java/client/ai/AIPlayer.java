@@ -2,7 +2,7 @@ package client.ai;
 
 import client.ai.graph.FullMapGraph;
 import client.ai.mountain.MountainSelector;
-import client.ai.mountain.PathOptimizer;
+import client.ai.mountain.StepPathMetric;
 import client.ai.state.AIState;
 import client.ai.state.ScoutingMySideState;
 import client.data.XYPair;
@@ -111,9 +111,7 @@ public class AIPlayer {
         if (unrevealedGrassNodes.isEmpty())
             throw new RuntimeException("unrevealedGrassNodes is empty");
 
-        PathOptimizer.StepPathMetric stepPathMetric =
-                mountainSelector.selectMountainPath(fullMapGraph, fullMap, unrevealedGrassNodes);
-
+        StepPathMetric stepPathMetric = mountainSelector.selectMountainPath(fullMapGraph, fullMap, unrevealedGrassNodes);
         return stepPathMetric.path();
     }
 

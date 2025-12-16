@@ -10,16 +10,25 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class ExhaustiveMountainSelector extends MountainSelector {
+public class ExhaustiveMountainSelector implements MountainSelector {
     private static final Logger logger = LoggerFactory.getLogger(ExhaustiveMountainSelector.class);
 
+    private final NodeTraversalStrategy nodeTraversalStrategy;
+    private final PathOptimizer pathOptimizer;
+
     public ExhaustiveMountainSelector(NodeTraversalStrategy nodeTraversalStrategy, PathOptimizer pathOptimizer) {
-        super(Objects.requireNonNull(nodeTraversalStrategy, "nodeTraversalStrategy is null"),
-                Objects.requireNonNull(pathOptimizer, "pathOptimizer is null"));
+        if (nodeTraversalStrategy == null)
+            throw new IllegalArgumentException("nodeTraversalStrategy is null");
+        if (pathOptimizer == null)
+            throw new IllegalArgumentException("pathOptimizer is null");
+
+        this.nodeTraversalStrategy = nodeTraversalStrategy;
+        this.pathOptimizer = pathOptimizer;
     }
 
     @Override
-    protected PathOptimizer.StepPathMetric computePath(FullMapGraph fullMapGraph, FullMap fullMap, Set<XYPair> unrevealedGrassNodes, List<XYPair> neighborMountains) {
+    public StepPathMetric computePath(FullMapGraph fullMapGraph, FullMap fullMap,
+                                      Set<XYPair> unrevealedGrassNodes, List<XYPair> neighborMountains) {
         long startTime = System.nanoTime();
         logger.debug("Exhaustive Mountain Selector started for {} nodes, {} mountains...",
                 unrevealedGrassNodes.size(), neighborMountains.size());
@@ -29,7 +38,7 @@ public class ExhaustiveMountainSelector extends MountainSelector {
 
         logger.debug("Evaluating {} mountain combinations (2^{}) for optimal scouting...", numMountainSubsets, n);
 
-        PathOptimizer.StepPathMetric bestStepPathMetric = null;
+        StepPathMetric bestStepPathMetric = null;
         XYPair myPlayerPosition = fullMap.getOptionalMyPlayerPosition().orElseThrow();
         List<XYPair> bestSelectedMountains = null;
 
@@ -57,14 +66,12 @@ public class ExhaustiveMountainSelector extends MountainSelector {
             if (traversalResult.path().isEmpty())
                 throw new RuntimeException("Traversal path is empty");
 
-            PathOptimizer.StepPathMetric currentStepPathMetric =
+            StepPathMetric currentStepPathMetric =
                     pathOptimizer.calculateBestStepPath(fullMap, fullMapGraph, unrevealedGrassNodes, traversalResult.path());
             Objects.requireNonNull(currentStepPathMetric, "currentStepPathMetric is null");
 
             if (currentStepPathMetric.path().isEmpty())
                 throw new RuntimeException("Step-path is empty");
-
-            logger.trace("Step-path expected goal distance: {}", currentStepPathMetric.expectedGoalDistance());
 
             if (bestStepPathMetric == null ||
                     currentStepPathMetric.expectedGoalDistance() < bestStepPathMetric.expectedGoalDistance()) {
@@ -79,13 +86,9 @@ public class ExhaustiveMountainSelector extends MountainSelector {
 
         Objects.requireNonNull(bestStepPathMetric, "bestStepPathMetric is null");
 
-        logger.debug("Selected mountains: {}", bestSelectedMountains);
-        logger.debug("Step-path: {}", bestStepPathMetric.path());
-
-        long endTime = System.nanoTime();
-        double duration = (endTime - startTime) / 1_000_000_000.;
-        logger.debug("Exhaustive Mountain Selector finished: time: {}s, expected goal distance: {}",
-                duration, bestStepPathMetric.expectedGoalDistance());
+        double duration = (System.nanoTime() - startTime) / 1_000_000_000.;
+        logger.debug("Exhaustive Mountain Selector finished: time: {}s, selected mountains: {}, expected goal distance: {}",
+                duration, bestSelectedMountains, bestStepPathMetric.expectedGoalDistance());
 
         return bestStepPathMetric;
     }

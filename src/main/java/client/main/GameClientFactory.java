@@ -102,7 +102,11 @@ public class GameClientFactory {
         var metropolis1 = new TwoOptStrategy(new MetropolisStrategy(randomWalk, new SplittableRandom(seedM1)));
 
         var nodeTraversalStrategy = new GeneralStrategy(heldKarp, metropolis0, metropolis1);
-        var mountainSelector = new GreedyMountainSelector(nodeTraversalStrategy, new PathOptimizer());
+
+        var pathOptimizer = new PathOptimizer();
+        var exhaustiveMountainSelector = new ExhaustiveMountainSelector(nodeTraversalStrategy, pathOptimizer);
+        var greedyMountainSelector = new GreedyMountainSelector(nodeTraversalStrategy, pathOptimizer);
+        var mountainSelector = new GeneralMountainSelector(exhaustiveMountainSelector, greedyMountainSelector);
 
         return new AIPlayer(new FullMapSplitter(), mountainSelector);
     }

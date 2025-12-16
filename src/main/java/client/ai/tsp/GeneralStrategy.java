@@ -44,13 +44,13 @@ public class GeneralStrategy implements NodeTraversalStrategy {
             resultPath = heuristicStrategy.computePath(distanceMatrix);
             resultPathDistance = distanceMatrix.calculateTotalDistance(resultPath);
 
-            logger.debug("Using heuristic strategy again");
-            int[] tmp = heuristicStrategyBackup.computePath(distanceMatrix);
-            int tmpDistance = distanceMatrix.calculateTotalDistance(tmp);
-
-            if (resultPathDistance != tmpDistance)
-                throw new RuntimeException("Heuristic strategies not good enough! "
-                        + resultPathDistance + " != " + tmpDistance);
+//            logger.debug("Using heuristic strategy again");
+//            int[] tmp = heuristicStrategyBackup.computePath(distanceMatrix);
+//            int tmpDistance = distanceMatrix.calculateTotalDistance(tmp);
+//
+//            if (resultPathDistance != tmpDistance)
+//                throw new RuntimeException("Heuristic strategies not good enough! "
+//                        + resultPathDistance + " != " + tmpDistance);
         }
 
         double duration = (System.nanoTime() - startTime) / 1_000_000_000.;

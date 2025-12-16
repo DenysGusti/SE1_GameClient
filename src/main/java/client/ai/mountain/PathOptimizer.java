@@ -13,15 +13,6 @@ import java.util.*;
 public class PathOptimizer {
     private static final Logger logger = LoggerFactory.getLogger(PathOptimizer.class);
 
-    public record StepPathMetric(List<XYPair> path, double expectedGoalDistance) {
-        public StepPathMetric {
-            if (path == null)
-                throw new IllegalArgumentException("path is null");
-            if (expectedGoalDistance < 0)
-                throw new IllegalArgumentException("expectedGoalDistance is negative");
-        }
-    }
-
     // calculate step-path with the lowest expected goal distance
     public StepPathMetric calculateBestStepPath(FullMap fullMap, FullMapGraph fullMapGraph,
                                                 Set<XYPair> unrevealedGrassNodes, List<XYPair> traversalPath) {
