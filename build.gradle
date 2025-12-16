@@ -21,9 +21,11 @@ buildscript {
     }
     repositories {
         mavenCentral()
+        gradlePluginPortal()
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath("org.openjfx.javafxplugin:org.openjfx.javafxplugin.gradle.plugin:0.1.0")
     }
 }
 
@@ -31,6 +33,12 @@ buildscript {
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
+apply plugin: 'org.openjfx.javafxplugin'
+
+javafx {
+    version = "21.0.7"
+    modules = ['javafx.controls', 'javafx.fxml', 'javafx.graphics']
+}
 
 // Ensures the 'res' folder, including the Logback configuration, is correctly recognized.
 // Want to add a GUI? Add any icons or resources to this folder to ensure they are included in JARs.
