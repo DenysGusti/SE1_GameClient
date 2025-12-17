@@ -2,6 +2,7 @@ package client.ai.mountain;
 
 import client.ai.graph.FullMapGraph;
 import client.ai.tsp.NodeTraversalStrategy;
+import client.ai.tsp.TraversalResult;
 import client.data.XYPair;
 import client.data.fromserver.FullMap;
 
@@ -37,7 +38,7 @@ public class GreedyMountainSelector implements MountainSelector {
         Set<XYPair> currentStrategyTargets = new HashSet<>(unrevealedGrassNodes);
         XYPair myPlayerPosition = fullMap.getOptionalMyPlayerPosition().orElseThrow();
 
-        NodeTraversalStrategy.TraversalResult traversalResult =
+        TraversalResult traversalResult =
                 nodeTraversalStrategy.orderNodes(fullMapGraph, myPlayerPosition, currentStrategyTargets);
 
         StepPathMetric bestStepPathMetric =
@@ -64,7 +65,7 @@ public class GreedyMountainSelector implements MountainSelector {
 
                 trialNodes.addAll(trialSelectedMountains);
 
-                NodeTraversalStrategy.TraversalResult currentTraversalResult =
+                TraversalResult currentTraversalResult =
                         nodeTraversalStrategy.orderNodes(fullMapGraph, myPlayerPosition, trialNodes);
                 Objects.requireNonNull(currentTraversalResult, "currentTraversalResult not be null");
 

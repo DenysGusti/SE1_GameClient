@@ -9,15 +9,6 @@ import java.util.List;
 import java.util.Set;
 
 public interface NodeTraversalStrategy {
-    record TraversalResult(List<XYPair> path, int distance) {
-        public TraversalResult {
-            if (path == null)
-                throw new IllegalArgumentException("path is null");
-            if (distance < 0)
-                throw new IllegalArgumentException("distance is negative");
-        }
-    }
-
     default TraversalResult orderNodes(FullMapGraph fullMapGraph, XYPair start, Set<XYPair> nodes) {
         if (fullMapGraph == null)
             throw new IllegalArgumentException("fullMapGraph is null");

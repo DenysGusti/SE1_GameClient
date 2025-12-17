@@ -39,13 +39,14 @@ public class HalfMapGenerator {
     private Map<XYPair, ETerrain> createRandomTerrain() {
         List<ETerrain> terrainPool = new ArrayList<>();
 
+        // -8617270827428145498
         terrainPool.addAll(Collections.nCopies(MIN_MOUNTAIN_NODES, ETerrain.Mountain));
         terrainPool.addAll(Collections.nCopies(MIN_GRASS_NODES, ETerrain.Grass));
         terrainPool.addAll(Collections.nCopies(MIN_WATER_NODES, ETerrain.Water));
 
         int remaining = HALF_MAP_NODES - terrainPool.size();
         for (int i = 0; i < remaining; ++i)
-            terrainPool.add(getRandomTerrain());
+            terrainPool.add(ETerrain.Mountain);
 
         Collections.shuffle(terrainPool, randomGenerator);
         Map<XYPair, ETerrain> nodes = new HashMap<>();

@@ -32,9 +32,7 @@ public class FullMapSplitter {
 
         Objects.requireNonNull(fullMap.myFortPosition(), "fullMap.myFortPosition() is null");
 
-        boolean isWideMap = fullMap.bottomRightCoordinate().x() >= HALF_MAP_SIZE.x();
-
-        if (isWideMap) {  // wide map, (20, 5)
+        if (fullMap.bottomRightCoordinate().x() >= HALF_MAP_SIZE.x()) {  // wide map, (20, 5)
             boolean isMyFortOnLeftSide = fullMap.myFortPosition().x() < HALF_MAP_SIZE.x();
             boolean isCoordinateOnLeftSide = coordinate.x() < HALF_MAP_SIZE.x();
             return isMyFortOnLeftSide == isCoordinateOnLeftSide;

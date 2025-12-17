@@ -2,6 +2,7 @@ package client.ai.mountain;
 
 import client.ai.graph.FullMapGraph;
 import client.ai.tsp.NodeTraversalStrategy;
+import client.ai.tsp.TraversalResult;
 import client.data.XYPair;
 import client.data.fromserver.FullMap;
 
@@ -59,7 +60,7 @@ public class ExhaustiveMountainSelector implements MountainSelector {
             if (currentStrategyNodeTargets.isEmpty())
                 throw new RuntimeException("Empty targets");
 
-            NodeTraversalStrategy.TraversalResult traversalResult =
+            TraversalResult traversalResult =
                     nodeTraversalStrategy.orderNodes(fullMapGraph, myPlayerPosition, currentStrategyNodeTargets);
             Objects.requireNonNull(traversalResult, "traversalResult is null");
 
@@ -72,6 +73,9 @@ public class ExhaustiveMountainSelector implements MountainSelector {
 
             if (currentStepPathMetric.path().isEmpty())
                 throw new RuntimeException("Step-path is empty");
+
+//            String binary = String.format("%" + n + "s", Integer.toBinaryString(i)).replace(' ', '0');
+//            logger.trace("{}: {}", binary, currentStepPathMetric.expectedGoalDistance());
 
             if (bestStepPathMetric == null ||
                     currentStepPathMetric.expectedGoalDistance() < bestStepPathMetric.expectedGoalDistance()) {
