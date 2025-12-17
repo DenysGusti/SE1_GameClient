@@ -112,6 +112,7 @@ public class AIPlayer {
             throw new RuntimeException("unrevealedGrassNodes is empty");
 
         StepPathMetric stepPathMetric = mountainSelector.selectMountainPath(fullMapGraph, fullMap, unrevealedGrassNodes);
+        logger.trace("Step-path: {}", stepPathMetric.path());
         return stepPathMetric.path();
     }
 

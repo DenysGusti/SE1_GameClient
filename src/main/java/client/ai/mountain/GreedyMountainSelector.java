@@ -74,6 +74,10 @@ public class GreedyMountainSelector implements MountainSelector {
                 );
                 Objects.requireNonNull(currentStepPathMetric, "currentStepPathMetric not be null");
 
+                logger.trace("Analyzed mountain {} at iteration {}, expected goal distance: {} -> {}",
+                        currentCandidateMountain, iteration, bestStepPathMetric.expectedGoalDistance(),
+                        currentStepPathMetric.expectedGoalDistance());
+
                 if (currentStepPathMetric.expectedGoalDistance() < bestStepPathMetric.expectedGoalDistance())
                     if (bestCandidateStepPathMetric == null ||
                             currentStepPathMetric.expectedGoalDistance() < bestCandidateStepPathMetric.expectedGoalDistance()) {
