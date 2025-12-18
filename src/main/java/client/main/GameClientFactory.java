@@ -100,7 +100,8 @@ public class GameClientFactory {
         var greedyMountainSelector = new GreedyMountainSelector(nodeTraversalStrategy, pathOptimizer);
         var mountainSelector = new GeneralMountainSelector(exhaustiveMountainSelector, greedyMountainSelector);
 
-        return new AIPlayer(new FullMapSplitter(), mountainSelector);
+        var fullMapSplitter = new FullMapSplitter();
+        return new AIPlayer(fullMapSplitter, mountainSelector);
     }
 
     public GameController createGameController(GameSession gameSession,
