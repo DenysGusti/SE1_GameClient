@@ -16,6 +16,8 @@ public record DistanceMatrix(byte[] data, int size) {
     public int calculateTotalDistance(int[] path) {
         if (path == null)
             throw new IllegalArgumentException("path is null");
+        if (path.length <= 1)
+            throw new IllegalArgumentException("path must have at least start and end");
 
         int distance = 0;
         for (int i = 0; i < path.length - 1; ++i)

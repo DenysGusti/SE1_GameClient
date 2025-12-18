@@ -34,10 +34,6 @@ public interface NodeTraversalStrategy {
             path.add(allNodes.get(idx));
 
         int distance = distanceMatrix.calculateTotalDistance(indexPath);
-
-        if (distance != fullMapGraph.getDistance(path))
-            throw new RuntimeException("distance does not match");
-
         return new TraversalResult(path, distance);
     }
 

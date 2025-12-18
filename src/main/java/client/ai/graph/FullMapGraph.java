@@ -48,19 +48,6 @@ public class FullMapGraph {
         return Byte.toUnsignedInt(distances[startIdx][endIdx]);
     }
 
-    public int getDistance(List<XYPair> waypoints) {
-        if (waypoints == null)
-            throw new IllegalArgumentException("waypoints is null");
-        if (waypoints.size() <= 1)
-            throw new IllegalArgumentException("waypoint must have at least start and end");
-
-        int totalDistance = 0;
-        for (int i = 0; i < waypoints.size() - 1; ++i)
-            totalDistance += getDistance(waypoints.get(i), waypoints.get(i + 1));
-
-        return totalDistance;
-    }
-
     public DistanceMatrix getDistanceMatrix(List<XYPair> nodes) {
         if (nodes == null)
             throw new IllegalArgumentException("nodes is null");
