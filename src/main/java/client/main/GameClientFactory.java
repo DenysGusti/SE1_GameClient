@@ -89,19 +89,11 @@ public class GameClientFactory {
         var heldKarp = new HeldKarpStrategy();
         var nearestNeighbor = new NearestNeighborStrategy();
 
-        long seedRW = new SplittableRandom().nextLong();
-        logger.info("Creating Random Walk with seed {}", seedRW);
-        var randomWalk = new RandomWalkStrategy(new SplittableRandom(seedRW));
+        long seedM = new SplittableRandom().nextLong();
+        logger.info("Creating Metropolis with seed {}", seedM);
+        var metropolis = new TwoOptStrategy(new MetropolisStrategy(nearestNeighbor, new SplittableRandom(seedM)));
 
-        long seedM0 = new SplittableRandom().nextLong();
-        logger.info("Creating Metropolis 0 with seed {}", seedM0);
-        var metropolis0 = new TwoOptStrategy(new MetropolisStrategy(nearestNeighbor, new SplittableRandom(seedM0)));
-
-        long seedM1 = new SplittableRandom().nextLong();
-        logger.info("Creating Metropolis 1 with seed {}", seedM1);
-        var metropolis1 = new TwoOptStrategy(new MetropolisStrategy(randomWalk, new SplittableRandom(seedM1)));
-
-        var nodeTraversalStrategy = new GeneralStrategy(heldKarp, metropolis0, metropolis1);
+        var nodeTraversalStrategy = new GeneralStrategy(heldKarp, metropolis);
 
         var pathOptimizer = new PathOptimizer();
         var exhaustiveMountainSelector = new ExhaustiveMountainSelector(nodeTraversalStrategy, pathOptimizer);
