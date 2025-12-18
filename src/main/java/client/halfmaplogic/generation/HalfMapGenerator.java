@@ -19,7 +19,6 @@ public class HalfMapGenerator {
     private static final int MIN_GRASS_NODES = 24;
     private static final int MIN_WATER_NODES = 7;
     private static final int REQUIRED_FORTS = 1;
-    private static final ETerrain[] allTerrains = {ETerrain.Grass, ETerrain.Water, ETerrain.Mountain};
 
     private final RandomGenerator randomGenerator;
 
@@ -37,28 +36,47 @@ public class HalfMapGenerator {
     }
 
     private Map<XYPair, ETerrain> createRandomTerrain() {
-        List<ETerrain> terrainPool = new ArrayList<>();
+        int totalMountains = MIN_MOUNTAIN_NODES + 7;
+        Map<XYPair, ETerrain> nodes = new HashMap<>(HALF_MAP_NODES);
 
-        terrainPool.addAll(Collections.nCopies(MIN_MOUNTAIN_NODES, ETerrain.Mountain));
-        terrainPool.addAll(Collections.nCopies(MIN_GRASS_NODES, ETerrain.Grass));
-        terrainPool.addAll(Collections.nCopies(MIN_WATER_NODES, ETerrain.Water));
+        while (true) {
+            nodes.clear();
+            for (int x = 0; x < HALF_MAP_SIZE.x(); ++x)
+                for (int y = 0; y < HALF_MAP_SIZE.y(); ++y)
+                    nodes.put(new XYPair(x, y), ETerrain.Grass);
 
-        int remaining = HALF_MAP_NODES - terrainPool.size();
-        for (int i = 0; i < remaining; ++i)
-            terrainPool.add(ETerrain.Mountain);
+            List<XYPair> coordinates = new ArrayList<>(nodes.keySet());
+            Collections.shuffle(coordinates, randomGenerator);
 
-        Collections.shuffle(terrainPool, randomGenerator);
-        Map<XYPair, ETerrain> nodes = new HashMap<>();
-        int index = 0;
-        for (int x = 0; x < HALF_MAP_SIZE.x(); ++x)
-            for (int y = 0; y < HALF_MAP_SIZE.y(); ++y)
-                nodes.put(new XYPair(x, y), terrainPool.get(index++));
+            int mountainsPlaced = 0;
+            for (XYPair coordinate : coordinates) {
+                if (mountainsPlaced >= totalMountains)
+                    break;
+
+                boolean hasMountainNeighbor = coordinate.getAllNeighbors(HALF_MAP_SIZE).stream()
+                        .anyMatch(neighbor -> nodes.get(neighbor) == ETerrain.Mountain);
+
+                if (!hasMountainNeighbor) {
+                    nodes.put(coordinate, ETerrain.Mountain);
+                    ++mountainsPlaced;
+                }
+            }
+
+            if (mountainsPlaced >= totalMountains)
+                break;
+        }
+
+        List<XYPair> grassCoordinates = nodes.entrySet().stream()
+                .filter(e -> e.getValue() == ETerrain.Grass)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+        Collections.shuffle(grassCoordinates, randomGenerator);
+
+        for (int i = 0; i < MIN_WATER_NODES; ++i)
+            nodes.put(grassCoordinates.get(i), ETerrain.Water);
 
         return nodes;
-    }
-
-    private ETerrain getRandomTerrain() {
-        return allTerrains[randomGenerator.nextInt(allTerrains.length)];
     }
 
     private Set<XYPair> placePotentialForts(Map<XYPair, ETerrain> nodes) {
