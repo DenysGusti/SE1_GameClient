@@ -9,13 +9,13 @@ import client.modelviewcontroller.observer.Subscriber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
+import java.util.List;
 
 public class MapModel {
     private static final Logger logger = LoggerFactory.getLogger(MapModel.class);
 
     private final Publisher<FullMap> onFullMapUpdated = new Publisher<>();
-    private final Publisher<Collection<HalfMapGenerationException>> onHalfMapValidationErrors = new Publisher<>();
+    private final Publisher<List<HalfMapGenerationException>> onHalfMapValidationErrors = new Publisher<>();
     private final Publisher<HalfMap> onHalfMapGenerated = new Publisher<>();
 
     public void subscribeOnFullMapUpdated(Subscriber<FullMap> view) {
@@ -32,14 +32,14 @@ public class MapModel {
         onFullMapUpdated.notify(fullMap);
     }
 
-    public void subscribeOnHalfMapValidationErrors(Subscriber<Collection<HalfMapGenerationException>> view) {
+    public void subscribeOnHalfMapValidationErrors(Subscriber<List<HalfMapGenerationException>> view) {
         if (view == null)
             throw new IllegalArgumentException("view is null");
 
         onHalfMapValidationErrors.subscribe(view);
     }
 
-    public void updateHalfMapValidationErrors(Collection<HalfMapGenerationException> errors) {
+    public void updateHalfMapValidationErrors(List<HalfMapGenerationException> errors) {
         if (errors == null)
             throw new IllegalArgumentException("errors is null");
 
