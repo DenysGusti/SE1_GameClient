@@ -123,8 +123,10 @@ public class GameClientFactory {
         playerModel.subscribeOnEnemyPlayerStateUpdated(playerView::renderEnemyPlayerState);
 
         var mapModel = new MapModel();
-        var mapView = new MapView();
-        mapModel.subscribeOnFullMapUpdated(mapView::renderFullMap);
+        var halfMapView = new HalfMapView();
+        var fullMapView = new FullMapView();
+        mapModel.subscribeOnHalfMapGenerated(halfMapView);
+        mapModel.subscribeOnFullMapUpdated(fullMapView);
 
         var fullMapGraphFactory = new FullMapGraphFactory();
 
