@@ -27,7 +27,7 @@ public class ScreenBuffer {
         if (tileLines == null)
             throw new IllegalArgumentException("tileLines is null");
 
-        XYPair scaledTileOffset = new XYPair(
+        var scaledTileOffset = new XYPair(
                 tileOffset.x() * TILE_DIMENSIONS.x(),
                 tileOffset.y() * TILE_DIMENSIONS.y()
         );
