@@ -76,6 +76,8 @@ public class AIPlayer {
     public void setPlannedPath(List<XYPair> plannedPath) {
         if (plannedPath == null)
             throw new IllegalArgumentException("plannedPath is null");
+        if (!this.plannedPath.isEmpty())
+            throw new IllegalStateException("plannedPath is not empty");
 
         this.plannedPath.addAll(plannedPath);
         logger.debug("New path set. Steps remaining: {}", this.plannedPath.size());
