@@ -128,12 +128,11 @@ public class GameController {
 
             if (!notification.hasErrors()) {
                 logger.debug("Generated a valid map in {} attempts.", attempt);
-                mapModel.updateHalfMap(halfMap);
 
-                long endTime = System.nanoTime();
-                double duration = (endTime - startTime) / 1_000_000_000.;
+                double duration = (System.nanoTime() - startTime) / 1_000_000_000.;
                 logger.debug("Half-map generation completed in {}s.", duration);
 
+                mapModel.updateHalfMap(halfMap);
                 return halfMap;
             }
             mapModel.updateHalfMapValidationErrors(notification.getErrors());

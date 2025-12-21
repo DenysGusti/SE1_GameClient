@@ -120,8 +120,7 @@ public class FullMapGraphFactory {
                 next[i][j] = arr;
             }
 
-        long endTime = System.nanoTime();
-        double duration = (endTime - startTime) / 1_000_000_000.;
+        double duration = (System.nanoTime() - startTime) / 1_000_000_000.;
         logger.debug("Graph constructed in {}s, nodes: {}", duration, n);
 
         return new FullMapGraph(indexToCoordinate, coordinateToIndex, distances, next);
