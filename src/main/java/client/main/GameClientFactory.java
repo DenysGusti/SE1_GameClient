@@ -120,8 +120,10 @@ public class GameClientFactory {
         var playerModel = new PlayerModel();
         var myPlayerView = new PlayerView("My Player");
         var enemyPlayerView = new PlayerView("Enemy Player");
+        var endGameView = new EndGameView();
         playerModel.subscribeOnMyPlayerStateUpdated(myPlayerView);
         playerModel.subscribeOnEnemyPlayerStateUpdated(enemyPlayerView);
+        playerModel.subscribeOnGameEnded(endGameView);
 
         var mapModel = new MapModel();
         var halfMapView = new HalfMapView();
