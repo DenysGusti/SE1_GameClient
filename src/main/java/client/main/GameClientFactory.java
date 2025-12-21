@@ -118,9 +118,10 @@ public class GameClientFactory {
             throw new IllegalArgumentException("aiPlayer is null");
 
         var playerModel = new PlayerModel();
-        var playerView = new PlayerView();
-        playerModel.subscribeOnMyPlayerStateUpdated(playerView::renderMyPlayerState);
-        playerModel.subscribeOnEnemyPlayerStateUpdated(playerView::renderEnemyPlayerState);
+        var myPlayerView = new PlayerView("My Player");
+        var enemyPlayerView = new PlayerView("Enemy Player");
+        playerModel.subscribeOnMyPlayerStateUpdated(myPlayerView);
+        playerModel.subscribeOnEnemyPlayerStateUpdated(enemyPlayerView);
 
         var mapModel = new MapModel();
         var halfMapView = new HalfMapView();

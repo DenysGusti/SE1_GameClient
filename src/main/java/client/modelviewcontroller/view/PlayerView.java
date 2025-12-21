@@ -3,13 +3,14 @@ package client.modelviewcontroller.view;
 import client.data.PlayerInformation;
 import client.data.fromserver.EPlayerGameState;
 import client.data.fromserver.PlayerState;
+import client.modelviewcontroller.observer.Subscriber;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-public class PlayerView {
+public class PlayerView implements Subscriber<PlayerState> {
     private static final Logger logger = LoggerFactory.getLogger(PlayerView.class);
 
     private static final Map<EPlayerGameState, String> playerGameStateEmojiConverter =
@@ -29,23 +30,17 @@ public class PlayerView {
     private static final int PLAYER_INFO_WIDTH = 80;
     private static final int HEADER_WIDTH = 15;
 
-    public void renderMyPlayerState(PlayerState playerState) {
-        if (playerState == null)
-            throw new IllegalArgumentException("playerState is null");
+    private final String header;
 
-        renderPlayerState("My Player", playerState);
-    }
-
-    public void renderEnemyPlayerState(PlayerState playerState) {
-        if (playerState == null)
-            throw new IllegalArgumentException("playerState is null");
-
-        renderPlayerState("Enemy Player", playerState);
-    }
-
-    private void renderPlayerState(String header, PlayerState playerState) {
+    public PlayerView(String header) {
         if (header == null)
             throw new IllegalArgumentException("header is null");
+
+        this.header = header;
+    }
+
+    @Override
+    public void update(PlayerState playerState) {
         if (playerState == null)
             throw new IllegalArgumentException("playerState is null");
 
