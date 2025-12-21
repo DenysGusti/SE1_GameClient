@@ -30,7 +30,7 @@ public class ConnectivityRule implements HalfMapValidationRule {
                 .orElse(null);
 
         if (startNode == null) {
-            errors.add(new ConnectivityRuleException("ConnectivityRule: Half map has no traversable nodes at all."));
+            errors.add(new ConnectivityRuleException("Half map has no traversable nodes at all."));
             return errors;
         }
 
@@ -56,7 +56,7 @@ public class ConnectivityRule implements HalfMapValidationRule {
                 .count();
 
         if (visited.size() != totalWalkableNodes)
-            errors.add(new ConnectivityRuleException("ConnectivityRule: Map has islands. Total walkable nodes: "
+            errors.add(new ConnectivityRuleException("Map has islands. Total walkable nodes: "
                     + totalWalkableNodes + ", but only " + visited.size() + " are reachable."));
 
         return errors;

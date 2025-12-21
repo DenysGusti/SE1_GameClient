@@ -27,19 +27,19 @@ public class TerrainRule implements HalfMapValidationRule {
         List<HalfMapGenerationException> errors = new ArrayList<>();
 
         if (halfMap.nodes().size() != HALF_MAP_NODES)
-            errors.add(new TerrainRuleException("TerrainRule: Map must have exactly 50 nodes, but found " + halfMap.nodes().size()));
+            errors.add(new TerrainRuleException("Map must have exactly 50 nodes, but found " + halfMap.nodes().size()));
 
         long mountainCount = halfMap.nodes().values().stream().filter(t -> t == ETerrain.Mountain).count();
         if (mountainCount < MIN_MOUNTAIN_NODES)
-            errors.add(new TerrainRuleException("TerrainRule: Not enough mountains. Found " + mountainCount));
+            errors.add(new TerrainRuleException("Not enough mountains. Found " + mountainCount));
 
         long grassCount = halfMap.nodes().values().stream().filter(t -> t == ETerrain.Grass).count();
         if (grassCount < MIN_GRASS_NODES)
-            errors.add(new TerrainRuleException("TerrainRule: Not enough grass. Found " + grassCount));
+            errors.add(new TerrainRuleException("Not enough grass. Found " + grassCount));
 
         long waterCount = halfMap.nodes().values().stream().filter(t -> t == ETerrain.Water).count();
         if (waterCount < MIN_WATER_NODES)
-            errors.add(new TerrainRuleException("TerrainRule: Not enough water. Found " + waterCount));
+            errors.add(new TerrainRuleException("Not enough water. Found " + waterCount));
 
         return errors;
     }

@@ -69,16 +69,16 @@ public class SecondHalfMapTransitionRule implements HalfMapValidationRule {
         List<HalfMapGenerationException> errors = new ArrayList<>();
 
         if (invalidBorder(halfMap, TOP_LEFT_CORNER, TOP_RIGHT_CORNER, opponentBottomBorder, REQUIRED_TRAVERSABLE_SIDE.x()))
-            errors.add(new BorderRuleException("BorderRule: Top border (y=0) violation."));
+            errors.add(new BorderRuleException("Top border (y=0) violation."));
 
         if (invalidBorder(halfMap, BOTTOM_LEFT_CORNER, BOTTOM_RIGHT_CORNER, opponentTopBorder, REQUIRED_TRAVERSABLE_SIDE.x()))
-            errors.add(new BorderRuleException("BorderRule: Bottom border (y=4) violation."));
+            errors.add(new BorderRuleException("Bottom border (y=4) violation."));
 
         if (invalidBorder(halfMap, TOP_LEFT_CORNER, BOTTOM_LEFT_CORNER, opponentRightBorder, REQUIRED_TRAVERSABLE_SIDE.y()))
-            errors.add(new BorderRuleException("BorderRule: Left border (x=0) violation."));
+            errors.add(new BorderRuleException("Left border (x=0) violation."));
 
         if (invalidBorder(halfMap, TOP_RIGHT_CORNER, BOTTOM_RIGHT_CORNER, opponentLeftBorder, REQUIRED_TRAVERSABLE_SIDE.y()))
-            errors.add(new BorderRuleException("BorderRule: Right border (x=9) violation."));
+            errors.add(new BorderRuleException("Right border (x=9) violation."));
 
         return errors;
     }
