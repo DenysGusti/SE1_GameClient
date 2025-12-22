@@ -88,10 +88,13 @@ public class GameClientFactory {
     public AIPlayer createAIPlayer() {
         var heldKarp = new HeldKarpStrategy();
         var nearestNeighbor = new NearestNeighborStrategy();
+        var twoOptUtils = new TwoOptUtils();
 
         long seedM = new SplittableRandom().nextLong();
         logger.info("Creating Metropolis with seed {}", seedM);
-        var metropolis = new TwoOptStrategy(new MetropolisStrategy(nearestNeighbor, new SplittableRandom(seedM)));
+        var metropolis = new TwoOptStrategy(
+                new MetropolisStrategy(nearestNeighbor, new SplittableRandom(seedM), twoOptUtils), twoOptUtils
+        );
 
         var nodeTraversalStrategy = new GeneralStrategy(heldKarp, metropolis);
 

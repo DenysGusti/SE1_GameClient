@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.random.RandomGenerator;
 
-public class MetropolisStrategy implements NodeTraversalStrategy, TwoOpt {
+public class MetropolisStrategy implements NodeTraversalStrategy {
     private static final Logger logger = LoggerFactory.getLogger(MetropolisStrategy.class);
     private static final int ITERATIONS_PER_NODE = 50_000;
     private static final int RESTART_PERIOD = 500_000;
@@ -20,15 +20,23 @@ public class MetropolisStrategy implements NodeTraversalStrategy, TwoOpt {
 
     private final NodeTraversalStrategy initialStrategy;
     private final RandomGenerator randomGenerator;
+    private final TwoOptUtils twoOptUtils;
 
-    public MetropolisStrategy(NodeTraversalStrategy initialStrategy, RandomGenerator randomGenerator) {
+    /*
+     because this algorithm is random and heuristic, there is a bug with really stupid paths
+     HalfMapGenerator with seed -8929787966741954084, Metropolis with seed 1724325189346784055
+     */
+    public MetropolisStrategy(NodeTraversalStrategy initialStrategy, RandomGenerator randomGenerator, TwoOptUtils twoOptUtils) {
         if (initialStrategy == null)
             throw new IllegalArgumentException("initialStrategy is null");
         if (randomGenerator == null)
             throw new IllegalArgumentException("randomGenerator is null");
+        if (twoOptUtils == null)
+            throw new IllegalArgumentException("twoOptUtils is null");
 
         this.initialStrategy = initialStrategy;
         this.randomGenerator = randomGenerator;
+        this.twoOptUtils = twoOptUtils;
     }
 
     @Override
@@ -56,9 +64,9 @@ public class MetropolisStrategy implements NodeTraversalStrategy, TwoOpt {
             int i = 1 + randomGenerator.nextInt(n - 2);
             int j = 1 + i + randomGenerator.nextInt(n - i - 1);
 
-            int delta = calculateDelta(distanceMatrix, currentPath, i, j);
+            int delta = twoOptUtils.calculateDelta(distanceMatrix, currentPath, i, j);
             if (delta < 0) {
-                reverseSegment(currentPath, i, j);
+                twoOptUtils.reverseSegment(currentPath, i, j);
                 currentDistance += delta;
 
                 if (currentDistance < bestDistance) {
@@ -70,7 +78,7 @@ public class MetropolisStrategy implements NodeTraversalStrategy, TwoOpt {
                 }
             } else if (delta < DELTA_ACCEPTANCE_THRESHOLD.length)
                 if (DELTA_ACCEPTANCE_THRESHOLD[delta] > randomGenerator.nextDouble()) {
-                    reverseSegment(currentPath, i, j);
+                    twoOptUtils.reverseSegment(currentPath, i, j);
                     currentDistance += delta;
                 }
         }

@@ -4,16 +4,20 @@ import client.ai.graph.DistanceMatrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TwoOptStrategy implements NodeTraversalStrategy, TwoOpt {
+public class TwoOptStrategy implements NodeTraversalStrategy {
     private static final Logger logger = LoggerFactory.getLogger(TwoOptStrategy.class);
 
     private final NodeTraversalStrategy initialStrategy;
+    private final TwoOptUtils twoOptUtils;
 
-    public TwoOptStrategy(NodeTraversalStrategy initialStrategy) {
+    public TwoOptStrategy(NodeTraversalStrategy initialStrategy, TwoOptUtils twoOptUtils) {
         if (initialStrategy == null)
             throw new IllegalArgumentException("initialStrategy is null");
+        if (twoOptUtils == null)
+            throw new IllegalArgumentException("twoOptUtils is null");
 
         this.initialStrategy = initialStrategy;
+        this.twoOptUtils = twoOptUtils;
     }
 
     @Override
@@ -31,10 +35,10 @@ public class TwoOptStrategy implements NodeTraversalStrategy, TwoOpt {
             // we go up to size - 2 because we need at least one edge j after i to swap
             for (int i = 1; i < distanceMatrix.size() - 1; ++i)
                 for (int j = i + 1; j < distanceMatrix.size(); ++j) {
-                    int delta = calculateDelta(distanceMatrix, path, i, j);
+                    int delta = twoOptUtils.calculateDelta(distanceMatrix, path, i, j);
 
                     if (delta < 0) {
-                        reverseSegment(path, i, j);
+                        twoOptUtils.reverseSegment(path, i, j);
                         improvementMade = true;
                     }
                 }

@@ -1,7 +1,6 @@
 package client.ai.mountain;
 
 import client.ai.exception.PathException;
-import client.ai.exception.TargetException;
 import client.ai.graph.FullMapGraph;
 import client.data.XYPair;
 import client.data.fromserver.FullMap;
@@ -68,14 +67,14 @@ public class PathOptimizer {
             XYPair prevStep = path.get(i - 1);
             XYPair currentStep = path.get(i);
 
-            FullMapNode node = fullMap.nodes().get(currentStep);
+            FullMapNode currentNode = fullMap.nodes().get(currentStep);
             int stepDistance = fullMapGraph.getDistance(prevStep, currentStep);
             currentPathDistance += stepDistance;
 
-            if (node.isGrass()) {
+            if (currentNode.isGrass()) {
                 if (remainingGrassNodes.remove(currentStep))
                     sumNodeDistance += currentPathDistance;
-            } else if (node.isMountain()) {
+            } else if (currentNode.isMountain()) {
                 for (XYPair neighbor : currentStep.getAllNeighbors(fullMap.size()))
                     if (remainingGrassNodes.remove(neighbor)) {
                         // if across water then a lot
