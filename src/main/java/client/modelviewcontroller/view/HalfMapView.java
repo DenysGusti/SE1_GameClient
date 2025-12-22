@@ -17,6 +17,8 @@ public class HalfMapView extends MapView implements Subscriber<HalfMap> {
         if (halfMap == null)
             throw new IllegalArgumentException("halfMap is null");
 
+        logger.info("Visualizing half-map...");
+
         var bufferDimension = new XYPair(HALF_MAP_SIZE.x() + 2, HALF_MAP_SIZE.y() + 2);
         var screenBuffer = new ScreenBuffer(bufferDimension);
 

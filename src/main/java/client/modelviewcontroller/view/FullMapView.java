@@ -27,13 +27,10 @@ public class FullMapView extends MapView implements Subscriber<FullMap> {
         if (fullMap == null)
             throw new IllegalArgumentException("fullMap is null");
 
+        logger.info("Visualizing full-map...");
+
         XYPair size = fullMap.size();
         XYPair topLeft = fullMap.getOptionalTopLeftCoordinate().orElse(new XYPair(0, 0));
-        if (fullMap.nodes().size() == 50) {
-            logger.warn(fullMap.topLeftCoordinate().toString());
-            logger.warn(fullMap.bottomRightCoordinate().toString());
-            logger.warn(fullMap.size().toString());
-        }
 
         var bufferDimension = new XYPair(size.x() + 2, size.y() + 2);
         var screenBuffer = new ScreenBuffer(bufferDimension);

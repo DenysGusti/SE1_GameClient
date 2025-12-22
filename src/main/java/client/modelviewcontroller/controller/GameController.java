@@ -72,7 +72,8 @@ public class GameController {
 
         if (!currentState.fullMapIsEmpty()) {
             logger.warn("My player is the second.");
-            halfMapValidator.addRule(new SecondHalfMapTransitionRule(currentState.fullMap()));
+            var rule = new SecondHalfMapTransitionRule(currentState.fullMap());
+            halfMapValidator.addRule(rule);
         }
 
         HalfMap halfMap = generateHalfMap();
@@ -120,7 +121,7 @@ public class GameController {
 
     private HalfMap generateHalfMap() {
         long startTime = System.nanoTime();
-        logger.debug("Generating half-map...");
+        logger.info("Generating half-map...");
 
         for (int attempt = 0; attempt < HALF_MAP_GENERATION_ATTEMPTS; ++attempt) {
             HalfMap halfMap = halfMapGenerator.generateHalfMap();
