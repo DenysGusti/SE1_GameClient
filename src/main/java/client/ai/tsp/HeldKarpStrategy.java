@@ -1,5 +1,7 @@
 package client.ai.tsp;
 
+import client.ai.exception.GraphException;
+import client.ai.exception.TSP_Exception;
 import client.ai.graph.DistanceMatrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +20,7 @@ public class HeldKarpStrategy implements NodeTraversalStrategy {
         logger.debug("Held-Karp started for {} nodes...", distanceMatrix.size());
 
         if (distanceMatrix.size() > MAX_NODES_LIMIT)
-            throw new RuntimeException("Node count (" + distanceMatrix.size() + ") too high for Java Heap");
+            throw new TSP_Exception("Node count (" + distanceMatrix.size() + ") too high for Java Heap");
 
         if (distanceMatrix.size() <= 2) {
             var path = new int[distanceMatrix.size()];
@@ -52,7 +54,7 @@ public class HeldKarpStrategy implements NodeTraversalStrategy {
                 int indexFrom = compress(visitedNodesMask, nodeFrom);
                 int distanceFrom = Byte.toUnsignedInt(dp[nodeFrom][indexFrom]);
                 if (distanceFrom == INF)
-                    throw new RuntimeException("distanceFrom is INF");
+                    throw new TSP_Exception("distanceFrom is INF");
 
                 // nodeToMask - unvisitedNodesMask, all except visited
                 // flip all the bits after the rightmost 1-bit and remove that 1-bit -> nodeToMask without nodeTo
@@ -65,7 +67,7 @@ public class HeldKarpStrategy implements NodeTraversalStrategy {
                     int newDistance = distanceFrom + distance;
 
                     if (newDistance >= INF)
-                        throw new RuntimeException("newDistance exceeded INF");
+                        throw new TSP_Exception("newDistance exceeded INF");
 
                     int indexTo = compress(visitedNodesAfterVisitedNodeToMask, nodeTo);
                     int currentDistance = Byte.toUnsignedInt(dp[nodeTo][indexTo]);
@@ -91,7 +93,7 @@ public class HeldKarpStrategy implements NodeTraversalStrategy {
         }
 
         if (bestEndNode == -1)
-            throw new RuntimeException("Held-Karp failed: could not find a valid end node.");
+            throw new TSP_Exception("Held-Karp failed: could not find a valid end node.");
 
         var path = new int[distanceMatrix.size()];
         path[0] = 0;  // start (0) is fixed
@@ -105,7 +107,7 @@ public class HeldKarpStrategy implements NodeTraversalStrategy {
             // prevVisitedMask is currentVisitedNodesMask without currentNode
             int prevVisitedMask = currentVisitedNodesMask ^ (1 << currentNode);
             if (prevVisitedMask == 0)
-                throw new RuntimeException("Path reconstruction failed: could not find a valid end node.");
+                throw new TSP_Exception("Path reconstruction failed: could not find a valid end node.");
 
             int currentIndex = compress(currentVisitedNodesMask, currentNode);
             int currentDistance = Byte.toUnsignedInt(dp[currentNode][currentIndex]);
@@ -120,7 +122,7 @@ public class HeldKarpStrategy implements NodeTraversalStrategy {
                 int parentToCurrentDistance = distanceMatrix.getDistance(parentNode + 1, currentNode + 1);
 
                 if (parentToCurrentDistance == INF)
-                    throw new RuntimeException("parentToCurrentDistance is INF");
+                    throw new GraphException("parentToCurrentDistance is INF");
 
                 int distance = parentDistance + parentToCurrentDistance;
                 if (distance == currentDistance) {
@@ -130,7 +132,7 @@ public class HeldKarpStrategy implements NodeTraversalStrategy {
             }
 
             if (prevNode == -1)
-                throw new RuntimeException("Path reconstruction failed: Broken DP chain.");
+                throw new TSP_Exception("Path reconstruction failed: Broken DP chain.");
 
             currentNode = prevNode;
             currentVisitedNodesMask = prevVisitedMask;

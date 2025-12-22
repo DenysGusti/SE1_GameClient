@@ -1,5 +1,6 @@
 package client.ai.graph;
 
+import client.ai.exception.PathException;
 import client.data.XYPair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,7 +126,7 @@ public class FullMapGraph {
             List<List<XYPair>> segmentPaths = getAllPaths(startSegment, endSegment);
 
             if (segmentPaths.isEmpty())
-                throw new RuntimeException("No path found between waypoints " + startSegment + " and " + endSegment);
+                throw new PathException("No path found between waypoints " + startSegment + " and " + endSegment);
 
             List<List<XYPair>> nextPaths = new ArrayList<>();
 

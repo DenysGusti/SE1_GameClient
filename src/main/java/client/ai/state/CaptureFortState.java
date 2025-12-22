@@ -1,6 +1,7 @@
 package client.ai.state;
 
 import client.ai.AIPlayer;
+import client.ai.exception.PathException;
 import client.data.XYPair;
 import client.data.fromserver.FullMap;
 
@@ -30,7 +31,7 @@ public class CaptureFortState extends AIState {
 
         List<XYPair> stepPathToGoal = aiPlayer.getStepPathToGoal(enemyFort);
         if (stepPathToGoal.isEmpty())
-            throw new RuntimeException("stepPathToGoal is empty");
+            throw new PathException("stepPathToGoal is empty");
 
         aiPlayer.setPlannedPath(stepPathToGoal.subList(1, stepPathToGoal.size()));
     }

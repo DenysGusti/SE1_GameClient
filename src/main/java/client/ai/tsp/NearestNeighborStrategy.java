@@ -1,5 +1,6 @@
 package client.ai.tsp;
 
+import client.ai.exception.TSP_Exception;
 import client.ai.graph.DistanceMatrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +46,7 @@ public class NearestNeighborStrategy implements NodeTraversalStrategy {
             }
 
         if (nearestNode == -1)
-            throw new RuntimeException("Nearest Neighbor traversal failed");
+            throw new TSP_Exception("Nearest Neighbor traversal failed");
 
         return nearestNode;
     }

@@ -1,5 +1,6 @@
 package client.ai;
 
+import client.ai.exception.TargetException;
 import client.ai.graph.FullMapGraph;
 import client.ai.mountain.MountainSelector;
 import client.ai.mountain.StepPathMetric;
@@ -111,7 +112,7 @@ public class AIPlayer {
 
         Set<XYPair> unrevealedGrassNodes = collectUnrevealedGrassNodes(fullMap, onMySide);
         if (unrevealedGrassNodes.isEmpty())
-            throw new RuntimeException("unrevealedGrassNodes is empty");
+            throw new TargetException("unrevealedGrassNodes is empty");
 
         StepPathMetric stepPathMetric = mountainSelector.selectMountainPath(fullMapGraph, fullMap, unrevealedGrassNodes);
         logger.trace("Step-path: {}", stepPathMetric.path());

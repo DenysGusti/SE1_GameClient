@@ -1,6 +1,7 @@
 package client.ai.state;
 
 import client.ai.AIPlayer;
+import client.ai.exception.PathException;
 import client.data.XYPair;
 import client.data.fromserver.FullMap;
 import org.slf4j.Logger;
@@ -34,10 +35,10 @@ public class ScoutingRadiusEnemySideState extends AIState {
 
         logger.debug("Generating step-path for scouting radius enemy side.");
 
-        List<XYPair> path = aiPlayer.getStepPathForScouting(fullMap, false);
-        if (path.isEmpty())
-            throw new RuntimeException("path is empty");
+        List<XYPair> stepPathForScouting = aiPlayer.getStepPathForScouting(fullMap, false);
+        if (stepPathForScouting.isEmpty())
+            throw new PathException("stepPathForScouting is empty");
 
-        aiPlayer.setPlannedPath(path.subList(1, path.size()));
+        aiPlayer.setPlannedPath(stepPathForScouting.subList(1, stepPathForScouting.size()));
     }
 }

@@ -1,6 +1,7 @@
 package client.ai.state;
 
 import client.ai.AIPlayer;
+import client.ai.exception.PathException;
 import client.data.XYPair;
 import client.data.fromserver.FullMap;
 
@@ -46,7 +47,7 @@ public class ScoutingFullEnemySideState extends AIState {
 
         List<XYPair> stepPathForScouting = aiPlayer.getStepPathForScouting(fullMap, false);
         if (stepPathForScouting.isEmpty())
-            throw new RuntimeException("stepPathForScouting is empty");
+            throw new PathException("stepPathForScouting is empty");
 
         aiPlayer.setPlannedPath(stepPathForScouting.subList(1, stepPathForScouting.size()));
     }

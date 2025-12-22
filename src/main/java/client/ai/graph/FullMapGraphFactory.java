@@ -1,5 +1,6 @@
 package client.ai.graph;
 
+import client.ai.exception.GraphException;
 import client.data.ETerrain;
 import client.data.XYPair;
 import client.data.fromserver.FullMap;
@@ -21,11 +22,11 @@ public class FullMapGraphFactory {
     private static byte getMovementDistance(ETerrain from, ETerrain to) {
         int fromDistance = Byte.toUnsignedInt(terrainMovementCost.get(from));
         int toDistance = Byte.toUnsignedInt(terrainMovementCost.get(to));
-        int cost = fromDistance + toDistance;
-        if (cost >= INF)
-            throw new RuntimeException("Movement Cost Overflow!");
+        int distance = fromDistance + toDistance;
+        if (distance >= INF)
+            throw new GraphException("Distance Overflow!");
 
-        return (byte) cost;
+        return (byte) distance;
     }
 
     @SuppressWarnings("unchecked")
@@ -96,7 +97,7 @@ public class FullMapGraphFactory {
 
                     int newDistance = distance_ik + distance_kj;
                     if (newDistance >= INF)
-                        throw new RuntimeException("Cost Overflow!");
+                        throw new GraphException("Distance Overflow!");
 
                     int currentDistance = Byte.toUnsignedInt(distances[i][j]);
                     if (currentDistance > newDistance) {

@@ -1,5 +1,7 @@
 package client.ai.mountain;
 
+import client.ai.exception.PathException;
+import client.ai.exception.TargetException;
 import client.ai.graph.FullMapGraph;
 import client.data.XYPair;
 import client.data.fromserver.FullMap;
@@ -29,7 +31,7 @@ public class PathOptimizer {
         Objects.requireNonNull(allPaths, "allPaths is null");
 
         if (allPaths.isEmpty())
-            throw new RuntimeException("No paths could be generated from the traversal path.");
+            throw new PathException("No paths could be generated from the traversal path.");
 
         return allPaths.stream()
                 .map(stepPath -> {
@@ -81,11 +83,11 @@ public class PathOptimizer {
                         sumNodeDistance += currentPathDistance + neighborDistance;
                     }
             } else
-                throw new RuntimeException("Path includes water at " + currentStep);
+                throw new PathException("Path includes water at " + currentStep);
         }
 
         if (!remainingGrassNodes.isEmpty())
-            throw new RuntimeException("Path didn't cover all targets! Remaining: " + remainingGrassNodes.size());
+            throw new PathException("Path didn't cover all targets! Remaining: " + remainingGrassNodes.size());
 
         return (double) sumNodeDistance / unrevealedGrassNodes.size();
     }
