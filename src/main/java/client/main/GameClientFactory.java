@@ -1,8 +1,8 @@
 package client.main;
 
 import client.ai.AIPlayer;
-import client.ai.ExpectedArrivalPathFactory;
-import client.ai.FullMapUtilities;
+import client.ai.path.ExpectedArrivalPathFactory;
+import client.ai.utilities.FullMapUtilities;
 import client.ai.graph.FullMapGraphFactory;
 import client.halfmaplogic.generation.HalfMapGenerator;
 import client.halfmaplogic.validation.HalfMapValidator;

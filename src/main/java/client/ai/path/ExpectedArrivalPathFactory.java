@@ -1,4 +1,4 @@
-package client.ai;
+package client.ai.path;
 
 import client.ai.graph.DistanceMatrix;
 import client.ai.graph.FullMapGraph;

@@ -1,4 +1,4 @@
-package client.ai;
+package client.ai.utilities;
 
 import client.data.ETerrain;
 import client.data.XYPair;

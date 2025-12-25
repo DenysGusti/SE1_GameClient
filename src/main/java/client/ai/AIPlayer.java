@@ -2,8 +2,11 @@ package client.ai;
 
 import client.ai.exception.TargetException;
 import client.ai.graph.FullMapGraph;
+import client.ai.path.ExpectedArrivalPathFactory;
+import client.ai.path.ExpectedArrivalPathSolver;
 import client.ai.state.AIState;
 import client.ai.state.ScoutingMySideState;
+import client.ai.utilities.FullMapUtilities;
 import client.data.XYPair;
 import client.data.fromclient.EMove;
 import client.data.fromserver.FullMap;
