@@ -24,12 +24,11 @@ public class FullMapGraphFactory {
         int toDistance = Byte.toUnsignedInt(terrainMovementCost.get(to));
         int distance = fromDistance + toDistance;
         if (distance >= INF)
-            throw new GraphException("Distance Overflow!");
+            throw new GraphException("Distance overflow!");
 
         return (byte) distance;
     }
 
-    @SuppressWarnings("unchecked")
     public FullMapGraph createGraph(FullMap fullMap) {
         if (fullMap == null)
             throw new IllegalArgumentException("fullMap is null");
@@ -38,6 +37,7 @@ public class FullMapGraphFactory {
 
         Map<XYPair, FullMapNode> nodes = fullMap.nodes();
 
+        // filter out water nodes
         List<XYPair> validNodes = nodes.keySet().stream()
                 .filter(coordinate -> !nodes.get(coordinate).isWater())
                 .toList();
@@ -53,19 +53,16 @@ public class FullMapGraphFactory {
             coordinateToIndex.put(indexToCoordinate[i], i);
 
         var distances = new byte[n][n];
-        var tempNext = (Set<Byte>[][]) new Set[n][n];
+        var next = new byte[n][n];
 
+        // initialize matrices
         for (int i = 0; i < n; ++i)
             for (int j = 0; j < n; ++j) {
-                if (i == j) {
-                    distances[i][j] = 0;
-                    tempNext[i][j] = Collections.emptySet();
-                } else {
-                    distances[i][j] = (byte) INF;
-                    tempNext[i][j] = new HashSet<>();
-                }
+                distances[i][j] = i == j ? 0 : (byte) INF;
+                next[i][j] = (byte) INF;
             }
 
+        // set base adjacent distances
         for (int i = 0; i < n; ++i) {
             XYPair coordinateFrom = indexToCoordinate[i];
             FullMapNode nodeFrom = nodes.get(coordinateFrom);
@@ -79,12 +76,12 @@ public class FullMapGraphFactory {
                 FullMapNode nodeTo = nodes.get(coordinateTo);
 
                 distances[i][j] = getMovementDistance(nodeFrom.terrain(), nodeTo.terrain());
-                tempNext[i][j].add((byte) j);
+                next[i][j] = (byte) j;
             }
         }
 
         // Floyd-Warshall Algorithm O(n^3)
-        for (int k = 0; k < n; ++k) {
+        for (int k = 0; k < n; ++k)
             for (int i = 0; i < n; ++i) {
                 int distance_ik = Byte.toUnsignedInt(distances[i][k]);
                 if (distance_ik == INF)
@@ -102,23 +99,9 @@ public class FullMapGraphFactory {
                     int currentDistance = Byte.toUnsignedInt(distances[i][j]);
                     if (currentDistance > newDistance) {
                         distances[i][j] = (byte) newDistance;
-                        tempNext[i][j].clear();
-                        tempNext[i][j].addAll(tempNext[i][k]);
-                    } else if (currentDistance == newDistance)
-                        tempNext[i][j].addAll(tempNext[i][k]);
+                        next[i][j] = next[i][k];
+                    }
                 }
-            }
-        }
-
-        var next = new byte[n][n][];
-        for (int i = 0; i < n; ++i)
-            for (int j = 0; j < n; ++j) {
-                Set<Byte> nextIndices = tempNext[i][j];
-                var arr = new byte[nextIndices.size()];
-                int idx = 0;
-                for (byte val : nextIndices)
-                    arr[idx++] = val;
-                next[i][j] = arr;
             }
 
         double duration = (System.nanoTime() - startTime) / 1_000_000_000.;

@@ -29,10 +29,10 @@ public class CaptureFortState extends AIState {
         XYPair enemyFort = fullMap.getOptionalEnemyFortPosition().orElseThrow();
         logger.info("Calculating step-path to enemy fort at {}", enemyFort);
 
-        List<XYPair> stepPathToGoal = aiPlayer.getStepPathToGoal(enemyFort);
+        List<XYPair> stepPathToGoal = aiPlayer.getStepPathToTarget(enemyFort);
         if (stepPathToGoal.isEmpty())
             throw new PathException("stepPathToGoal is empty");
 
-        aiPlayer.setPlannedPath(stepPathToGoal.subList(1, stepPathToGoal.size()));
+        aiPlayer.setPlannedStepPath(stepPathToGoal.subList(1, stepPathToGoal.size()));
     }
 }

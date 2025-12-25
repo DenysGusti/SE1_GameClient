@@ -1,10 +1,9 @@
 package client.main;
 
 import client.ai.AIPlayer;
+import client.ai.ExpectedArrivalPathFactory;
 import client.ai.FullMapSplitter;
 import client.ai.graph.FullMapGraphFactory;
-import client.ai.mountain.*;
-import client.ai.tsp.*;
 import client.halfmaplogic.generation.HalfMapGenerator;
 import client.halfmaplogic.validation.HalfMapValidator;
 import client.halfmaplogic.validation.rule.*;
@@ -72,7 +71,8 @@ public class GameClientFactory {
     }
 
     public HalfMapGenerator createHalfMapGenerator() {
-        long seed = new SplittableRandom().nextLong();
+        long seed = -8929787966741954084L;
+//        long seed = new SplittableRandom().nextLong();
         logger.info("Creating HalfMapGenerator with seed {}", seed);
         var splittableRandom = new SplittableRandom(seed);
         return new HalfMapGenerator(splittableRandom);
@@ -86,25 +86,9 @@ public class GameClientFactory {
     }
 
     public AIPlayer createAIPlayer() {
-        var heldKarp = new HeldKarpStrategy();
-        var nearestNeighbor = new NearestNeighborStrategy();
-        var twoOptUtils = new TwoOptUtils();
-
-        long seedM = new SplittableRandom().nextLong();
-        logger.info("Creating Metropolis with seed {}", seedM);
-        var metropolis = new TwoOptStrategy(
-                new MetropolisStrategy(nearestNeighbor, new SplittableRandom(seedM), twoOptUtils), twoOptUtils
-        );
-
-        var nodeTraversalStrategy = new GeneralStrategy(heldKarp, metropolis);
-
-        var pathOptimizer = new PathOptimizer();
-        var exhaustiveMountainSelector = new ExhaustiveMountainSelector(nodeTraversalStrategy, pathOptimizer);
-        var greedyMountainSelector = new GreedyMountainSelector(nodeTraversalStrategy, pathOptimizer);
-        var mountainSelector = new GeneralMountainSelector(exhaustiveMountainSelector, greedyMountainSelector);
-
         var fullMapSplitter = new FullMapSplitter();
-        return new AIPlayer(fullMapSplitter, mountainSelector);
+        var expectedArrivalPathFactory = new ExpectedArrivalPathFactory();
+        return new AIPlayer(fullMapSplitter, expectedArrivalPathFactory);
     }
 
     public GameController createGameController(GameSession gameSession,

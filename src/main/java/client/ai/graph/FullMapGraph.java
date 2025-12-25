@@ -13,10 +13,10 @@ public class FullMapGraph {
     private final XYPair[] indexToCoordinate;
     private final Map<XYPair, Integer> coordinateToIndex;
     private final byte[][] distances;
-    private final byte[][][] next;
+    private final byte[][] next;
 
     public FullMapGraph(XYPair[] indexToCoordinate, Map<XYPair, Integer> coordinateToIndex,
-                        byte[][] distances, byte[][][] next) {
+                        byte[][] distances, byte[][] next) {
         if (indexToCoordinate == null)
             throw new IllegalArgumentException("indexToCoordinate is null");
         if (coordinateToIndex == null)
@@ -32,7 +32,7 @@ public class FullMapGraph {
         this.next = next;
     }
 
-    public int getDistance(XYPair start, XYPair end) {
+    private void accessGuard(XYPair start, XYPair end) {
         if (start == null)
             throw new IllegalArgumentException("start is null");
         if (end == null)
@@ -42,6 +42,10 @@ public class FullMapGraph {
             throw new NoSuchElementException("Coordinate " + start + " not found");
         if (!coordinateToIndex.containsKey(end))
             throw new NoSuchElementException("Coordinate " + end + " not found");
+    }
+
+    public int getDistance(XYPair start, XYPair end) {
+        accessGuard(start, end);
 
         int startIdx = coordinateToIndex.get(start);
         int endIdx = coordinateToIndex.get(end);
@@ -64,83 +68,48 @@ public class FullMapGraph {
         return new DistanceMatrix(dist, n);
     }
 
-    private record PathState(XYPair coordinate, List<XYPair> path) {
-    }
+    public List<XYPair> getStepPathBetweenCoordinates(XYPair start, XYPair end) {
+        accessGuard(start, end);
 
-    public List<List<XYPair>> getAllPaths(XYPair start, XYPair end) {
-        if (start == null)
-            throw new IllegalArgumentException("start is null");
-        if (end == null)
-            throw new IllegalArgumentException("end is null");
+        int currentIdx = coordinateToIndex.get(start);
+        int endIdx = coordinateToIndex.get(end);
 
-        List<List<XYPair>> allPaths = new ArrayList<>();
+        List<XYPair> stepPath = new ArrayList<>();
+        stepPath.add(start);
 
-        int endIdx = Objects.requireNonNull(coordinateToIndex.get(end), "endIdx is null");
+        while (currentIdx != endIdx) {
+            int nextIdx = Byte.toUnsignedInt(next[currentIdx][endIdx]);
+            if (nextIdx >= indexToCoordinate.length)
+                throw new PathException("No path exists between " + start + " and " + end);
 
-        Queue<PathState> queue = new ArrayDeque<>();
-        queue.add(new PathState(start, List.of(start)));
+            stepPath.add(indexToCoordinate[nextIdx]);
+            if (stepPath.size() > indexToCoordinate.length)
+                throw new PathException("Infinite loop detected in path data");
 
-        while (!queue.isEmpty()) {
-            PathState entry = queue.remove();
-            XYPair current = entry.coordinate();
-            List<XYPair> currentPath = entry.path();
-
-            if (current.equals(end)) {
-                allPaths.add(currentPath);
-                continue;
-            }
-
-            int currentIdx = Objects.requireNonNull(coordinateToIndex.get(current), "currentIdx is null");
-            byte[] nextIndices = next[currentIdx][endIdx];
-
-            Set<XYPair> nextCoordinates = new HashSet<>();
-            for (byte i : nextIndices) {
-                int idx = Byte.toUnsignedInt(i);
-                nextCoordinates.add(indexToCoordinate[idx]);
-            }
-
-            for (XYPair nextCoordinate : nextCoordinates) {
-                List<XYPair> newPath = new ArrayList<>(currentPath);
-                newPath.add(nextCoordinate);
-
-                queue.add(new PathState(nextCoordinate, newPath));
-            }
+            currentIdx = nextIdx;
         }
 
-        return allPaths;
+        return stepPath;
     }
 
-    public List<List<XYPair>> getAllPaths(List<XYPair> waypoints) {
+    public List<XYPair> getStepPathBetweenWaypoints(List<XYPair> waypoints) {
         if (waypoints == null)
             throw new IllegalArgumentException("waypoints is null");
         if (waypoints.size() <= 1)
             throw new IllegalArgumentException("waypoint must have at least start and end");
 
-        List<List<XYPair>> currentPaths = new ArrayList<>();
-        currentPaths.add(new ArrayList<>(List.of(waypoints.getFirst())));
+        List<XYPair> fullPath = new ArrayList<>();
+        fullPath.add(waypoints.getFirst());
 
         for (int i = 0; i < waypoints.size() - 1; ++i) {
             XYPair startSegment = waypoints.get(i);
             XYPair endSegment = waypoints.get(i + 1);
 
-            List<List<XYPair>> segmentPaths = getAllPaths(startSegment, endSegment);
-
-            if (segmentPaths.isEmpty())
-                throw new PathException("No path found between waypoints " + startSegment + " and " + endSegment);
-
-            List<List<XYPair>> nextPaths = new ArrayList<>();
-
-            for (List<XYPair> existingPath : currentPaths)
-                for (List<XYPair> segment : segmentPaths) {
-                    List<XYPair> combined = new ArrayList<>(existingPath);
-                    // skip the first element to avoid duplicating the start node
-                    combined.addAll(segment.subList(1, segment.size()));
-                    nextPaths.add(combined);
-                }
-            currentPaths = nextPaths;
+            List<XYPair> segment = getStepPathBetweenCoordinates(startSegment, endSegment);
+            // skip the first element to avoid duplicating the start node
+            fullPath.addAll(segment.subList(1, segment.size()));
         }
 
-        logger.debug("Found {} total variations for multi-stop path", currentPaths.size());
-        return currentPaths;
+        return fullPath;
     }
 }

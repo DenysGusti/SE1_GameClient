@@ -49,6 +49,6 @@ public class ScoutingFullEnemySideState extends AIState {
         if (stepPathForScouting.isEmpty())
             throw new PathException("stepPathForScouting is empty");
 
-        aiPlayer.setPlannedPath(stepPathForScouting.subList(1, stepPathForScouting.size()));
+        aiPlayer.setPlannedStepPath(stepPathForScouting.subList(1, stepPathForScouting.size()));
     }
 }

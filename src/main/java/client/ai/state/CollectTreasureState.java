@@ -46,10 +46,10 @@ public class CollectTreasureState extends AIState {
         XYPair myTreasurePosition = fullMap.getOptionalMyTreasurePosition().orElseThrow();
         logger.debug("Calculating step-path to my treasure at {}", myTreasurePosition);
 
-        List<XYPair> stepPathToGoal = aiPlayer.getStepPathToGoal(myTreasurePosition);
+        List<XYPair> stepPathToGoal = aiPlayer.getStepPathToTarget(myTreasurePosition);
         if (stepPathToGoal.isEmpty())
             throw new PathException("stepPathToGoal is empty");
 
-        aiPlayer.setPlannedPath(stepPathToGoal.subList(1, stepPathToGoal.size()));
+        aiPlayer.setPlannedStepPath(stepPathToGoal.subList(1, stepPathToGoal.size()));
     }
 }

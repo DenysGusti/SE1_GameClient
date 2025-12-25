@@ -4,27 +4,42 @@ import client.data.ETerrain;
 import client.data.XYPair;
 import client.data.fromserver.FullMap;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class FullMapSplitter {
     private static final XYPair HALF_MAP_SIZE = new XYPair(10, 5);
 
-    public Set<XYPair> getUnrevealedGrassNodes(FullMap fullMap, boolean onMySide) {
+    public List<XYPair> getUnrevealedGrassNodes(FullMap fullMap, boolean onMySide) {
         if (fullMap == null)
             throw new IllegalArgumentException("fullMap is null");
 
         return fullMap.nodes().entrySet().stream()
                 .filter(e -> e.getValue().terrain() == ETerrain.Grass && !e.getValue().isRevealed())
-                .filter(e -> onMySide == IsCoordinateOnMySide(fullMap, e.getKey()))
                 .map(Map.Entry::getKey)
-                .collect(Collectors.toSet());
+                .filter(coordinate -> onMySide == isCoordinateOnMySide(fullMap, coordinate))
+                .toList();
+    }
+
+    public List<XYPair> getNeighborMountains(FullMap fullMap, List<XYPair> nodes) {
+        if (fullMap == null)
+            throw new IllegalArgumentException("fullMap is null");
+        if (nodes == null)
+            throw new IllegalArgumentException("nodes is null");
+
+        return fullMap.nodes().entrySet().stream()
+                .filter(entry -> entry.getValue().isMountain())
+                .map(Map.Entry::getKey)
+                .filter(mountain -> {
+                    List<XYPair> neighbors = mountain.getAllNeighbors(fullMap.size());
+                    return neighbors.stream().anyMatch(nodes::contains);
+                })
+                .toList();
     }
 
     // is coordinate on the same side as my fort
-    private static boolean IsCoordinateOnMySide(FullMap fullMap, XYPair coordinate) {
+    private static boolean isCoordinateOnMySide(FullMap fullMap, XYPair coordinate) {
         if (fullMap == null)
             throw new IllegalArgumentException("fullMap is null");
         if (coordinate == null)
