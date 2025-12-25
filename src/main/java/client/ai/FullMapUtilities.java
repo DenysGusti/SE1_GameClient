@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class FullMapSplitter {
+public class FullMapUtilities {
     private static final XYPair HALF_MAP_SIZE = new XYPair(10, 5);
 
     public List<XYPair> getUnrevealedGrassNodes(FullMap fullMap, boolean onMySide) {

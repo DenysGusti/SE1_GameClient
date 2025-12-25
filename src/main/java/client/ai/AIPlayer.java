@@ -17,7 +17,7 @@ public class AIPlayer {
     private static final Logger logger = LoggerFactory.getLogger(AIPlayer.class);
     private static final int FIRST_VALID_ENEMY_PLAYER_POSITION_MOVE = 8;
 
-    private final FullMapSplitter fullMapSplitter;
+    private final FullMapUtilities fullMapUtilities;
     private final ExpectedArrivalPathFactory expectedArrivalPathFactory;
 
     private FullMapGraph fullMapGraph = null;
@@ -29,13 +29,13 @@ public class AIPlayer {
     private AIState currentAIState = new ScoutingMySideState(this);
     private final Queue<XYPair> plannedStepPath = new ArrayDeque<>();
 
-    public AIPlayer(FullMapSplitter fullMapSplitter, ExpectedArrivalPathFactory expectedArrivalPathFactory) {
-        if (fullMapSplitter == null)
-            throw new IllegalArgumentException("fullMapSplitter is null");
+    public AIPlayer(FullMapUtilities fullMapUtilities, ExpectedArrivalPathFactory expectedArrivalPathFactory) {
+        if (fullMapUtilities == null)
+            throw new IllegalArgumentException("fullMapUtilities is null");
         if (expectedArrivalPathFactory == null)
             throw new IllegalArgumentException("expectedArrivalPathFactory is null");
 
-        this.fullMapSplitter = fullMapSplitter;
+        this.fullMapUtilities = fullMapUtilities;
         this.expectedArrivalPathFactory = expectedArrivalPathFactory;
     }
 
@@ -112,7 +112,7 @@ public class AIPlayer {
         if (unrevealedGrassNodes.isEmpty())
             throw new TargetException("unrevealedGrassNodes is empty");
 
-        List<XYPair> neighborMountains = fullMapSplitter.getNeighborMountains(fullMap, unrevealedGrassNodes);
+        List<XYPair> neighborMountains = fullMapUtilities.getNeighborMountains(fullMap, unrevealedGrassNodes);
         Objects.requireNonNull(neighborMountains, "neighborMountains is null");
 
         ExpectedArrivalPathSolver expectedArrivalPathSolver = expectedArrivalPathFactory.createSolver(
@@ -183,7 +183,7 @@ public class AIPlayer {
         if (fullMapGraph == null)
             throw new IllegalStateException("fullMapGraph is null");
 
-        List<XYPair> nodesToTraverse = fullMapSplitter.getUnrevealedGrassNodes(fullMap, onMySide);
+        List<XYPair> nodesToTraverse = fullMapUtilities.getUnrevealedGrassNodes(fullMap, onMySide);
         Objects.requireNonNull(nodesToTraverse, "nodesToTraverse is null");
 
         int originalSize = nodesToTraverse.size();

@@ -2,7 +2,7 @@ package client.main;
 
 import client.ai.AIPlayer;
 import client.ai.ExpectedArrivalPathFactory;
-import client.ai.FullMapSplitter;
+import client.ai.FullMapUtilities;
 import client.ai.graph.FullMapGraphFactory;
 import client.halfmaplogic.generation.HalfMapGenerator;
 import client.halfmaplogic.validation.HalfMapValidator;
@@ -86,7 +86,7 @@ public class GameClientFactory {
     }
 
     public AIPlayer createAIPlayer() {
-        var fullMapSplitter = new FullMapSplitter();
+        var fullMapSplitter = new FullMapUtilities();
         var expectedArrivalPathFactory = new ExpectedArrivalPathFactory();
         return new AIPlayer(fullMapSplitter, expectedArrivalPathFactory);
     }
