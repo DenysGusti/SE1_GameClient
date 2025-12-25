@@ -185,7 +185,7 @@ public class ExpectedArrivalPathSolver {
         return contribution;
     }
 
-    private int getHeuristics(int currentPathDistance, int remainingGrassCount, int remainingMountainCount) {
-        return heuristics[remainingGrassCount][remainingMountainCount] + remainingGrassCount * currentPathDistance;
+    private int getHeuristics(int pathDistance, int remainingGrassCount, int remainingMountainCount) {
+        return remainingGrassCount * pathDistance + heuristics[remainingGrassCount][remainingMountainCount];
     }
 }
