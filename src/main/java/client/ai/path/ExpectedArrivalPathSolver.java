@@ -76,9 +76,6 @@ public class ExpectedArrivalPathSolver {
         double duration = (System.nanoTime() - startTime) / 1_000_000_000.;
         logger.debug("Branch & Bound finished in {}s, min expected value: {}, iterations: {}, timeout reached: {}",
                 duration, (double) minExpectedValueSum / grassCount, iterations, timeoutReached);
-
-        if (timeoutReached)
-            throw new RuntimeException("testing");
         return waypoints;
     }
 
