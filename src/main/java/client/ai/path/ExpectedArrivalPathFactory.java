@@ -71,8 +71,8 @@ public class ExpectedArrivalPathFactory {
 
         DistanceMatrix distanceMatrix = fullMapGraph.getDistanceMatrix(allNodes);
 
-        long[] mountainRevelationMasks = new long[mountains.size()];
-        int[][] mountainToGrassDistances = new int[mountains.size()][];
+        var mountainRevelationMasks = new long[mountains.size()];
+        var mountainToGrassDistances = new int[mountains.size()][];
 
         Map<XYPair, Integer> grassIndexMap = new HashMap<>();
         for (int i = 0; i < grass.size(); ++i)
@@ -100,7 +100,28 @@ public class ExpectedArrivalPathFactory {
                     mountainToGrassDistances[fromMountainIdx][grassIdx] = distance);
         }
 
+        var grassProximity = new int[allNodes.size()][grass.size()];
+        var mountainProximity = new int[allNodes.size()][mountains.size()];
+
+        for (int i = 0; i < allNodes.size(); ++i) {
+            final int fromIdx = i;
+
+            var grassIndices = new Integer[grass.size()];
+            for (int g = 0; g < grass.size(); ++g)
+                grassIndices[g] = g;
+            Arrays.sort(grassIndices, Comparator.comparingInt(g -> distanceMatrix.getDistance(fromIdx, 1 + g)));
+            for (int g = 0; g < grass.size(); ++g)
+                grassProximity[i][g] = grassIndices[g];
+
+            var mountainIndices = new Integer[mountains.size()];
+            for (int m = 0; m < mountains.size(); ++m)
+                mountainIndices[m] = m;
+            Arrays.sort(mountainIndices, Comparator.comparingInt(m -> distanceMatrix.getDistance(fromIdx, 1 + grass.size() + m)));
+            for (int m = 0; m < mountains.size(); ++m)
+                mountainProximity[i][m] = mountainIndices[m];
+        }
+
         return new ExpectedArrivalPathSolver(HEURISTICS, allNodes, grass.size(), mountains.size(), distanceMatrix,
-                mountainRevelationMasks, mountainToGrassDistances);
+                mountainRevelationMasks, mountainToGrassDistances, grassProximity, mountainProximity);
     }
 }

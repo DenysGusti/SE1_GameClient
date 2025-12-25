@@ -20,6 +20,8 @@ public class ExpectedArrivalPathSolver {
     private final DistanceMatrix distanceMatrix;
     private final long[] mountainRevelationMasks;
     private final int[][] mountainToGrassDistances;
+    private final int[][] grassProximity;
+    private final int[][] mountainProximity;
 
     private long iterations = 0;
     private boolean timeoutReached = false;
@@ -28,7 +30,8 @@ public class ExpectedArrivalPathSolver {
     private long deadline;
 
     public ExpectedArrivalPathSolver(int[][] heuristics, List<XYPair> allNodes, int grassCount, int mountainCount,
-                                     DistanceMatrix distanceMatrix, long[] mountainRevelationMasks, int[][] mountainToGrassDistances) {
+                                     DistanceMatrix distanceMatrix, long[] mountainRevelationMasks,
+                                     int[][] mountainToGrassDistances, int[][] grassProximity, int[][] mountainProximity) {
         if (heuristics == null)
             throw new IllegalArgumentException("heuristics is null");
         if (allNodes == null)
@@ -43,6 +46,10 @@ public class ExpectedArrivalPathSolver {
             throw new IllegalArgumentException("mountainRevelationMasks is null");
         if (mountainToGrassDistances == null)
             throw new IllegalArgumentException("mountainToGrassDistances is null");
+        if (grassProximity == null)
+            throw new IllegalArgumentException("grassProximity is null");
+        if (mountainProximity == null)
+            throw new IllegalArgumentException("mountainProximity is null");
 
         this.heuristics = heuristics;
         this.allNodes = allNodes;
@@ -51,6 +58,8 @@ public class ExpectedArrivalPathSolver {
         this.distanceMatrix = distanceMatrix;
         this.mountainRevelationMasks = mountainRevelationMasks;
         this.mountainToGrassDistances = mountainToGrassDistances;
+        this.grassProximity = grassProximity;
+        this.mountainProximity = mountainProximity;
     }
 
     public List<XYPair> getWaypoints() {
@@ -68,7 +77,7 @@ public class ExpectedArrivalPathSolver {
         if (bestPathIndices == null)
             throw new IllegalStateException("bestPathIndices is null");
 
-        List<XYPair> waypoints = new ArrayList<>(currentPath.length);
+        List<XYPair> waypoints = new ArrayList<>(bestPathIndices.length);
         for (int idx : bestPathIndices)
             waypoints.add(allNodes.get(idx));
         logger.trace("Waypoints:\n{}", waypoints);
@@ -102,47 +111,50 @@ public class ExpectedArrivalPathSolver {
         int remainingMountainCount = mountainCount - Long.bitCount(mountainVisitedMask);
         int lastVisitedNodeIdx = currentPath[visitedCount - 1];
 
-        long mountainMask = ~mountainVisitedMask & (1L << mountainCount) - 1;
-        if (mountainMask != 0) {
-            int[] sortedMountains = getSortedIndices(mountainMask, lastVisitedNodeIdx, 1 + grassCount);
-            for (int nextNode : sortedMountains) {
-                long neighborGrassMask = mountainRevelationMasks[nextNode] & remainingGrassMask;
-                if (neighborGrassMask == 0)
-                    continue;
+        int[] sortedMountains = mountainProximity[lastVisitedNodeIdx];
+        for (int nextMountain : sortedMountains) {
+            if ((mountainVisitedMask & 1L << nextMountain) != 0)
+                continue;
 
-                int nextNodeIdx = 1 + grassCount + nextNode;
-                int nextNodeDistance = distanceMatrix.getDistance(lastVisitedNodeIdx, nextNodeIdx);
+            long neighborGrassMask = mountainRevelationMasks[nextMountain] & remainingGrassMask;
+            if (neighborGrassMask == 0)
+                continue;
 
-                int newPathDistance = currentPathDistance + nextNodeDistance;
-                int discoveryContribution = getDiscoveryContribution(neighborGrassMask, newPathDistance, nextNode);
-                int newExpectedValueSum = currentExpectedValueSum + discoveryContribution;
+            int nextNodeIdx = 1 + grassCount + nextMountain;
+            int nextNodeDistance = distanceMatrix.getDistance(lastVisitedNodeIdx, nextNodeIdx);
 
-                long newRemainingGrassMask = remainingGrassMask ^ neighborGrassMask;
-                long newMountainVisitedMask = mountainVisitedMask | 1L << nextNode;
-                int newRemainingGrassCount = remainingGrassCount - Long.bitCount(neighborGrassMask);
-                int newRemainingMountainCount = remainingMountainCount - 1;
+            int newPathDistance = currentPathDistance + nextNodeDistance;
+            int discoveryContribution = getDiscoveryContribution(neighborGrassMask, newPathDistance, nextMountain);
+            int newExpectedValueSum = currentExpectedValueSum + discoveryContribution;
 
-                int childHeuristics = getHeuristics(newPathDistance, newRemainingGrassCount, newRemainingMountainCount);
-                int newBestExpectedValueSum = newExpectedValueSum + childHeuristics;
+            int newRemainingGrassCount = remainingGrassCount - Long.bitCount(neighborGrassMask);
+            int newRemainingMountainCount = remainingMountainCount - 1;
 
-                if (newBestExpectedValueSum >= minExpectedValueSum)
-                    continue;
+            int childHeuristics = getHeuristics(newPathDistance, newRemainingGrassCount, newRemainingMountainCount);
+            int newBestExpectedValueSum = newExpectedValueSum + childHeuristics;
 
-                currentPath[visitedCount] = nextNodeIdx;
-                solveRecursive(visitedCount + 1, newPathDistance, newExpectedValueSum,
-                        newRemainingGrassMask, newMountainVisitedMask, currentPath);
-            }
+            if (newBestExpectedValueSum >= minExpectedValueSum)
+                continue;
+
+            long newRemainingGrassMask = remainingGrassMask ^ neighborGrassMask;
+            long newMountainVisitedMask = mountainVisitedMask | 1L << nextMountain;
+
+            currentPath[visitedCount] = nextNodeIdx;
+            solveRecursive(visitedCount + 1, newPathDistance, newExpectedValueSum,
+                    newRemainingGrassMask, newMountainVisitedMask, currentPath);
         }
 
-        int[] sortedGrass = getSortedIndices(remainingGrassMask, lastVisitedNodeIdx, 1);
-        for (int nextNode : sortedGrass) {
-            int nextNodeIdx = 1 + nextNode;
+        int[] sortedGrass = grassProximity[lastVisitedNodeIdx];
+        for (int nextGrass : sortedGrass) {
+            if ((remainingGrassMask & 1L << nextGrass) == 0)
+                continue;
+
+            int nextNodeIdx = 1 + nextGrass;
             int nextNodeDistance = distanceMatrix.getDistance(lastVisitedNodeIdx, nextNodeIdx);
 
             int newPathDistance = currentPathDistance + nextNodeDistance;
             int newExpectedValueSum = currentExpectedValueSum + newPathDistance;
 
-            long newRemainingGrassMask = remainingGrassMask ^ 1L << nextNode;
             int newRemainingGrassCount = remainingGrassCount - 1;
 
             int childHeuristics = getHeuristics(newPathDistance, newRemainingGrassCount, remainingMountainCount);
@@ -151,46 +163,26 @@ public class ExpectedArrivalPathSolver {
             if (newBestExpectedValueSum >= minExpectedValueSum)
                 break;
 
+            long newRemainingGrassMask = remainingGrassMask ^ 1L << nextGrass;
+
             currentPath[visitedCount] = nextNodeIdx;
             solveRecursive(visitedCount + 1, newPathDistance, newExpectedValueSum,
                     newRemainingGrassMask, mountainVisitedMask, currentPath);
         }
     }
 
-    private int[] getSortedIndices(long mask, int fromIdx, int offset) {
-        int count = Long.bitCount(mask);
-        var indices = new int[count];
-        {
-            int i = 0;
-            for (long tempMask = mask; tempMask != 0; tempMask &= tempMask - 1)
-                indices[i++] = Long.numberOfTrailingZeros(tempMask);
-        }
-
-        for (int i = 1; i < count; ++i) {
-            int targetIdx = indices[i];
-            int targetDistance = distanceMatrix.getDistance(fromIdx, offset + targetIdx);
-
-            int j = i - 1;
-            for (; j >= 0 && distanceMatrix.getDistance(fromIdx, offset + indices[j]) > targetDistance; --j)
-                indices[j + 1] = indices[j];
-            indices[j + 1] = targetIdx;
-        }
-        return indices;
-    }
-
     // calculate discovery sum for all nodes revealed by this mountain
     private int getDiscoveryContribution(long neighborGrassMask, int newDistance, int nextNode) {
         int neighborGrassCount = Long.bitCount(neighborGrassMask);
-        int discoveryContribution = newDistance * neighborGrassCount;
+        int contribution = newDistance * neighborGrassCount;
 
         for (long grassMask = neighborGrassMask; grassMask != 0; grassMask &= grassMask - 1) {
-            int neighborIdx = Long.numberOfTrailingZeros(grassMask);
-            int neighborDistance = mountainToGrassDistances[nextNode][neighborIdx];
+            int neighborGrassIdx = Long.numberOfTrailingZeros(grassMask);
+            int neighborGrassDistance = mountainToGrassDistances[nextNode][neighborGrassIdx];
             // path to mountain + path from mountain to neighbor grass
-            discoveryContribution += neighborDistance;
+            contribution += neighborGrassDistance;
         }
-
-        return discoveryContribution;
+        return contribution;
     }
 
     private int getHeuristics(int currentPathDistance, int remainingGrassCount, int remainingMountainCount) {
