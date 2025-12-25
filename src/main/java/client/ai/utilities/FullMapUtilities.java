@@ -22,7 +22,7 @@ public class FullMapUtilities {
                 .toList();
     }
 
-    public List<XYPair> getNeighborMountains(FullMap fullMap, List<XYPair> nodes) {
+    public List<XYPair> getNeighborMountains(FullMap fullMap, List<XYPair> nodes, boolean onMySide) {
         if (fullMap == null)
             throw new IllegalArgumentException("fullMap is null");
         if (nodes == null)
@@ -31,6 +31,7 @@ public class FullMapUtilities {
         return fullMap.nodes().entrySet().stream()
                 .filter(entry -> entry.getValue().isMountain())
                 .map(Map.Entry::getKey)
+                .filter(coordinate -> onMySide == isCoordinateOnMySide(fullMap, coordinate))
                 .filter(mountain -> {
                     List<XYPair> neighbors = mountain.getAllNeighbors(fullMap.size());
                     return neighbors.stream().anyMatch(nodes::contains);

@@ -115,7 +115,7 @@ public class AIPlayer {
         if (unrevealedGrassNodes.isEmpty())
             throw new TargetException("unrevealedGrassNodes is empty");
 
-        List<XYPair> neighborMountains = fullMapUtilities.getNeighborMountains(fullMap, unrevealedGrassNodes);
+        List<XYPair> neighborMountains = fullMapUtilities.getNeighborMountains(fullMap, unrevealedGrassNodes, onMySide);
         Objects.requireNonNull(neighborMountains, "neighborMountains is null");
 
         ExpectedArrivalPathSolver expectedArrivalPathSolver = expectedArrivalPathFactory.createSolver(
