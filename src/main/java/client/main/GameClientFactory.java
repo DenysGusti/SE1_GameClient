@@ -71,8 +71,8 @@ public class GameClientFactory {
     }
 
     public HalfMapGenerator createHalfMapGenerator() {
-        long seed = -8929787966741954084L;
-//        long seed = new SplittableRandom().nextLong();
+//        long seed = -8929787966741954084L;
+        long seed = new SplittableRandom().nextLong();
         logger.info("Creating HalfMapGenerator with seed {}", seed);
         var splittableRandom = new SplittableRandom(seed);
         return new HalfMapGenerator(splittableRandom);
