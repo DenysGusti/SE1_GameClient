@@ -39,7 +39,7 @@ public class NetworkService {
         if (serverBaseURL == null)
             return Mono.error(new IllegalArgumentException("serverBaseURL is null"));
 
-        logger.info("Attempting to create a new game, debugMode={}, dummyCompetition={}", debugMode, dummyCompetition);
+        logger.info("Creating a new game, debugMode={}, dummyCompetition={}", debugMode, dummyCompetition);
 
         var webClient = WebClient
                 .builder()
