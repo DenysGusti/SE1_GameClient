@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 public class GameController {
     private static final Logger logger = LoggerFactory.getLogger(GameController.class);
 
-    private static final int HALF_MAP_GENERATION_ATTEMPTS = 1_000_000;
+    private static final int HALF_MAP_GENERATION_ATTEMPTS = 1_000;
 
     private final PlayerModel playerModel;
     private final MapModel mapModel;
