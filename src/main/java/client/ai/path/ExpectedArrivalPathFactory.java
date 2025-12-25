@@ -12,41 +12,37 @@ public class ExpectedArrivalPathFactory {
     private static final int[][] HEURISTICS = new int[MAX_GRASS + 1][MAX_MOUNTAINS + 1];
 
     static {
-        generateHeuristics();
-    }
-
-    private static void generateHeuristics() {
         for (int grass = 1; grass <= MAX_GRASS; ++grass)
             for (int mountains = 0; mountains <= MAX_MOUNTAINS; ++mountains)
-                HEURISTICS[grass][mountains] = calculateBestCase(grass, mountains);
+                HEURISTICS[grass][mountains] = calculateExpectedValueSum(grass, mountains);
     }
 
-    private static int calculateBestCase(int grass, int mountains) {
-        int totalExtraSum = 0;
-        int currentRelativeDist = 0;
+    private static int calculateExpectedValueSum(int grass, int mountains) {
+        int expectedValueSum = 0;
+        int currentRelativeDistance = 0;
         int remainingGrass = grass;
         int remainingMountains = mountains;
 
         while (remainingGrass > 0 && remainingMountains > 0) {
-            currentRelativeDist += 3;
+            currentRelativeDistance += 3;
 
-            int adjacent = Math.min(remainingGrass, 3);
-            int corner = Math.min(remainingGrass - adjacent, 4);
-            int found = adjacent + corner;
+            int adjacentGrass = Math.min(remainingGrass, 3);
+            int cornerGrass = Math.min(remainingGrass - adjacentGrass, 4);
+            int foundGrass = adjacentGrass + cornerGrass;
+            int contribution = foundGrass * currentRelativeDistance + adjacentGrass * 3 + cornerGrass * 5;
 
-            totalExtraSum += found * currentRelativeDist + adjacent * 3 + corner * 5;
-
-            remainingGrass -= found;
+            expectedValueSum += contribution;
+            remainingGrass -= foundGrass;
             --remainingMountains;
         }
 
         while (remainingGrass > 0) {
-            currentRelativeDist += 2;
-            totalExtraSum += currentRelativeDist;
+            currentRelativeDistance += 2;
+            expectedValueSum += currentRelativeDistance;
             --remainingGrass;
         }
 
-        return totalExtraSum;
+        return expectedValueSum;
     }
 
     public ExpectedArrivalPathSolver createSolver(XYPair fullMapSize, FullMapGraph fullMapGraph, XYPair start,
