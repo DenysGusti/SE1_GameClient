@@ -11,7 +11,7 @@ public class ExpectedArrivalPathSolver {
     private static final Logger logger = LoggerFactory.getLogger(ExpectedArrivalPathSolver.class);
 
     private static final long TIMEOUT_NS = 4_500_000_000L; // 4.5 seconds in nanoseconds
-    private static final long TIME_CHECK_INTERVAL = 0x1FFFF;
+    private static final long TIME_CHECK_INTERVAL = 0xFFFFF;
 
     private final int[][] heuristics;
     private final List<XYPair> allNodes;
