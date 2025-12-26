@@ -24,7 +24,7 @@ public class WorldManager {
         Box yAxis = createAxis(AXIS_THICKNESS, AXIS_LENGTH, AXIS_THICKNESS, Color.GREEN);
         Box zAxis = createAxis(AXIS_THICKNESS, AXIS_THICKNESS, AXIS_LENGTH, Color.BLUE);
 
-        var ambientLight = new AmbientLight(Color.color(0.3, 0.3, 0.3));
+        var ambientLight = new AmbientLight(Color.color(0.2, 0.2, 0.2));
         var pointLight = new PointLight(Color.WHITE);
         pointLight.setTranslateY(-50);
         pointLight.setTranslateX(5);
@@ -37,8 +37,6 @@ public class WorldManager {
         var box = new Box(width, height, depth);
 
         var phongMaterial = new PhongMaterial(color);
-        phongMaterial.setSpecularColor(Color.WHITE);
-        phongMaterial.setSpecularPower(32);
         box.setMaterial(phongMaterial);
 
         return box;
