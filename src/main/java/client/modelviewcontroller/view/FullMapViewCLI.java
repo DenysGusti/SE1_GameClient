@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
-public class FullMapView extends MapView implements Subscriber<FullMap> {
-    private static final Logger logger = LoggerFactory.getLogger(FullMapView.class);
+public class FullMapViewCLI extends MapView implements Subscriber<FullMap> {
+    private static final Logger logger = LoggerFactory.getLogger(FullMapViewCLI.class);
 
     private static final String fogOfWarEmoji = "☁️";
 

@@ -114,10 +114,10 @@ public class GameClientFactory {
 
         var mapModel = new MapModel();
         var halfMapView = new HalfMapView();
-        var fullMapView = new FullMapView();
+        var fullMapViewFullMapViewCLI = new FullMapViewCLI();
         var halfMapValidationErrorView = new HalfMapValidationErrorView();
         mapModel.subscribeOnHalfMapGenerated(halfMapView);
-        mapModel.subscribeOnFullMapUpdated(fullMapView);
+        mapModel.subscribeOnFullMapUpdated(fullMapViewFullMapViewCLI);
         mapModel.subscribeOnHalfMapValidationErrors(halfMapValidationErrorView);
 
         var fullMapGraphFactory = new FullMapGraphFactory();
