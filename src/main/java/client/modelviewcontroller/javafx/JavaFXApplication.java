@@ -63,6 +63,7 @@ public class JavaFXApplication extends Application {
         subScene.setFill(Color.BLACK);
 
         var debugHUD = new DebugHUD();
+        debugHUD.update(cameraController);
         var rootStackPane = new StackPane(subScene, debugHUD.getNode());
         var scene = new Scene(rootStackPane, WINDOW_WIDTH, WINDOW_HEIGHT);
 
