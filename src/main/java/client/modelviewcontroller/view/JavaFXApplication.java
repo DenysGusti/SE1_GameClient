@@ -9,11 +9,16 @@ import javafx.scene.paint.Color;
 import javafx.scene.robot.Robot;
 import javafx.stage.Stage;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashSet;
 import java.util.Set;
 
 public class JavaFXApplication extends Application {
-    private final static WorldManager WORLD_MANAGER = new WorldManager();
+    private static final Logger logger = LoggerFactory.getLogger(JavaFXApplication.class);
+
+    private static final Group WORLD_ROOT = new Group();
 
     private final static double WINDOW_WIDTH = 1200;
     private final static double WINDOW_HEIGHT = 800;
@@ -35,12 +40,14 @@ public class JavaFXApplication extends Application {
     private boolean isCentering = false;
 
     public static Group getWorldGroup() {
-        return WORLD_MANAGER.getWorldRoot();
+        return WORLD_ROOT;
     }
 
     @Override
     public void start(Stage stage) {
-        var camera = new PerspectiveCamera(false);
+        new WorldManager(WORLD_ROOT);
+
+        var camera = new PerspectiveCamera(true);
 
         camera.setNearClip(CAMERA_NEAR_CLIP);
         camera.setFarClip(CAMERA_FAR_CLIP);
@@ -51,7 +58,7 @@ public class JavaFXApplication extends Application {
 
         var cameraController = new CameraController(camera, INITIAL_CAMERA_YAW, INITIAL_CAMERA_PITCH);
 
-        var subScene = new SubScene(WORLD_MANAGER.getWorldRoot(), WINDOW_WIDTH, WINDOW_HEIGHT, true, SceneAntialiasing.BALANCED);
+        var subScene = new SubScene(WORLD_ROOT, WINDOW_WIDTH, WINDOW_HEIGHT, true, SceneAntialiasing.BALANCED);
         subScene.setCamera(camera);
         subScene.setFill(Color.BLACK);
 
