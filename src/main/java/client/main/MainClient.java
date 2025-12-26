@@ -29,7 +29,7 @@ public class MainClient {
             throw new IllegalArgumentException("args is null");
         if (args.length != 2 && args.length != 3)
             throw new CommandLineArgumentsException("Wrong number of arguments!");
-        if (!args[0].equals("TR"))
+        if (!args[0].equals("TR") && !args[0].equals("GUI"))
             throw new CommandLineArgumentsException("Invalid game visualization mode!");
     }
 
@@ -84,8 +84,9 @@ public class MainClient {
         HalfMapValidator halfMapValidator = gameClientFactory.createHalfMapValidator();
         AIPlayer aiPlayer = gameClientFactory.createAIPlayer();
 
+        boolean GUI_Enabled = args[0].equals("GUI");
         GameController gameController = gameClientFactory.createGameController(
-                gameSession, halfMapGenerator, halfMapValidator, aiPlayer
+                GUI_Enabled, gameSession, halfMapGenerator, halfMapValidator, aiPlayer
         );
 
         PlayerInformation playerInformation = gameClientFactory.createPlayerInformation(properties);
