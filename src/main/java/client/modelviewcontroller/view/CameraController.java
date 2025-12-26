@@ -19,15 +19,17 @@ public class CameraController {
     private double yaw;
     private double pitch;
 
-    public CameraController(Camera camera, double initialYaw, double initialPitch) {
+    public CameraController(Camera camera, double yaw, double pitch) {
         if (camera == null)
             throw new IllegalArgumentException("camera is null");
 
         this.camera = camera;
-        yaw = initialYaw;
-        pitch = initialPitch;
+        this.yaw = yaw;
+        this.pitch = pitch;
+
         yRotate = new Rotate(yaw, Rotate.Y_AXIS);
         xRotate = new Rotate(pitch, Rotate.X_AXIS);
+
         camera.getTransforms().addAll(yRotate, xRotate);
     }
 
