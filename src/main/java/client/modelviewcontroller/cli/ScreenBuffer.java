@@ -1,4 +1,4 @@
-package client.modelviewcontroller.view;
+package client.modelviewcontroller.cli;
 
 import client.data.XYPair;
 
@@ -10,7 +10,7 @@ public class ScreenBuffer {
 
     StringBuilder[] rows;
 
-    ScreenBuffer(XYPair bufferDimensions) {
+    public ScreenBuffer(XYPair bufferDimensions) {
         if (bufferDimensions == null)
             throw new IllegalArgumentException("bufferDimensions is null");
 

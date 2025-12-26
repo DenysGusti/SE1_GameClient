@@ -3,7 +3,10 @@ package client.modelviewcontroller.view;
 import client.data.XYPair;
 import client.data.fromserver.FullMap;
 import client.data.fromserver.FullMapNode;
+import client.modelviewcontroller.cli.MapView;
+import client.modelviewcontroller.cli.ScreenBuffer;
 import client.modelviewcontroller.observer.Subscriber;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

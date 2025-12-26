@@ -1,8 +1,9 @@
-package client.modelviewcontroller.view;
+package client.modelviewcontroller.javafx;
 
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

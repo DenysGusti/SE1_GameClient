@@ -1,4 +1,4 @@
-package client.modelviewcontroller.view;
+package client.modelviewcontroller.javafx;
 
 import javafx.scene.Camera;
 import javafx.scene.transform.Rotate;

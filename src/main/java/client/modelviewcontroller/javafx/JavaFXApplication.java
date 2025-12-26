@@ -1,4 +1,4 @@
-package client.modelviewcontroller.view;
+package client.modelviewcontroller.javafx;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
