@@ -39,7 +39,10 @@ public class DebugHUD {
                 """
                         Position:   [X:%5.1f Y:%5.1f Z:%5.1f]
                         Looking at: [yaw:%5.1f pitch:%5.1f] %s
-                        Controls:   WASD-move, Space-up, LShift-down, Esc-lock/unlock mouse
+                        Controls:   Move: WASD
+                                    Vertical: Space (Up) / L-Shift (Down)
+                                    Mouse Lock: Esc
+                                    Speed: Scroll Wheel
                         """,
                 cameraController.getX(), cameraController.getY(), cameraController.getZ(), yaw, pitch, lookingAt));
     }
