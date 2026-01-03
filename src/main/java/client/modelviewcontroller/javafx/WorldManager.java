@@ -16,6 +16,10 @@ public class WorldManager {
     private static final double AXIS_LENGTH = 100;
     private static final double AXIS_THICKNESS = 0.05;
 
+    private final static double INITIAL_POINT_LIGHT_X = 20;
+    private final static double INITIAL_POINT_LIGHT_Y = -15;
+    private final static double INITIAL_POINT_LIGHT_Z = -10;
+
     public WorldManager(Group worldRoot) {
         if (worldRoot == null)
             throw new IllegalArgumentException("worldRoot is null");
@@ -26,9 +30,9 @@ public class WorldManager {
 
         var ambientLight = new AmbientLight(Color.color(0.2, 0.2, 0.2));
         var pointLight = new PointLight(Color.WHITE);
-        pointLight.setTranslateY(-50);
-        pointLight.setTranslateX(5);
-        pointLight.setTranslateZ(10);
+        pointLight.setTranslateX(INITIAL_POINT_LIGHT_X);
+        pointLight.setTranslateY(INITIAL_POINT_LIGHT_Y);
+        pointLight.setTranslateZ(INITIAL_POINT_LIGHT_Z);
 
         worldRoot.getChildren().addAll(xAxis, yAxis, zAxis, ambientLight, pointLight);
     }

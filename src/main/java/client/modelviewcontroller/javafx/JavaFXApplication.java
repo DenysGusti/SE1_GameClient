@@ -33,7 +33,16 @@ public class JavaFXApplication extends Application {
     private final static double INITIAL_CAMERA_YAW = 315;
     private final static double INITIAL_CAMERA_PITCH = -35;
 
-    private final static double MOVEMENT_SPEED = 0.2;
+    private final static double INITIAL_MOVEMENT_SPEED = 0.2;
+
+    private final static Camera camera = new PerspectiveCamera(true) {{
+        setNearClip(CAMERA_NEAR_CLIP);
+        setFarClip(CAMERA_FAR_CLIP);
+
+        setTranslateX(INITIAL_CAMERA_X);
+        setTranslateY(INITIAL_CAMERA_Y);
+        setTranslateZ(INITIAL_CAMERA_Z);
+    }};
 
     private final Set<KeyCode> activeKeys = new HashSet<>();
     private boolean mouseLocked = false;
@@ -43,11 +52,13 @@ public class JavaFXApplication extends Application {
         return WORLD_ROOT;
     }
 
+    public static Camera getCamera() {
+        return camera;
+    }
+
     @Override
     public void start(Stage stage) {
         new WorldManager(WORLD_ROOT);
-
-        var camera = new PerspectiveCamera(true);
 
         camera.setNearClip(CAMERA_NEAR_CLIP);
         camera.setFarClip(CAMERA_FAR_CLIP);
@@ -56,7 +67,7 @@ public class JavaFXApplication extends Application {
         camera.setTranslateY(INITIAL_CAMERA_Y);
         camera.setTranslateZ(INITIAL_CAMERA_Z);
 
-        var cameraController = new CameraController(camera, INITIAL_CAMERA_YAW, INITIAL_CAMERA_PITCH);
+        var cameraController = new CameraController(camera, INITIAL_CAMERA_YAW, INITIAL_CAMERA_PITCH, INITIAL_MOVEMENT_SPEED);
 
         var subScene = new SubScene(WORLD_ROOT, WINDOW_WIDTH, WINDOW_HEIGHT, true, SceneAntialiasing.BALANCED);
         subScene.setCamera(camera);
@@ -90,17 +101,17 @@ public class JavaFXApplication extends Application {
 
     private void handleMovement(CameraController cameraController) {
         if (activeKeys.contains(KeyCode.W))
-            cameraController.moveForward(MOVEMENT_SPEED);
+            cameraController.moveForward(1);
         if (activeKeys.contains(KeyCode.S))
-            cameraController.moveForward(-MOVEMENT_SPEED);
+            cameraController.moveForward(-1);
         if (activeKeys.contains(KeyCode.A))
-            cameraController.moveStrafe(-MOVEMENT_SPEED);
+            cameraController.moveStrafe(-1);
         if (activeKeys.contains(KeyCode.D))
-            cameraController.moveStrafe(MOVEMENT_SPEED);
+            cameraController.moveStrafe(1);
         if (activeKeys.contains(KeyCode.SPACE))
-            cameraController.moveVertical(-MOVEMENT_SPEED);
+            cameraController.moveVertical(-1);
         if (activeKeys.contains(KeyCode.SHIFT))
-            cameraController.moveVertical(MOVEMENT_SPEED);
+            cameraController.moveVertical(1);
     }
 
     private void setupInput(Scene scene, Stage stage, CameraController cameraController, Robot robot) {
@@ -121,6 +132,8 @@ public class JavaFXApplication extends Application {
             isCentering = true;
             robot.mouseMove(stage.getX() + scene.getX() + centerX, stage.getY() + scene.getY() + centerY);
         });
+
+        scene.setOnScroll(mouseEvent -> cameraController.changeMovementSpeed(mouseEvent.getDeltaY()));
 
         scene.setOnKeyPressed(keyEvent -> {
             activeKeys.add(keyEvent.getCode());

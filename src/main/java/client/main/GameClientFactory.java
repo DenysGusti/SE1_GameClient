@@ -8,6 +8,7 @@ import client.halfmaplogic.generation.HalfMapGenerator;
 import client.halfmaplogic.validation.HalfMapValidator;
 import client.halfmaplogic.validation.rule.*;
 import client.modelviewcontroller.controller.GameController;
+import client.modelviewcontroller.javafx.CameraMovementDetector;
 import client.modelviewcontroller.javafx.JavaFXApplication;
 import client.modelviewcontroller.model.*;
 import client.modelviewcontroller.view.*;
@@ -19,6 +20,8 @@ import client.data.PlayerInformation;
 import client.data.UniqueGameIdentifier;
 
 import javafx.application.Application;
+import javafx.scene.image.Image;
+import javafx.scene.shape.TriangleMesh;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -92,8 +95,21 @@ public class GameClientFactory {
         return new AIPlayer(fullMapSplitter, expectedArrivalPathFactory);
     }
 
-    public GameController createGameController(boolean GUI_Enabled, GameSession gameSession, HalfMapGenerator halfMapGenerator,
-                                               HalfMapValidator halfMapValidator, AIPlayer aiPlayer) {
+    public FullMapViewJavaFX createFullMapViewJavaFX(Map<String, Image> textures, Image[] waterTextures, Map<String, TriangleMesh> meshes) {
+        if (textures == null)
+            throw new IllegalArgumentException("textures is null");
+        if (waterTextures == null)
+            throw new IllegalArgumentException("waterTextures is null");
+        if (meshes == null)
+            throw new IllegalArgumentException("meshes is null");
+
+        new Thread(() -> Application.launch(JavaFXApplication.class)).start();
+        var cameraMovementDetector = new CameraMovementDetector(JavaFXApplication.getCamera());
+        return new FullMapViewJavaFX(JavaFXApplication.getWorldGroup(), cameraMovementDetector, textures, waterTextures, meshes);
+    }
+
+    public GameController createGameController(GameSession gameSession, HalfMapGenerator halfMapGenerator,
+                                               HalfMapValidator halfMapValidator, AIPlayer aiPlayer, FullMapViewJavaFX fullMapViewJavaFX) {
         if (gameSession == null)
             throw new IllegalArgumentException("gameSession is null");
         if (halfMapGenerator == null)
@@ -119,11 +135,8 @@ public class GameClientFactory {
         mapModel.subscribeOnFullMapUpdated(fullMapViewFullMapViewCLI);
         mapModel.subscribeOnHalfMapValidationErrors(halfMapValidationErrorView);
 
-        if (GUI_Enabled) {
-            new Thread(() -> Application.launch(JavaFXApplication.class)).start();
-            var fullMap3DView = new FullMapViewJavaFX(JavaFXApplication.getWorldGroup());
-            mapModel.subscribeOnFullMapUpdated(fullMap3DView);
-        }
+        if (fullMapViewJavaFX != null)
+            mapModel.subscribeOnFullMapUpdated(fullMapViewJavaFX);
 
         var fullMapGraphFactory = new FullMapGraphFactory();
 
