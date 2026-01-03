@@ -133,7 +133,7 @@ public class FullMapViewJavaFX implements Subscriber<FullMap> {
                 worldRoot.getChildren().add(grassBlock);
             }
             case Water -> {
-                MeshView waterBlock = createMeshView(meshes.get("block_7-8"), WATER_MATERIAL);
+                MeshView waterBlock = createMeshView(meshes.get("block_14-16"), WATER_MATERIAL);
                 waterBlock.setTranslateX(coordinate.y());
                 waterBlock.setTranslateZ(coordinate.x());
                 waterBlock.setTranslateY(-1);
@@ -152,7 +152,7 @@ public class FullMapViewJavaFX implements Subscriber<FullMap> {
                 topStoneBlock.setTranslateY(-2);
                 worldRoot.getChildren().add(topStoneBlock);
 
-                MeshView snowBlock = createMeshView(meshes.get("block_1-8"), materials.get("snow"));
+                MeshView snowBlock = createMeshView(meshes.get("block_2-16"), materials.get("snow"));
                 snowBlock.setTranslateX(coordinate.y());
                 snowBlock.setTranslateZ(coordinate.x());
                 snowBlock.setTranslateY(-3);

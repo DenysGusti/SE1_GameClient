@@ -16,7 +16,6 @@ import client.network.*;
 import client.network.accumulator.*;
 import client.network.fromserver.*;
 import client.network.fromclient.FromClientConverter;
-import client.data.PlayerInformation;
 import client.data.UniqueGameIdentifier;
 
 import javafx.application.Application;
@@ -32,16 +31,6 @@ import java.util.*;
 
 public class GameClientFactory {
     private static final Logger logger = LoggerFactory.getLogger(GameClientFactory.class);
-
-    public PlayerInformation createPlayerInformation(Properties properties) {
-        if (properties == null)
-            throw new IllegalArgumentException("properties is null");
-
-        String firstName = properties.getProperty("player.firstName");
-        String lastName = properties.getProperty("player.lastName");
-        String uAccount = properties.getProperty("player.uAccount");
-        return new PlayerInformation(firstName, lastName, uAccount);
-    }
 
     public NetworkService createNetworkService(String serverBaseURL, UniqueGameIdentifier uniqueGameIdentifier) {
         if (serverBaseURL == null)
