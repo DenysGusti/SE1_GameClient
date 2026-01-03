@@ -214,25 +214,25 @@ public class FullMapViewJavaFX implements Subscriber<FullMap> {
         });
     }
 
-    private void animateMovement(Node node, XYPair coordinate, double xOffset, double yOffset) {
-        if (node == null)
-            throw new IllegalArgumentException("node is null");
+    private void animateMovement(MeshView playerModel, XYPair coordinate, double xOffset, double yOffset) {
+        if (playerModel == null)
+            throw new IllegalArgumentException("playerModel is null");
 
         double targetX = coordinate.y() + 0.5 + xOffset;
         double targetZ = coordinate.x() + 0.5;
 
-        double deltaX = targetX - node.getTranslateX();
-        double deltaZ = targetZ - node.getTranslateZ();
+        double deltaX = targetX - playerModel.getTranslateX();
+        double deltaZ = targetZ - playerModel.getTranslateZ();
 
         Transition transition;
 
-        var translateTransition = new TranslateTransition(Duration.millis(300), node);
+        var translateTransition = new TranslateTransition(Duration.millis(300), playerModel);
         translateTransition.setToX(targetX);
         translateTransition.setToY(yOffset);
         translateTransition.setToZ(targetZ);
 
         if (Math.abs(deltaX) > 0.001 || Math.abs(deltaZ) > 0.001) {
-            var rotateTransition = getRotateTransition(node, deltaZ, deltaX);
+            var rotateTransition = getRotateTransition(playerModel, deltaZ, deltaX);
             transition = new ParallelTransition(translateTransition, rotateTransition);
         } else
             transition = translateTransition;
@@ -240,9 +240,12 @@ public class FullMapViewJavaFX implements Subscriber<FullMap> {
         transition.play();
     }
 
-    private static RotateTransition getRotateTransition(Node node, double deltaZ, double deltaX) {
+    private static RotateTransition getRotateTransition(MeshView playerModel, double deltaZ, double deltaX) {
+        if (playerModel == null)
+            throw new IllegalArgumentException("playerModel is null");
+
         double targetAngle = -Math.toDegrees(Math.atan2(deltaZ, deltaX));
-        double currentAngle = node.getRotate();
+        double currentAngle = playerModel.getRotate();
 
         double deltaAngle = (targetAngle - currentAngle) % 360;
         if (deltaAngle > 180)
@@ -252,7 +255,7 @@ public class FullMapViewJavaFX implements Subscriber<FullMap> {
 
         double finalAngle = currentAngle + deltaAngle;
 
-        var rotateTransition = new RotateTransition(Duration.millis(300), node);
+        var rotateTransition = new RotateTransition(Duration.millis(300), playerModel);
         rotateTransition.setAxis(Rotate.Y_AXIS);
         rotateTransition.setFromAngle(currentAngle);
         rotateTransition.setToAngle(finalAngle);
