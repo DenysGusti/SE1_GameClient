@@ -215,11 +215,48 @@ public class FullMapViewJavaFX implements Subscriber<FullMap> {
     }
 
     private void animateMovement(Node node, XYPair coordinate, double xOffset, double yOffset) {
+        if (node == null)
+            throw new IllegalArgumentException("node is null");
+
+        double targetX = coordinate.y() + 0.5 + xOffset;
+        double targetZ = coordinate.x() + 0.5;
+
+        double deltaX = targetX - node.getTranslateX();
+        double deltaZ = targetZ - node.getTranslateZ();
+
+        Transition transition;
+
         var translateTransition = new TranslateTransition(Duration.millis(300), node);
-        translateTransition.setToX(coordinate.y() + 0.5 + xOffset);
+        translateTransition.setToX(targetX);
         translateTransition.setToY(yOffset);
-        translateTransition.setToZ(coordinate.x() + 0.5);
-        translateTransition.play();
+        translateTransition.setToZ(targetZ);
+
+        if (Math.abs(deltaX) > 0.001 || Math.abs(deltaZ) > 0.001) {
+            var rotateTransition = getRotateTransition(node, deltaZ, deltaX);
+            transition = new ParallelTransition(translateTransition, rotateTransition);
+        } else
+            transition = translateTransition;
+
+        transition.play();
+    }
+
+    private static RotateTransition getRotateTransition(Node node, double deltaZ, double deltaX) {
+        double targetAngle = -Math.toDegrees(Math.atan2(deltaZ, deltaX));
+        double currentAngle = node.getRotate();
+
+        double deltaAngle = (targetAngle - currentAngle) % 360;
+        if (deltaAngle > 180)
+            deltaAngle -= 360;
+        if (deltaAngle < -180)
+            deltaAngle += 360;
+
+        double finalAngle = currentAngle + deltaAngle;
+
+        var rotateTransition = new RotateTransition(Duration.millis(300), node);
+        rotateTransition.setAxis(Rotate.Y_AXIS);
+        rotateTransition.setFromAngle(currentAngle);
+        rotateTransition.setToAngle(finalAngle);
+        return rotateTransition;
     }
 
     private Node createTreasure() {
