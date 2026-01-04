@@ -201,8 +201,8 @@ public class FullMapViewJavaFX implements Subscriber<FullMap> {
                 worldRoot.getChildren().add(myPlayerModel);
             }
             double xOffset = fullMap.getOptionalEnemyPlayerPosition().filter(coordinate::equals).isPresent() ? -0.25 : 0;
-            double yOffset = fullMap.nodes().get(coordinate).isMountain() ? -3 : -2;
-            movePlayer(myPlayerModel, coordinate, xOffset, yOffset);
+            double targetY = fullMap.nodes().get(coordinate).isMountain() ? -3 : -2;
+            movePlayer(myPlayerModel, coordinate, xOffset, targetY);
         });
 
         fullMap.getOptionalEnemyPlayerPosition().ifPresent(coordinate -> {
@@ -211,8 +211,8 @@ public class FullMapViewJavaFX implements Subscriber<FullMap> {
                 worldRoot.getChildren().add(enemyPlayerModel);
             }
             double xOffset = fullMap.getOptionalMyPlayerPosition().filter(coordinate::equals).isPresent() ? 0.25 : 0;
-            double yOffset = fullMap.nodes().get(coordinate).isMountain() ? -3 : -2;
-            movePlayer(enemyPlayerModel, coordinate, xOffset, yOffset);
+            double targetY = fullMap.nodes().get(coordinate).isMountain() ? -3 : -2;
+            movePlayer(enemyPlayerModel, coordinate, xOffset, targetY);
         });
 
         fullMap.getOptionalMyTreasurePosition().ifPresent(pos -> {
