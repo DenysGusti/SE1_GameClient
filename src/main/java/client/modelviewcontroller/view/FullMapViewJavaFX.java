@@ -94,6 +94,9 @@ public class FullMapViewJavaFX implements Subscriber<FullMap> {
     }
 
     private void render(FullMap fullMap) {
+        if (fullMap == null)
+            throw new IllegalArgumentException("fullMap is null");
+
         if (coordinateTopBlocks.size() < 100) {
             fullMap.nodes().forEach((coordinate, fullMapNode) -> {
                 if (!coordinateTopBlocks.containsKey(coordinate)) {
@@ -139,6 +142,11 @@ public class FullMapViewJavaFX implements Subscriber<FullMap> {
     }
 
     MeshView createPillar(XYPair coordinate, FullMapNode fullMapNode) {
+        if (coordinate == null)
+            throw new IllegalArgumentException("coordinate is null");
+        if (fullMapNode == null)
+            throw new IllegalArgumentException("fullMapNode is null");
+
         MeshView baseBlock = createMeshView(meshes.get("block_16-16"), materials.get("stone"), coordinate);
         baseBlock.setTranslateY(0);
         worldRoot.getChildren().add(baseBlock);
@@ -195,6 +203,9 @@ public class FullMapViewJavaFX implements Subscriber<FullMap> {
     }
 
     private void handleEntities(FullMap fullMap) {
+        if (fullMap == null)
+            throw new IllegalArgumentException("fullMap is null");
+
         fullMap.getOptionalMyPlayerPosition().ifPresent(coordinate -> {
             if (myPlayerModel == null) {
                 myPlayerModel = createMeshView(meshes.get("rabbit"), materials.get("gold_rabbit"), coordinate);
