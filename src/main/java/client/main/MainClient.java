@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import javafx.scene.image.Image;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Map;
 
 public class MainClient {
@@ -37,7 +36,9 @@ public class MainClient {
     private static final Map<String, String> BLOCK_TEXTURES_PATHS = Map.of(
             "grass", BLOCK_TEXTURES_FOLDER + "/grass.png",
             "stone", BLOCK_TEXTURES_FOLDER + "/stone.png",
-            "snow", BLOCK_TEXTURES_FOLDER + "/snow.png"
+            "snow", BLOCK_TEXTURES_FOLDER + "/snow.png",
+            "dirt_path", BLOCK_TEXTURES_FOLDER + "/dirt_path.png",
+            "ice", BLOCK_TEXTURES_FOLDER + "/ice.png"
     );
     private static final String WATER_TEXTURES_FOLDER_PATH = BLOCK_TEXTURES_FOLDER + "/water";
 
@@ -49,9 +50,10 @@ public class MainClient {
     );
 
     private static final Map<String, String> MESHES_PATHS = Map.of(
-            "block", MESHES_FOLDER + "/block.obj",
+            "block_02-16", MESHES_FOLDER + "/block_02-16.obj",
             "block_14-16", MESHES_FOLDER + "/block_14-16.obj",
-            "block_2-16", MESHES_FOLDER + "/block_2-16.obj",
+            "block_15-16", MESHES_FOLDER + "/block_15-16.obj",
+            "block_16-16", MESHES_FOLDER + "/block_16-16.obj",
             "rabbit", MESHES_FOLDER + "/rabbit.obj"
     );
 

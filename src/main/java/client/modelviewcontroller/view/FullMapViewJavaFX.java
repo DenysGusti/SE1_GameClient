@@ -24,9 +24,7 @@ import java.util.*;
 public class FullMapViewJavaFX implements Subscriber<FullMap> {
     private static final Logger logger = LoggerFactory.getLogger(FullMapViewJavaFX.class);
 
-    private static final PhongMaterial WATER_MATERIAL = new PhongMaterial(new Color(1, 1, 1, 0.98)) {{
-        setSpecularColor(Color.TRANSPARENT);
-    }};
+    private static final PhongMaterial WATER_MATERIAL = new PhongMaterial();
 
     private final Map<String, PhongMaterial> materials = new HashMap<>();
     private final Image[] waterTextures;
@@ -34,7 +32,7 @@ public class FullMapViewJavaFX implements Subscriber<FullMap> {
 
     private final Group worldRoot;
     private final Group waterGroup = new Group();
-    private final Set<XYPair> coordinates = new HashSet<>();
+    private final Map<XYPair, MeshView> coordinateTopBlocks = new HashMap<>();
 
     private final CameraMovementDetector cameraMovementDetector;
 
@@ -62,8 +60,8 @@ public class FullMapViewJavaFX implements Subscriber<FullMap> {
 
         textures.forEach((textureName, image) -> {
             var phongMaterial = new PhongMaterial();
-            Objects.requireNonNull(textures.get(textureName), "texture is null");
-            phongMaterial.setDiffuseMap(textures.get(textureName));
+            Image texture = Objects.requireNonNull(textures.get(textureName), "texture is null");
+            phongMaterial.setDiffuseMap(texture);
             materials.put(textureName, phongMaterial);
         });
 
@@ -71,15 +69,19 @@ public class FullMapViewJavaFX implements Subscriber<FullMap> {
         Platform.runLater(this::startWaterAnimation);
     }
 
-    private static MeshView createMeshView(TriangleMesh triangleMesh, PhongMaterial phongMaterial) {
+    private static MeshView createMeshView(TriangleMesh triangleMesh, PhongMaterial phongMaterial, XYPair coordinate) {
         if (triangleMesh == null)
             throw new IllegalArgumentException("triangleMesh is null");
         if (phongMaterial == null)
             throw new IllegalArgumentException("phongMaterial is null");
+        if (coordinate == null)
+            throw new IllegalArgumentException("coordinate is null");
 
         var meshView = new MeshView(triangleMesh);
         meshView.setMaterial(phongMaterial);
         meshView.setCullFace(CullFace.BACK);
+        meshView.setTranslateX(coordinate.y());
+        meshView.setTranslateZ(coordinate.x());
         return meshView;
     }
 
@@ -92,14 +94,33 @@ public class FullMapViewJavaFX implements Subscriber<FullMap> {
     }
 
     private void render(FullMap fullMap) {
-        if (coordinates.size() < 100) {
+        if (coordinateTopBlocks.size() < 100) {
             fullMap.nodes().forEach((coordinate, fullMapNode) -> {
-                if (coordinates.add(coordinate))
-                    createPillar(coordinate, fullMapNode);
+                if (!coordinateTopBlocks.containsKey(coordinate)) {
+                    MeshView topBlock = createPillar(coordinate, fullMapNode);
+                    coordinateTopBlocks.put(coordinate, topBlock);
+                }
             });
             sortWaterByCameraDistance();
             waterGroup.toFront();
         }
+
+        fullMap.nodes().forEach((coordinate, fullMapNode) -> {
+            if (fullMapNode.isRevealed())
+                switch (fullMapNode.terrain()) {
+                    case Mountain -> coordinateTopBlocks.get(coordinate).setVisible(false);
+                    case Grass -> {
+                        MeshView topBlock = coordinateTopBlocks.get(coordinate);
+                        topBlock.setMesh(meshes.get("block_15-16"));
+                        topBlock.setMaterial(materials.get("dirt_path"));
+                    }
+                    case Water -> {
+                        MeshView topBlock = coordinateTopBlocks.get(coordinate);
+                        topBlock.setMesh(meshes.get("block_16-16"));
+                        topBlock.setMaterial(materials.get("ice"));
+                    }
+                }
+        });
 
         handleEntities(fullMap);
     }
@@ -108,58 +129,49 @@ public class FullMapViewJavaFX implements Subscriber<FullMap> {
         List<Node> sortedChildren = new ArrayList<>(waterGroup.getChildren());
 
         sortedChildren.sort(Comparator.comparingDouble(node -> {
-            double dx = node.getTranslateX() - cameraMovementDetector.getLastCameraX();
-            double dy = node.getTranslateY() - cameraMovementDetector.getLastCameraY();
-            double dz = node.getTranslateZ() - cameraMovementDetector.getLastCameraZ();
+            double dx = node.getTranslateX() + 0.5 - cameraMovementDetector.getLastCameraX();
+            double dy = node.getTranslateY() + 0.5 - cameraMovementDetector.getLastCameraY();
+            double dz = node.getTranslateZ() + 0.5 - cameraMovementDetector.getLastCameraZ();
             return dx * dx + dy * dy + dz * dz;
         }));
 
         waterGroup.getChildren().setAll(sortedChildren);
     }
 
-    void createPillar(XYPair coordinate, FullMapNode fullMapNode) {
-        MeshView baseBlock = createMeshView(meshes.get("block"), materials.get("stone"));
-        baseBlock.setTranslateX(coordinate.y());
-        baseBlock.setTranslateZ(coordinate.x());
+    MeshView createPillar(XYPair coordinate, FullMapNode fullMapNode) {
+        MeshView baseBlock = createMeshView(meshes.get("block_16-16"), materials.get("stone"), coordinate);
         baseBlock.setTranslateY(0);
         worldRoot.getChildren().add(baseBlock);
 
         switch (fullMapNode.terrain()) {
             case Grass -> {
-                MeshView grassBlock = createMeshView(meshes.get("block"), materials.get("grass"));
-                grassBlock.setTranslateX(coordinate.y());
-                grassBlock.setTranslateZ(coordinate.x());
+                MeshView grassBlock = createMeshView(meshes.get("block_16-16"), materials.get("grass"), coordinate);
                 grassBlock.setTranslateY(-1);
                 worldRoot.getChildren().add(grassBlock);
+                return grassBlock;
             }
             case Water -> {
-                MeshView waterBlock = createMeshView(meshes.get("block_14-16"), WATER_MATERIAL);
-                waterBlock.setTranslateX(coordinate.y());
-                waterBlock.setTranslateZ(coordinate.x());
+                MeshView waterBlock = createMeshView(meshes.get("block_14-16"), WATER_MATERIAL, coordinate);
                 waterBlock.setTranslateY(-1);
                 waterGroup.getChildren().add(waterBlock);
+                return waterBlock;
             }
             case Mountain -> {
-                MeshView bottomStoneBlock = createMeshView(meshes.get("block"), materials.get("stone"));
-                bottomStoneBlock.setTranslateX(coordinate.y());
-                bottomStoneBlock.setTranslateZ(coordinate.x());
+                MeshView bottomStoneBlock = createMeshView(meshes.get("block_16-16"), materials.get("stone"), coordinate);
                 bottomStoneBlock.setTranslateY(-1);
                 worldRoot.getChildren().add(bottomStoneBlock);
 
-                MeshView topStoneBlock = createMeshView(meshes.get("block"), materials.get("stone"));
-                topStoneBlock.setTranslateX(coordinate.y());
-                topStoneBlock.setTranslateZ(coordinate.x());
+                MeshView topStoneBlock = createMeshView(meshes.get("block_16-16"), materials.get("stone"), coordinate);
                 topStoneBlock.setTranslateY(-2);
                 worldRoot.getChildren().add(topStoneBlock);
 
-                MeshView snowBlock = createMeshView(meshes.get("block_2-16"), materials.get("snow"));
-                snowBlock.setTranslateX(coordinate.y());
-                snowBlock.setTranslateZ(coordinate.x());
+                MeshView snowBlock = createMeshView(meshes.get("block_02-16"), materials.get("snow"), coordinate);
                 snowBlock.setTranslateY(-3);
                 worldRoot.getChildren().add(snowBlock);
+                return snowBlock;
             }
         }
-
+        return baseBlock;
     }
 
     private void startWaterAnimation() {
@@ -185,22 +197,22 @@ public class FullMapViewJavaFX implements Subscriber<FullMap> {
     private void handleEntities(FullMap fullMap) {
         fullMap.getOptionalMyPlayerPosition().ifPresent(coordinate -> {
             if (myPlayerModel == null) {
-                myPlayerModel = createMeshView(meshes.get("rabbit"), materials.get("gold_rabbit"));
+                myPlayerModel = createMeshView(meshes.get("rabbit"), materials.get("gold_rabbit"), coordinate);
                 worldRoot.getChildren().add(myPlayerModel);
             }
             double xOffset = fullMap.getOptionalEnemyPlayerPosition().filter(coordinate::equals).isPresent() ? -0.25 : 0;
             double yOffset = fullMap.nodes().get(coordinate).isMountain() ? -3 : -2;
-            animateMovement(myPlayerModel, coordinate, xOffset, yOffset);
+            movePlayer(myPlayerModel, coordinate, xOffset, yOffset);
         });
 
         fullMap.getOptionalEnemyPlayerPosition().ifPresent(coordinate -> {
             if (enemyPlayerModel == null) {
-                enemyPlayerModel = createMeshView(meshes.get("rabbit"), materials.get("salt_rabbit"));
+                enemyPlayerModel = createMeshView(meshes.get("rabbit"), materials.get("salt_rabbit"), coordinate);
                 worldRoot.getChildren().add(enemyPlayerModel);
             }
             double xOffset = fullMap.getOptionalMyPlayerPosition().filter(coordinate::equals).isPresent() ? 0.25 : 0;
             double yOffset = fullMap.nodes().get(coordinate).isMountain() ? -3 : -2;
-            animateMovement(enemyPlayerModel, coordinate, xOffset, yOffset);
+            movePlayer(enemyPlayerModel, coordinate, xOffset, yOffset);
         });
 
         fullMap.getOptionalMyTreasurePosition().ifPresent(pos -> {
@@ -214,33 +226,33 @@ public class FullMapViewJavaFX implements Subscriber<FullMap> {
         });
     }
 
-    private void animateMovement(MeshView playerModel, XYPair coordinate, double xOffset, double yOffset) {
+    private static void movePlayer(Node playerModel, XYPair targetCoordinate, double xOffset, double targetY) {
         if (playerModel == null)
             throw new IllegalArgumentException("playerModel is null");
+        if (targetCoordinate == null)
+            throw new IllegalArgumentException("targetCoordinate is null");
 
-        double targetX = coordinate.y() + 0.5 + xOffset;
-        double targetZ = coordinate.x() + 0.5;
+        double targetX = targetCoordinate.y();
+        double targetZ = targetCoordinate.x();
 
         double deltaX = targetX - playerModel.getTranslateX();
         double deltaZ = targetZ - playerModel.getTranslateZ();
 
-        Transition transition;
-
         var translateTransition = new TranslateTransition(Duration.millis(300), playerModel);
-        translateTransition.setToX(targetX);
-        translateTransition.setToY(yOffset);
+        translateTransition.setToX(targetX + xOffset);
+        translateTransition.setToY(targetY);
         translateTransition.setToZ(targetZ);
 
-        if (Math.abs(deltaX) > 0.001 || Math.abs(deltaZ) > 0.001) {
+        if (Math.abs(deltaX) < 0.01 && Math.abs(deltaZ) < 0.01)
+            translateTransition.play();
+        else {
             var rotateTransition = getRotateTransition(playerModel, deltaZ, deltaX);
-            transition = new ParallelTransition(translateTransition, rotateTransition);
-        } else
-            transition = translateTransition;
-
-        transition.play();
+            var parallelTransition = new ParallelTransition(translateTransition, rotateTransition);
+            parallelTransition.play();
+        }
     }
 
-    private static RotateTransition getRotateTransition(MeshView playerModel, double deltaZ, double deltaX) {
+    private static RotateTransition getRotateTransition(Node playerModel, double deltaZ, double deltaX) {
         if (playerModel == null)
             throw new IllegalArgumentException("playerModel is null");
 
