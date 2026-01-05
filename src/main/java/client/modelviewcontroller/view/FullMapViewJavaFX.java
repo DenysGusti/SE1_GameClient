@@ -10,7 +10,6 @@ import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
-import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.*;
 import javafx.scene.transform.Rotate;
@@ -24,6 +23,7 @@ import java.util.*;
 public class FullMapViewJavaFX implements Subscriber<FullMap> {
     private static final Logger logger = LoggerFactory.getLogger(FullMapViewJavaFX.class);
 
+    private static final int FULL_MAP_SIZE = 100;
     private static final PhongMaterial WATER_MATERIAL = new PhongMaterial();
 
     private final Map<String, PhongMaterial> materials = new HashMap<>();
@@ -39,6 +39,7 @@ public class FullMapViewJavaFX implements Subscriber<FullMap> {
     private MeshView myPlayerModel = null;
     private MeshView enemyPlayerModel = null;
     private Node myTreasureModel = null;
+    private ParallelTransition myTreasureAnimation = null;
 
     public FullMapViewJavaFX(Group worldRoot, CameraMovementDetector cameraMovementDetector,
                              Map<String, Image> textures, Image[] waterTextures, Map<String, TriangleMesh> meshes) {
@@ -97,7 +98,7 @@ public class FullMapViewJavaFX implements Subscriber<FullMap> {
         if (fullMap == null)
             throw new IllegalArgumentException("fullMap is null");
 
-        if (coordinateTopBlocks.size() < 100) {
+        if (coordinateTopBlocks.size() < FULL_MAP_SIZE) {
             fullMap.nodes().forEach((coordinate, fullMapNode) -> {
                 if (!coordinateTopBlocks.containsKey(coordinate)) {
                     MeshView topBlock = createPillar(coordinate, fullMapNode);
@@ -226,14 +227,20 @@ public class FullMapViewJavaFX implements Subscriber<FullMap> {
             movePlayer(enemyPlayerModel, coordinate, xOffset, targetY);
         });
 
-        fullMap.getOptionalMyTreasurePosition().ifPresent(pos -> {
+        fullMap.getOptionalMyTreasurePosition().ifPresent(coordinate -> {
             if (myTreasureModel == null) {
-                myTreasureModel = createTreasure();
-                myTreasureModel.setTranslateX(pos.y());
-                myTreasureModel.setTranslateZ(pos.x());
+                myTreasureModel = createMeshView(meshes.get("emerald"), materials.get("emerald"), coordinate);
+                myTreasureModel.setTranslateY(-2.125);
                 worldRoot.getChildren().add(myTreasureModel);
+                animateMyTreasure(myTreasureModel);
             }
-            myTreasureModel.setVisible(!fullMap.isMyTreasureCollected());
+
+            if (myTreasureAnimation != null && fullMap.isMyTreasureCollected()) {
+                myTreasureAnimation.stop();
+                myTreasureModel.setRotationAxis(Rotate.Z_AXIS);
+                myTreasureModel.setRotate(90);
+                myTreasureModel.setTranslateY(-1.78125);
+            }
         });
     }
 
@@ -246,13 +253,13 @@ public class FullMapViewJavaFX implements Subscriber<FullMap> {
         double targetX = targetCoordinate.y();
         double targetZ = targetCoordinate.x();
 
-        double deltaX = targetX - playerModel.getTranslateX();
-        double deltaZ = targetZ - playerModel.getTranslateZ();
-
         var translateTransition = new TranslateTransition(Duration.millis(300), playerModel);
         translateTransition.setToX(targetX + xOffset);
         translateTransition.setToY(targetY);
         translateTransition.setToZ(targetZ);
+
+        double deltaX = targetX - Math.round(playerModel.getTranslateX());
+        double deltaZ = targetZ - Math.round(playerModel.getTranslateZ());
 
         if (Math.abs(deltaX) < 0.01 && Math.abs(deltaZ) < 0.01)
             translateTransition.play();
@@ -280,21 +287,27 @@ public class FullMapViewJavaFX implements Subscriber<FullMap> {
 
         var rotateTransition = new RotateTransition(Duration.millis(300), playerModel);
         rotateTransition.setAxis(Rotate.Y_AXIS);
-        rotateTransition.setFromAngle(currentAngle);
         rotateTransition.setToAngle(finalAngle);
         return rotateTransition;
     }
 
-    private Node createTreasure() {
-        Cylinder gold = new Cylinder(0.2, 0.05);
-        gold.setMaterial(new PhongMaterial(Color.GOLD));
-        gold.setTranslateY(-0.4);
-        var rotateTransition = new RotateTransition(Duration.seconds(2), gold);
-        rotateTransition.setAxis(Rotate.X_AXIS);
+    private void animateMyTreasure(Node myTreasureModel) {
+        if (myTreasureModel == null)
+            throw new IllegalArgumentException("myTreasureModel is null");
+
+        var rotateTransition = new RotateTransition(Duration.seconds(6), myTreasureModel);
+        rotateTransition.setAxis(Rotate.Y_AXIS);
         rotateTransition.setByAngle(360);
-        rotateTransition.setCycleCount(Animation.INDEFINITE);
         rotateTransition.setInterpolator(Interpolator.LINEAR);
-        rotateTransition.play();
-        return gold;
+        rotateTransition.setCycleCount(Animation.INDEFINITE);
+
+        var translateTransition = new TranslateTransition(Duration.seconds(1.5), myTreasureModel);
+        translateTransition.setByY(-0.1875);
+        translateTransition.setCycleCount(Animation.INDEFINITE);
+        translateTransition.setAutoReverse(true);
+        translateTransition.setInterpolator(Interpolator.EASE_BOTH);
+
+        myTreasureAnimation = new ParallelTransition(myTreasureModel, rotateTransition, translateTransition);
+        myTreasureAnimation.play();
     }
 }

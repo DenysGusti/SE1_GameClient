@@ -26,33 +26,19 @@ public class AssetLoader {
         this.objTriangleMeshFactory = objTriangleMeshFactory;
     }
 
-    public Map<String, Image> loadTextures(Map<String, String> blockTexturesPaths, int blockTextureWidth, int blockTextureHeight,
-                                           Map<String, String> entityTexturesPaths, int entityTextureWidth, int entityTextureHeight)
-            throws IOException {
-        if (blockTexturesPaths == null)
-            throw new IllegalArgumentException("blockTexturesPaths is null");
-        if (blockTextureWidth < 0)
-            throw new IllegalArgumentException("blockTextureWidth is negative");
-        if (blockTextureHeight < 0)
-            throw new IllegalArgumentException("blockTextureHeight is negative");
-        if (entityTexturesPaths == null)
-            throw new IllegalArgumentException("entityTexturesPaths is null");
-        if (entityTextureWidth < 0)
-            throw new IllegalArgumentException("entityTextureWidth is negative");
-        if (entityTextureHeight < 0)
-            throw new IllegalArgumentException("entityTextureHeight is negative");
+    public Map<String, Image> loadTextures(Map<String, String> texturesPaths, int textureWidth, int textureHeight) throws IOException {
+        if (texturesPaths == null)
+            throw new IllegalArgumentException("texturesPaths is null");
+        if (textureWidth < 0)
+            throw new IllegalArgumentException("textureWidth is negative");
+        if (textureHeight < 0)
+            throw new IllegalArgumentException("textureHeight is negative");
 
         Map<String, Image> textures = new HashMap<>();
-        for (Map.Entry<String, String> entry : blockTexturesPaths.entrySet()) {
+        for (Map.Entry<String, String> entry : texturesPaths.entrySet()) {
             String name = entry.getKey();
             String path = entry.getValue();
-            Image texture = loadTexture(path, blockTextureWidth, blockTextureHeight);
-            textures.put(name, texture);
-        }
-        for (Map.Entry<String, String> entry : entityTexturesPaths.entrySet()) {
-            String name = entry.getKey();
-            String path = entry.getValue();
-            Image texture = loadTexture(path, entityTextureWidth, entityTextureHeight);
+            Image texture = loadTexture(path, textureWidth, textureHeight);
             textures.put(name, texture);
         }
         return textures;

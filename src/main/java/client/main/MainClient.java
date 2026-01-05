@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import javafx.scene.image.Image;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 public class MainClient {
@@ -27,34 +28,41 @@ public class MainClient {
 
     private static final String PROPERTIES_PATH = "/config.properties";
 
-    private static final String BLOCK_TEXTURES_FOLDER = "/assets/textures/block";
-    private static final String ENTITY_TEXTURES_FOLDER = "/assets/textures/entity";
-    private static final String MESHES_FOLDER = "/assets/meshes";
+    private static final String BLOCK_TEXTURES_FOLDER = "/assets/textures/block/";
+    private static final String ENTITY_TEXTURES_FOLDER = "/assets/textures/entity/";
+    private static final String ITEM_TEXTURES_FOLDER = "/assets/textures/item/";
+    private static final String MESHES_FOLDER = "/assets/meshes/";
 
     private static final int BLOCK_TEXTURE_WIDTH = 1024;
     private static final int BLOCK_TEXTURE_HEIGHT = 768;
     private static final Map<String, String> BLOCK_TEXTURES_PATHS = Map.of(
-            "grass", BLOCK_TEXTURES_FOLDER + "/grass.png",
-            "stone", BLOCK_TEXTURES_FOLDER + "/stone.png",
-            "snow", BLOCK_TEXTURES_FOLDER + "/snow.png",
-            "dirt_path", BLOCK_TEXTURES_FOLDER + "/dirt_path.png",
-            "ice", BLOCK_TEXTURES_FOLDER + "/ice.png"
+            "grass", BLOCK_TEXTURES_FOLDER + "grass.png",
+            "stone", BLOCK_TEXTURES_FOLDER + "stone.png",
+            "snow", BLOCK_TEXTURES_FOLDER + "snow.png",
+            "dirt_path", BLOCK_TEXTURES_FOLDER + "dirt_path.png",
+            "ice", BLOCK_TEXTURES_FOLDER + "ice.png"
     );
-    private static final String WATER_TEXTURES_FOLDER_PATH = BLOCK_TEXTURES_FOLDER + "/water";
+    private static final String WATER_TEXTURES_FOLDER = BLOCK_TEXTURES_FOLDER + "water/";
 
     private static final int ENTITY_TEXTURE_WIDTH = 1024;
     private static final int ENTITY_TEXTURE_HEIGHT = 512;
     private static final Map<String, String> ENTITY_TEXTURES_PATHS = Map.of(
-            "gold_rabbit", ENTITY_TEXTURES_FOLDER + "/rabbit/gold.png",
-            "salt_rabbit", ENTITY_TEXTURES_FOLDER + "/rabbit/salt.png"
+            "gold_rabbit", ENTITY_TEXTURES_FOLDER + "rabbit/gold.png",
+            "salt_rabbit", ENTITY_TEXTURES_FOLDER + "rabbit/salt.png"
+    );
+    private static final int ITEM_TEXTURE_WIDTH = 256;
+    private static final int ITEM_TEXTURE_HEIGHT = 256;
+    private static final Map<String, String> ITEM_TEXTURES_PATHS = Map.of(
+            "emerald", ITEM_TEXTURES_FOLDER + "emerald.png"
     );
 
     private static final Map<String, String> MESHES_PATHS = Map.of(
-            "block_02-16", MESHES_FOLDER + "/block_02-16.obj",
-            "block_14-16", MESHES_FOLDER + "/block_14-16.obj",
-            "block_15-16", MESHES_FOLDER + "/block_15-16.obj",
-            "block_16-16", MESHES_FOLDER + "/block_16-16.obj",
-            "rabbit", MESHES_FOLDER + "/rabbit.obj"
+            "block_02-16", MESHES_FOLDER + "block_02-16.obj",
+            "block_14-16", MESHES_FOLDER + "block_14-16.obj",
+            "block_15-16", MESHES_FOLDER + "block_15-16.obj",
+            "block_16-16", MESHES_FOLDER + "block_16-16.obj",
+            "rabbit", MESHES_FOLDER + "rabbit.obj",
+            "emerald", MESHES_FOLDER + "emerald.obj"
     );
 
     public static void validateArguments(String[] args) throws CommandLineArgumentsException {
@@ -78,14 +86,18 @@ public class MainClient {
         var objTriangleMeshFactory = new ObjTriangleMeshFactory();
         var assetLoader = new AssetLoader(objTriangleMeshFactory);
 
-        Map<String, Image> textures;
+        Map<String, Image> textures = new HashMap<>();
         Image[] waterTextures;
         Map<String, TriangleMesh> meshes;
         try {
             configurationManager.loadProperties(PROPERTIES_PATH);
-            textures = assetLoader.loadTextures(BLOCK_TEXTURES_PATHS, BLOCK_TEXTURE_WIDTH, BLOCK_TEXTURE_HEIGHT,
-                    ENTITY_TEXTURES_PATHS, ENTITY_TEXTURE_WIDTH, ENTITY_TEXTURE_HEIGHT);
-            waterTextures = assetLoader.loadTextureArray(WATER_TEXTURES_FOLDER_PATH, BLOCK_TEXTURE_WIDTH, BLOCK_TEXTURE_HEIGHT);
+            Map<String, Image> blockTextures = assetLoader.loadTextures(BLOCK_TEXTURES_PATHS, BLOCK_TEXTURE_WIDTH, BLOCK_TEXTURE_HEIGHT);
+            Map<String, Image> entityTextures = assetLoader.loadTextures(ENTITY_TEXTURES_PATHS, ENTITY_TEXTURE_WIDTH, ENTITY_TEXTURE_HEIGHT);
+            Map<String, Image> itemTextures = assetLoader.loadTextures(ITEM_TEXTURES_PATHS, ITEM_TEXTURE_WIDTH, ITEM_TEXTURE_HEIGHT);
+            textures.putAll(blockTextures);
+            textures.putAll(entityTextures);
+            textures.putAll(itemTextures);
+            waterTextures = assetLoader.loadTextureArray(WATER_TEXTURES_FOLDER, BLOCK_TEXTURE_WIDTH, BLOCK_TEXTURE_HEIGHT);
             meshes = assetLoader.loadMeshes(MESHES_PATHS);
         } catch (IOException e) {
             logger.error("Error reading file.", e);
