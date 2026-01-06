@@ -1,6 +1,8 @@
 package client.main;
 
 import client.ai.AIPlayer;
+import client.ai.graph.FullMapGraph;
+import client.ai.graph.FullMapGraphFactory;
 import client.data.PlayerInformation;
 import client.data.UniqueGameIdentifier;
 import client.halfmaplogic.generation.HalfMapGenerator;
@@ -106,7 +108,8 @@ public class MainClient {
             uniqueGameIdentifier = NetworkService.createNewGame(serverBaseURL, debugMode, dummyCompetition).block();
         }
 
-        var gameClientFactory = new GameClientFactory();
+        var fullMapGraphFactory = new FullMapGraphFactory();
+        var gameClientFactory = new GameClientFactory(fullMapGraphFactory);
 
         NetworkService networkService = gameClientFactory.createNetworkService(serverBaseURL, uniqueGameIdentifier);
         FullMapAccumulator fullMapAccumulator = gameClientFactory.createFullMapAccumulator();

@@ -124,15 +124,16 @@ public class AIPlayer {
         if (fullMap == null)
             throw new IllegalArgumentException("fullMap is null");
 
-        List<XYPair> unrevealedGrassNodes = fullMapUtilities.getUnrevealedGrassNodes(fullMap, onMySide);
+        List<XYPair> unrevealedGrass = fullMapUtilities.getUnrevealedGrass(fullMap.nodes(), onMySide);
         if (!onMySide && knowledgeBase.isFirstValidEnemyPlayerPositionIdentified())
-            unrevealedGrassNodes = knowledgeBase.filterCoordinatesNearEnemyPlayer(unrevealedGrassNodes);
-        logger.debug("Collected {} unrevealed grass nodes, onMySide: {}", unrevealedGrassNodes.size(), onMySide);
+            unrevealedGrass = knowledgeBase.filterCoordinatesNearEnemyPlayer(unrevealedGrass);
+        logger.debug("Collected {} unrevealed grass, onMySide: {}", unrevealedGrass.size(), onMySide);
 
-        List<XYPair> neighborMountains = fullMapUtilities.getNeighborMountains(fullMap, unrevealedGrassNodes, onMySide);
+        List<XYPair> mountains = fullMapUtilities.getMountains(fullMap.nodes(), onMySide);
+        List<XYPair> neighborMountains = fullMapUtilities.getNeighbors(fullMap.size(), mountains, unrevealedGrass);
         var expectedArrivalPathSolver =
                 expectedArrivalPathFactory.createSolver(fullMap.size(), knowledgeBase.getFullMapGraph(),
-                        knowledgeBase.getCurrentMyPlayerPosition(), unrevealedGrassNodes, neighborMountains);
+                        knowledgeBase.getCurrentMyPlayerPosition(), unrevealedGrass, neighborMountains);
 
         List<XYPair> waypoints = expectedArrivalPathSolver.getWaypoints();
         return knowledgeBase.getStepPathBetweenWaypoints(waypoints);

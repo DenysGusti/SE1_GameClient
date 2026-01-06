@@ -6,12 +6,12 @@ import client.ai.graph.FullMapGraph;
 import client.ai.path.ExpectedArrivalPathFactory;
 import client.ai.utilities.FullMapUtilities;
 import client.ai.graph.FullMapGraphFactory;
+import client.data.fromserver.FullMap;
 import client.halfmaplogic.generation.HalfMapGenerator;
 import client.halfmaplogic.validation.HalfMapValidator;
 import client.halfmaplogic.validation.rule.*;
 import client.modelviewcontroller.controller.GameController;
 import client.modelviewcontroller.javafx.CameraMovementDetector;
-import client.modelviewcontroller.javafx.JavaFXApplication;
 import client.modelviewcontroller.model.*;
 import client.modelviewcontroller.view.*;
 import client.network.*;
@@ -27,6 +27,7 @@ import javafx.scene.shape.TriangleMesh;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +35,15 @@ import java.util.*;
 
 public class GameClientFactory {
     private static final Logger logger = LoggerFactory.getLogger(GameClientFactory.class);
+
+    private final FullMapGraphFactory fullMapGraphFactory;
+
+    public GameClientFactory(FullMapGraphFactory fullMapGraphFactory) {
+        if (fullMapGraphFactory == null)
+            throw new IllegalArgumentException("fullMapGraphFactory is null");
+
+        this.fullMapGraphFactory = fullMapGraphFactory;
+    }
 
     public NetworkService createNetworkService(String serverBaseURL, UniqueGameIdentifier uniqueGameIdentifier) {
         if (serverBaseURL == null)
@@ -81,11 +91,12 @@ public class GameClientFactory {
         return new HalfMapValidator(rules);
     }
 
-    public AIPlayer createAIPlayer(FullMapGraph fullMapGraph) {
-        if (fullMapGraph == null)
-            throw new IllegalArgumentException("fullMapGraph is null");
+    public AIPlayer createAIPlayer(FullMap fullMap) {
+        if (fullMap == null)
+            throw new IllegalArgumentException("fullMap is null");
 
-        var fullMapSplitter = new FullMapUtilities();
+        FullMapGraph fullMapGraph = fullMapGraphFactory.createGraph(fullMap);
+        var fullMapSplitter = new FullMapUtilities(fullMap.getOptionalMyFortPosition().orElseThrow());
         var expectedArrivalPathFactory = new ExpectedArrivalPathFactory();
         var knowledgeBase = new KnowledgeBase(fullMapGraph);
         return new AIPlayer(fullMapSplitter, expectedArrivalPathFactory, knowledgeBase);
@@ -135,8 +146,6 @@ public class GameClientFactory {
         if (fullMapViewJavaFX != null)
             mapModel.subscribeOnFullMapUpdated(fullMapViewJavaFX);
 
-        var fullMapGraphFactory = new FullMapGraphFactory();
-
-        return new GameController(playerModel, mapModel, gameSession, halfMapGenerator, halfMapValidator, fullMapGraphFactory, this);
+        return new GameController(playerModel, mapModel, gameSession, halfMapGenerator, halfMapValidator, this);
     }
 }

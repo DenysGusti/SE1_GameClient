@@ -1,7 +1,6 @@
 package client.modelviewcontroller.controller;
 
 import client.ai.*;
-import client.ai.graph.*;
 import client.data.PlayerInformation;
 import client.data.fromclient.EMove;
 import client.data.fromclient.HalfMap;
@@ -29,14 +28,13 @@ public class GameController {
     private final GameSession gameSession;
     private final HalfMapGenerator halfMapGenerator;
     private final HalfMapValidator halfMapValidator;
-    private final FullMapGraphFactory fullMapGraphFactory;
     private final GameClientFactory gameClientFactory;
 
     private AIPlayer aiPlayer = null;
 
     public GameController(PlayerModel playerModel, MapModel mapModel, GameSession gameSession,
                           HalfMapGenerator halfMapGenerator, HalfMapValidator halfMapValidator,
-                          FullMapGraphFactory fullMapGraphFactory, GameClientFactory gameClientFactory) {
+                          GameClientFactory gameClientFactory) {
         if (playerModel == null)
             throw new IllegalArgumentException("playerModel is null");
         if (mapModel == null)
@@ -47,8 +45,6 @@ public class GameController {
             throw new IllegalArgumentException("halfMapGenerator is null");
         if (halfMapValidator == null)
             throw new IllegalArgumentException("halfMapValidator is null");
-        if (fullMapGraphFactory == null)
-            throw new IllegalArgumentException("fullMapGraphFactory is null");
         if (gameClientFactory == null)
             throw new IllegalArgumentException("gameClientFactory is null");
 
@@ -57,7 +53,6 @@ public class GameController {
         this.gameSession = gameSession;
         this.halfMapGenerator = halfMapGenerator;
         this.halfMapValidator = halfMapValidator;
-        this.fullMapGraphFactory = fullMapGraphFactory;
         this.gameClientFactory = gameClientFactory;
     }
 
@@ -98,10 +93,8 @@ public class GameController {
             if (!currentState.myPlayerMustAct())
                 continue;
 
-            if (aiPlayer == null) {
-                FullMapGraph fullMapGraph = fullMapGraphFactory.createGraph(currentState.fullMap());
-                aiPlayer = gameClientFactory.createAIPlayer(fullMapGraph);
-            }
+            if (aiPlayer == null)
+                aiPlayer = gameClientFactory.createAIPlayer(currentState.fullMap());
 
             logger.info("My turn! Deciding move...");
             aiPlayer.updateKnowledgeBase(currentState.fullMap());
