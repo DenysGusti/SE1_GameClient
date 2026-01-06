@@ -89,28 +89,11 @@ public class AIPlayer {
             throw new IllegalStateException("currentMyPlayerPosition is null");
 
         XYPair nextPosition = plannedStepPath.element();
-        EMove move = getDeltaEMove(nextPosition, currentMyPlayerPosition);
+        var delta = new XYPair(nextPosition.x() - currentMyPlayerPosition.x(), nextPosition.y() - currentMyPlayerPosition.y());
+        EMove move = EMove.fromDelta(delta);
 
         logger.info("Executing Move #{}: {} ({} -> {})", knowledgeBase.getMoveCounter(), move, currentMyPlayerPosition, nextPosition);
         return move;
-    }
-
-    private static EMove getDeltaEMove(XYPair nextPosition, XYPair currentMyPlayerPosition) {
-        if (nextPosition == null)
-            throw new IllegalArgumentException("nextPosition is null");
-        if (currentMyPlayerPosition == null)
-            throw new IllegalArgumentException("currentMyPlayerPosition is null");
-
-        var delta = new XYPair(nextPosition.x() - currentMyPlayerPosition.x(), nextPosition.y() - currentMyPlayerPosition.y());
-
-        return switch (delta) {
-            case XYPair(int dx, int dy) when dx == 0 && dy == 1 -> EMove.Down;
-            case XYPair(int dx, int dy) when dx == 0 && dy == -1 -> EMove.Up;
-            case XYPair(int dx, int dy) when dx == 1 && dy == 0 -> EMove.Right;
-            case XYPair(int dx, int dy) when dx == -1 && dy == 0 -> EMove.Left;
-            default ->
-                    throw new IllegalStateException(String.format("Node %s is not adjacent to %s", nextPosition, currentMyPlayerPosition));
-        };
     }
 
     public List<XYPair> getStepPathToTarget(XYPair target) {
