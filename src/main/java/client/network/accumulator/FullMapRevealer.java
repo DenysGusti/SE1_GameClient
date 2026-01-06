@@ -3,6 +3,7 @@ package client.network.accumulator;
 import client.data.XYPair;
 import client.data.fromserver.FullMap;
 import client.data.fromserver.FullMapNode;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +52,7 @@ public class FullMapRevealer {
 
         // old full map can be smaller
         oldFullMap.nodes().forEach((coordinate, oldNode) -> {
-            boolean isRevealed = oldNode.isRevealed() || newFullMap.nodes().get(coordinate).isRevealed();
+            boolean isRevealed = oldNode.isRevealed() || newFullMap.isRevealed(coordinate);
             newNodes.replace(coordinate, oldNode.withIsRevealed(isRevealed));
         });
 
@@ -65,7 +66,7 @@ public class FullMapRevealer {
 
         return fullMap.getOptionalMyPlayerPosition()
                 .map(coordinate -> {
-                    if (fullMap.nodes().get(coordinate).isMountain())
+                    if (fullMap.isMountain(coordinate))
                         return coordinate.getAllNeighborsWithThis(fullMap.size()).stream();
                     else
                         return Stream.of(coordinate);

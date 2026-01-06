@@ -262,7 +262,7 @@ public class FullMapViewJavaFX implements Subscriber<FullMap> {
         if (coordinate == null)
             throw new IllegalArgumentException("coordinate is null");
 
-        double targetY = fullMap.nodes().get(coordinate).isMountain() ? -3 : -1.9375;
+        double targetY = fullMap.isMountain(coordinate) ? -3 : -1.9375;
         if (fullMap.getOptionalMyFortPosition().filter(coordinate::equals).isPresent() ||
                 fullMap.getOptionalEnemyFortPosition().filter(coordinate::equals).isPresent())
             targetY = -2;

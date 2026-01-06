@@ -1,16 +1,14 @@
 package client.modelviewcontroller.view;
 
+import client.data.ETerrain;
 import client.data.XYPair;
 import client.data.fromserver.FullMap;
-import client.data.fromserver.FullMapNode;
 import client.modelviewcontroller.cli.MapView;
 import client.modelviewcontroller.cli.ScreenBuffer;
 import client.modelviewcontroller.observer.Subscriber;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Objects;
 
 public class FullMapViewCLI extends MapView implements Subscriber<FullMap> {
     private static final Logger logger = LoggerFactory.getLogger(FullMapViewCLI.class);
@@ -77,10 +75,8 @@ public class FullMapViewCLI extends MapView implements Subscriber<FullMap> {
         if (coordinate == null)
             throw new IllegalArgumentException("coordinate is null");
 
-        FullMapNode fullMapNode = fullMap.nodes().get(coordinate);
-        Objects.requireNonNull(fullMapNode, "fullMapNode is null");
-
-        String terrainEmoji = terrainEmojiConverter.get(fullMapNode.terrain());
+        ETerrain terrain = fullMap.getTerrain(coordinate);
+        String terrainEmoji = terrainEmojiConverter.get(terrain);
 
         String border = terrainEmoji;
         if (fullMap.getOptionalMyFortPosition().filter(coordinate::equals).isPresent())
@@ -90,7 +86,7 @@ public class FullMapViewCLI extends MapView implements Subscriber<FullMap> {
         else if (fullMap.getOptionalMyTreasurePosition().filter(coordinate::equals).isPresent())
             border = myTreasureBackgroundEmoji;
 
-        String center = fullMapNode.isRevealed() ? terrainEmoji : fogOfWarEmoji;
+        String center = fullMap.isRevealed(coordinate) ? terrainEmoji : fogOfWarEmoji;
         if (fullMap.getOptionalMyPlayerPosition().filter(coordinate::equals).isPresent()) {
             if (fullMap.getOptionalEnemyPlayerPosition().filter(coordinate::equals).isPresent())
                 center = bothPlayersEmoji;

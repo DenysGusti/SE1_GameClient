@@ -1,5 +1,6 @@
 package client.data.fromserver;
 
+import client.data.ETerrain;
 import client.data.XYPair;
 
 import java.util.*;
@@ -46,6 +47,27 @@ public record FullMap(Map<XYPair, FullMapNode> nodes, XYPair topLeftCoordinate, 
                 myPlayerPosition, enemyPlayerPosition,
                 myFortPosition, enemyFortPosition,
                 newMyTreasurePosition, isMyTreasureCollected);
+    }
+
+    public boolean isMountain(XYPair coordinate) {
+        if (coordinate == null)
+            throw new IllegalArgumentException("coordinate is null");
+
+        return nodes.get(coordinate).isMountain();
+    }
+
+    public boolean isRevealed(XYPair coordinate) {
+        if (coordinate == null)
+            throw new IllegalArgumentException("coordinate is null");
+
+        return nodes.get(coordinate).isRevealed();
+    }
+
+    public ETerrain getTerrain(XYPair coordinate) {
+        if (coordinate == null)
+            throw new IllegalArgumentException("coordinate is null");
+
+        return nodes.get(coordinate).terrain();
     }
 
     public boolean isEmpty() {

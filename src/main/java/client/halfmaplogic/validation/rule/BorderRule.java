@@ -1,6 +1,5 @@
 package client.halfmaplogic.validation.rule;
 
-import client.data.ETerrain;
 import client.data.XYPair;
 import client.data.fromclient.HalfMap;
 import client.halfmaplogic.validation.exception.BorderRuleException;
@@ -55,9 +54,7 @@ public class BorderRule implements HalfMapValidationRule {
 
         for (int i = 0; i < length; ++i) {
             var coordinate = new XYPair(start.x() + i * delta.x(), start.y() + i * delta.y());
-            ETerrain terrain = halfMap.nodes().get(coordinate);
-
-            if (terrain == ETerrain.Water)
+            if (halfMap.isWater(coordinate))
                 ++nonTraversableCount;
             else
                 ++traversableCount;

@@ -15,4 +15,18 @@ public record HalfMap(Map<XYPair, ETerrain> nodes, Set<XYPair> potentialForts) {
         this.nodes = Map.copyOf(nodes);
         this.potentialForts = Set.copyOf(potentialForts);
     }
+
+    public boolean isWater(XYPair coordinate) {
+        if (coordinate == null)
+            throw new IllegalArgumentException("coordinate is null");
+
+        return nodes.get(coordinate) == ETerrain.Water;
+    }
+
+    public ETerrain getTerrain(XYPair coordinate) {
+        if (coordinate == null)
+            throw new IllegalArgumentException("coordinate is null");
+
+        return nodes.get(coordinate);
+    }
 }

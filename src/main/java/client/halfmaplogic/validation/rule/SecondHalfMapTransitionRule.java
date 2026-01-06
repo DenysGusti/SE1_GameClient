@@ -7,6 +7,7 @@ import client.data.fromserver.FullMap;
 import client.data.fromserver.FullMapNode;
 import client.halfmaplogic.validation.exception.BorderRuleException;
 import client.halfmaplogic.validation.exception.HalfMapGenerationException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,10 +92,7 @@ public class SecondHalfMapTransitionRule implements HalfMapValidationRule {
 
         for (int i = 0; i < length; ++i) {
             var coordinate = new XYPair(start.x() + i * delta.x(), start.y() + i * delta.y());
-            ETerrain myTerrain = halfMap.nodes().get(coordinate);
-            ETerrain opponentTerrain = opponentBorder[i];
-
-            if (myTerrain != ETerrain.Water && opponentTerrain != ETerrain.Water)
+            if (!halfMap.isWater(coordinate) && opponentBorder[i] != ETerrain.Water)
                 ++traversableCount;
         }
 
