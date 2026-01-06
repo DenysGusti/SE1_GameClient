@@ -86,28 +86,12 @@ public class MainClient {
         }
 
         var configurationManager = new ConfigurationManager();
-        var objTriangleMeshFactory = new ObjTriangleMeshFactory();
-        var assetLoader = new AssetLoader(objTriangleMeshFactory);
-
-        Map<String, Image> textures = new HashMap<>();
-        Image[] waterTextures;
-        Map<String, TriangleMesh> meshes;
         try {
             configurationManager.loadProperties(PROPERTIES_PATH);
-            Map<String, Image> blockTextures = assetLoader.loadTextures(BLOCK_TEXTURES_PATHS, BLOCK_TEXTURE_WIDTH, BLOCK_TEXTURE_HEIGHT);
-            Map<String, Image> entityTextures = assetLoader.loadTextures(ENTITY_TEXTURES_PATHS, ENTITY_TEXTURE_WIDTH, ENTITY_TEXTURE_HEIGHT);
-            Map<String, Image> itemTextures = assetLoader.loadTextures(ITEM_TEXTURES_PATHS, ITEM_TEXTURE_WIDTH, ITEM_TEXTURE_HEIGHT);
-            textures.putAll(blockTextures);
-            textures.putAll(entityTextures);
-            textures.putAll(itemTextures);
-            waterTextures = assetLoader.loadTextureArray(WATER_TEXTURES_FOLDER, BLOCK_TEXTURE_WIDTH, BLOCK_TEXTURE_HEIGHT);
-            meshes = assetLoader.loadMeshes(MESHES_PATHS);
         } catch (IOException e) {
-            logger.error("Error reading file.", e);
+            logger.error("Error reading properties file.", e);
             return;
         }
-
-        var gameClientFactory = new GameClientFactory();
 
         String serverBaseURL = args[1];
         UniqueGameIdentifier uniqueGameIdentifier;
@@ -120,6 +104,8 @@ public class MainClient {
             uniqueGameIdentifier = NetworkService.createNewGame(serverBaseURL, debugMode, dummyCompetition).block();
         }
 
+        var gameClientFactory = new GameClientFactory();
+
         NetworkService networkService = gameClientFactory.createNetworkService(serverBaseURL, uniqueGameIdentifier);
         FullMapAccumulator fullMapAccumulator = gameClientFactory.createFullMapAccumulator();
         GameSession gameSession = gameClientFactory.createGameSession(networkService, fullMapAccumulator);
@@ -129,12 +115,33 @@ public class MainClient {
         AIPlayer aiPlayer = gameClientFactory.createAIPlayer();
 
         FullMapViewJavaFX fullMapViewJavaFX = null;
-        if (args[0].equals("GUI"))
-            fullMapViewJavaFX = gameClientFactory.createFullMapViewJavaFX(textures, waterTextures, meshes);
+        if (args[0].equals("GUI")) {
+            var objTriangleMeshFactory = new ObjTriangleMeshFactory();
+            var assetLoader = new AssetLoader(objTriangleMeshFactory);
 
-        GameController gameController = gameClientFactory.createGameController(
-                gameSession, halfMapGenerator, halfMapValidator, aiPlayer, fullMapViewJavaFX
-        );
+            Map<String, Image> textures = new HashMap<>();
+            Image[] waterTextures;
+            Map<String, TriangleMesh> meshes;
+
+            try {
+                Map<String, Image> blockTextures = assetLoader.loadTextures(BLOCK_TEXTURES_PATHS, BLOCK_TEXTURE_WIDTH, BLOCK_TEXTURE_HEIGHT);
+                Map<String, Image> entityTextures = assetLoader.loadTextures(ENTITY_TEXTURES_PATHS, ENTITY_TEXTURE_WIDTH, ENTITY_TEXTURE_HEIGHT);
+                Map<String, Image> itemTextures = assetLoader.loadTextures(ITEM_TEXTURES_PATHS, ITEM_TEXTURE_WIDTH, ITEM_TEXTURE_HEIGHT);
+                textures.putAll(blockTextures);
+                textures.putAll(entityTextures);
+                textures.putAll(itemTextures);
+                waterTextures = assetLoader.loadTextureArray(WATER_TEXTURES_FOLDER, BLOCK_TEXTURE_WIDTH, BLOCK_TEXTURE_HEIGHT);
+                meshes = assetLoader.loadMeshes(MESHES_PATHS);
+            } catch (IOException e) {
+                logger.error("Error reading textures or meshes file.", e);
+                return;
+            }
+
+            fullMapViewJavaFX = gameClientFactory.createFullMapViewJavaFX(textures, waterTextures, meshes);
+        }
+
+        GameController gameController =
+                gameClientFactory.createGameController(gameSession, halfMapGenerator, halfMapValidator, aiPlayer, fullMapViewJavaFX);
 
         String firstName = configurationManager.getString("player.firstName");
         String lastName = configurationManager.getString("player.lastName");
