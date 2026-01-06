@@ -1,6 +1,8 @@
 package client.main;
 
 import client.ai.AIPlayer;
+import client.ai.KnowledgeBase;
+import client.ai.graph.FullMapGraph;
 import client.ai.path.ExpectedArrivalPathFactory;
 import client.ai.utilities.FullMapUtilities;
 import client.ai.graph.FullMapGraphFactory;
@@ -78,10 +80,14 @@ public class GameClientFactory {
         return new HalfMapValidator(rules);
     }
 
-    public AIPlayer createAIPlayer() {
+    public AIPlayer createAIPlayer(FullMapGraph fullMapGraph) {
+        if (fullMapGraph == null)
+            throw new IllegalArgumentException("fullMapGraph is null");
+
         var fullMapSplitter = new FullMapUtilities();
         var expectedArrivalPathFactory = new ExpectedArrivalPathFactory();
-        return new AIPlayer(fullMapSplitter, expectedArrivalPathFactory);
+        var knowledgeBase = new KnowledgeBase(fullMapGraph);
+        return new AIPlayer(fullMapSplitter, expectedArrivalPathFactory, knowledgeBase);
     }
 
     public FullMapViewJavaFX createFullMapViewJavaFX(Map<String, Image> textures, Image[] waterTextures, Map<String, TriangleMesh> meshes) {
@@ -98,15 +104,13 @@ public class GameClientFactory {
     }
 
     public GameController createGameController(GameSession gameSession, HalfMapGenerator halfMapGenerator,
-                                               HalfMapValidator halfMapValidator, AIPlayer aiPlayer, FullMapViewJavaFX fullMapViewJavaFX) {
+                                               HalfMapValidator halfMapValidator, FullMapViewJavaFX fullMapViewJavaFX) {
         if (gameSession == null)
             throw new IllegalArgumentException("gameSession is null");
         if (halfMapGenerator == null)
             throw new IllegalArgumentException("halfMapGenerator is null");
         if (halfMapValidator == null)
             throw new IllegalArgumentException("halfMapValidator is null");
-        if (aiPlayer == null)
-            throw new IllegalArgumentException("aiPlayer is null");
 
         var playerModel = new PlayerModel();
         var myPlayerView = new PlayerView("My Player");
@@ -129,7 +133,6 @@ public class GameClientFactory {
 
         var fullMapGraphFactory = new FullMapGraphFactory();
 
-        return new GameController(playerModel, mapModel, gameSession, halfMapGenerator, halfMapValidator,
-                aiPlayer, fullMapGraphFactory);
+        return new GameController(playerModel, mapModel, gameSession, halfMapGenerator, halfMapValidator, fullMapGraphFactory, this);
     }
 }

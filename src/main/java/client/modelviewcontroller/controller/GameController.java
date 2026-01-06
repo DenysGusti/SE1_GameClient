@@ -10,6 +10,7 @@ import client.halfmaplogic.generation.HalfMapGenerator;
 import client.halfmaplogic.validation.HalfMapValidator;
 import client.halfmaplogic.validation.exception.HalfMapGenerationException;
 import client.halfmaplogic.validation.rule.SecondHalfMapTransitionRule;
+import client.main.GameClientFactory;
 import client.modelviewcontroller.model.MapModel;
 import client.modelviewcontroller.model.PlayerModel;
 import client.network.GameSession;
@@ -28,12 +29,14 @@ public class GameController {
     private final GameSession gameSession;
     private final HalfMapGenerator halfMapGenerator;
     private final HalfMapValidator halfMapValidator;
-    private final AIPlayer aiPlayer;
     private final FullMapGraphFactory fullMapGraphFactory;
+    private final GameClientFactory gameClientFactory;
+
+    private AIPlayer aiPlayer = null;
 
     public GameController(PlayerModel playerModel, MapModel mapModel, GameSession gameSession,
-                          HalfMapGenerator halfMapGenerator, HalfMapValidator halfMapValidator, AIPlayer aiPlayer,
-                          FullMapGraphFactory fullMapGraphFactory) {
+                          HalfMapGenerator halfMapGenerator, HalfMapValidator halfMapValidator,
+                          FullMapGraphFactory fullMapGraphFactory, GameClientFactory gameClientFactory) {
         if (playerModel == null)
             throw new IllegalArgumentException("playerModel is null");
         if (mapModel == null)
@@ -44,18 +47,18 @@ public class GameController {
             throw new IllegalArgumentException("halfMapGenerator is null");
         if (halfMapValidator == null)
             throw new IllegalArgumentException("halfMapValidator is null");
-        if (aiPlayer == null)
-            throw new IllegalArgumentException("aiPlayer is null");
         if (fullMapGraphFactory == null)
             throw new IllegalArgumentException("fullMapGraphFactory is null");
+        if (gameClientFactory == null)
+            throw new IllegalArgumentException("gameClientFactory is null");
 
         this.playerModel = playerModel;
         this.mapModel = mapModel;
         this.gameSession = gameSession;
         this.halfMapGenerator = halfMapGenerator;
         this.halfMapValidator = halfMapValidator;
-        this.aiPlayer = aiPlayer;
         this.fullMapGraphFactory = fullMapGraphFactory;
+        this.gameClientFactory = gameClientFactory;
     }
 
     public void runGame(PlayerInformation playerInformation) {
@@ -95,9 +98,9 @@ public class GameController {
             if (!currentState.myPlayerMustAct())
                 continue;
 
-            if (!aiPlayer.isFullMapGraphInitialized()) {
+            if (aiPlayer == null) {
                 FullMapGraph fullMapGraph = fullMapGraphFactory.createGraph(currentState.fullMap());
-                aiPlayer.setFullMapGraph(fullMapGraph);
+                aiPlayer = gameClientFactory.createAIPlayer(fullMapGraph);
             }
 
             logger.info("My turn! Deciding move...");

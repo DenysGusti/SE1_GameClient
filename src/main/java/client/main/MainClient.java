@@ -112,7 +112,6 @@ public class MainClient {
 
         HalfMapGenerator halfMapGenerator = gameClientFactory.createHalfMapGenerator();
         HalfMapValidator halfMapValidator = gameClientFactory.createHalfMapValidator();
-        AIPlayer aiPlayer = gameClientFactory.createAIPlayer();
 
         FullMapViewJavaFX fullMapViewJavaFX = null;
         if (args[0].equals("GUI")) {
@@ -141,7 +140,7 @@ public class MainClient {
         }
 
         GameController gameController =
-                gameClientFactory.createGameController(gameSession, halfMapGenerator, halfMapValidator, aiPlayer, fullMapViewJavaFX);
+                gameClientFactory.createGameController(gameSession, halfMapGenerator, halfMapValidator, fullMapViewJavaFX);
 
         String firstName = configurationManager.getString("player.firstName");
         String lastName = configurationManager.getString("player.lastName");

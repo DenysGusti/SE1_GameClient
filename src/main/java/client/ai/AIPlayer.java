@@ -1,9 +1,6 @@
 package client.ai;
 
-import client.ai.exception.TargetException;
-import client.ai.graph.FullMapGraph;
 import client.ai.path.ExpectedArrivalPathFactory;
-import client.ai.path.ExpectedArrivalPathSolver;
 import client.ai.state.AIState;
 import client.ai.state.ScoutingMySideState;
 import client.ai.utilities.FullMapUtilities;
@@ -18,50 +15,36 @@ import java.util.*;
 
 public class AIPlayer {
     private static final Logger logger = LoggerFactory.getLogger(AIPlayer.class);
-    private static final int FIRST_VALID_ENEMY_PLAYER_POSITION_MOVE = 8;
 
     private final FullMapUtilities fullMapUtilities;
     private final ExpectedArrivalPathFactory expectedArrivalPathFactory;
-
-    private FullMapGraph fullMapGraph = null;
-
-    int moveCounter = 0;
-    XYPair currentMyPlayerPosition = null;
-    XYPair firstValidEnemyPlayerPosition = null;
+    private final KnowledgeBase knowledgeBase;
 
     private AIState currentAIState = new ScoutingMySideState(this);
     private final Queue<XYPair> plannedStepPath = new ArrayDeque<>();
 
-    public AIPlayer(FullMapUtilities fullMapUtilities, ExpectedArrivalPathFactory expectedArrivalPathFactory) {
+    public AIPlayer(FullMapUtilities fullMapUtilities, ExpectedArrivalPathFactory expectedArrivalPathFactory,
+                    KnowledgeBase knowledgeBase) {
         if (fullMapUtilities == null)
             throw new IllegalArgumentException("fullMapUtilities is null");
         if (expectedArrivalPathFactory == null)
             throw new IllegalArgumentException("expectedArrivalPathFactory is null");
+        if (knowledgeBase == null)
+            throw new IllegalArgumentException("knowledgeBase is null");
 
         this.fullMapUtilities = fullMapUtilities;
         this.expectedArrivalPathFactory = expectedArrivalPathFactory;
+        this.knowledgeBase = knowledgeBase;
     }
 
-    public boolean isFullMapGraphInitialized() {
-        return fullMapGraph != null;
-    }
-
-    public void setFullMapGraph(FullMapGraph fullMapGraph) {
-        if (fullMapGraph == null)
-            throw new IllegalArgumentException("fullMapGraph is null");
-
-        this.fullMapGraph = fullMapGraph;
+    public boolean isFirstValidEnemyPlayerPositionIdentified() {
+        return knowledgeBase.isFirstValidEnemyPlayerPositionIdentified();
     }
 
     public boolean hasMoves() {
         return !plannedStepPath.isEmpty();
     }
 
-    public boolean isFirstValidEnemyPlayerPositionIdentified() {
-        return firstValidEnemyPlayerPosition != null;
-    }
-
-    // Command
     public void setAIState(AIState aiState) {
         if (aiState == null)
             throw new IllegalArgumentException("aiState is null");
@@ -69,11 +52,10 @@ public class AIPlayer {
         logger.info("State transition: {} -> {}", currentAIState.getClass().getSimpleName(), aiState.getClass().getSimpleName());
         currentAIState = aiState;
 
+        logger.debug("Clearing step-path queue.");
         plannedStepPath.clear();
-        logger.debug("Cleared step-path queue.");
     }
 
-    // Command
     public void setPlannedStepPath(List<XYPair> plannedStepPath) {
         if (plannedStepPath == null)
             throw new IllegalArgumentException("plannedPath is null");
@@ -84,67 +66,15 @@ public class AIPlayer {
         logger.debug("New step-path set. Steps remaining: {}", this.plannedStepPath.size());
     }
 
-    // Query
-    public List<XYPair> getStepPathToTarget(XYPair target) {
-        if (target == null)
-            throw new IllegalArgumentException("target is null");
-        if (currentMyPlayerPosition == null)
-            throw new IllegalStateException("currentMyPlayerPosition is null");
-        if (fullMapGraph == null)
-            throw new IllegalStateException("fullMapGraph is null");
-
-        logger.debug("Calculating path from {} to target {}", currentMyPlayerPosition, target);
-        List<XYPair> stepPath = fullMapGraph.getStepPathBetweenCoordinates(currentMyPlayerPosition, target);
-        logger.trace("Step-path to target:\n{}", stepPath);
-        return stepPath;
-    }
-
-    // Query
-    public List<XYPair> getStepPathForScouting(FullMap fullMap, boolean onMySide) {
-        if (fullMap == null)
-            throw new IllegalArgumentException("fullMap is null");
-        if (fullMapGraph == null)
-            throw new IllegalStateException("fullMapGraph is null");
-        if (currentMyPlayerPosition == null)
-            throw new IllegalStateException("currentMyPlayerPosition is null");
-
-        logger.debug("Calculating path for scouting, on my side: {}", onMySide);
-
-        List<XYPair> unrevealedGrassNodes = collectUnrevealedGrassNodes(fullMap, onMySide);
-        Objects.requireNonNull(unrevealedGrassNodes, "unrevealedGrassNodes is null");
-        if (unrevealedGrassNodes.isEmpty())
-            throw new TargetException("unrevealedGrassNodes is empty");
-
-        List<XYPair> neighborMountains = fullMapUtilities.getNeighborMountains(fullMap, unrevealedGrassNodes, onMySide);
-        Objects.requireNonNull(neighborMountains, "neighborMountains is null");
-
-        ExpectedArrivalPathSolver expectedArrivalPathSolver = expectedArrivalPathFactory.createSolver(
-                fullMap.size(), fullMapGraph, currentMyPlayerPosition, unrevealedGrassNodes, neighborMountains);
-
-        List<XYPair> waypoints = expectedArrivalPathSolver.getWaypoints();
-        Objects.requireNonNull(waypoints, "waypoints is null");
-
-        List<XYPair> stepPath = fullMapGraph.getStepPathBetweenWaypoints(waypoints);
-        logger.trace("Step-path for scouting:\n{}", stepPath);
-        return stepPath;
-    }
-
     // Command
     public void updateKnowledgeBase(FullMap fullMap) {
         if (fullMap == null)
             throw new IllegalArgumentException("fullMap is null");
 
-        ++moveCounter;
-
-        currentMyPlayerPosition = fullMap.getOptionalMyPlayerPosition().orElseThrow();
-
-        if (moveCounter == FIRST_VALID_ENEMY_PLAYER_POSITION_MOVE) {
-            firstValidEnemyPlayerPosition = fullMap.getOptionalEnemyPlayerPosition().orElseThrow();
-            logger.info("ENEMY SPOTTED! First Valid Enemy Player Position: {}", firstValidEnemyPlayerPosition);
-        }
-
+        knowledgeBase.update(fullMap);
         currentAIState.handleFullMapUpdate(fullMap);
 
+        XYPair currentMyPlayerPosition = knowledgeBase.getCurrentMyPlayerPosition();
         if (currentMyPlayerPosition.equals(plannedStepPath.element())) {
             plannedStepPath.remove();
             logger.debug("Remaining path nodes: {}. Reached node {}", plannedStepPath.size(), currentMyPlayerPosition);
@@ -154,53 +84,57 @@ public class AIPlayer {
 
     // Query
     public EMove getNextMove() {
+        XYPair currentMyPlayerPosition = knowledgeBase.getCurrentMyPlayerPosition();
         if (currentMyPlayerPosition == null)
             throw new IllegalStateException("currentMyPlayerPosition is null");
 
-        XYPair nextPosition = plannedStepPath.element();  // throws an exception if queue is empty
-        Objects.requireNonNull(nextPosition, "nextPosition is null");
+        XYPair nextPosition = plannedStepPath.element();
+        EMove move = getDeltaEMove(nextPosition, currentMyPlayerPosition);
 
-        var delta = new XYPair(
-                nextPosition.x() - currentMyPlayerPosition.x(),
-                nextPosition.y() - currentMyPlayerPosition.y()
-        );
+        logger.info("Executing Move #{}: {} ({} -> {})", knowledgeBase.getMoveCounter(), move, currentMyPlayerPosition, nextPosition);
+        return move;
+    }
 
-        EMove move = switch (delta) {
+    private static EMove getDeltaEMove(XYPair nextPosition, XYPair currentMyPlayerPosition) {
+        if (nextPosition == null)
+            throw new IllegalArgumentException("nextPosition is null");
+        if (currentMyPlayerPosition == null)
+            throw new IllegalArgumentException("currentMyPlayerPosition is null");
+
+        var delta = new XYPair(nextPosition.x() - currentMyPlayerPosition.x(), nextPosition.y() - currentMyPlayerPosition.y());
+
+        return switch (delta) {
             case XYPair(int dx, int dy) when dx == 0 && dy == 1 -> EMove.Down;
             case XYPair(int dx, int dy) when dx == 0 && dy == -1 -> EMove.Up;
             case XYPair(int dx, int dy) when dx == 1 && dy == 0 -> EMove.Right;
             case XYPair(int dx, int dy) when dx == -1 && dy == 0 -> EMove.Left;
-            default -> throw new IllegalStateException(
-                    String.format("Next path node %s is not adjacent to current %s", nextPosition, currentMyPlayerPosition)
-            );
+            default ->
+                    throw new IllegalStateException(String.format("Node %s is not adjacent to %s", nextPosition, currentMyPlayerPosition));
         };
-
-        logger.info("Executing Move #{}: {} ({} -> {})", moveCounter, move, currentMyPlayerPosition, nextPosition);
-
-        return move;
     }
 
-    private List<XYPair> collectUnrevealedGrassNodes(FullMap fullMap, boolean onMySide) {
+    public List<XYPair> getStepPathToTarget(XYPair target) {
+        if (target == null)
+            throw new IllegalArgumentException("target is null");
+
+        return knowledgeBase.getStepPathToTarget(target);
+    }
+
+    public List<XYPair> getStepPathForScouting(FullMap fullMap, boolean onMySide) {
         if (fullMap == null)
             throw new IllegalArgumentException("fullMap is null");
-        if (fullMapGraph == null)
-            throw new IllegalStateException("fullMapGraph is null");
 
-        List<XYPair> nodesToTraverse = fullMapUtilities.getUnrevealedGrassNodes(fullMap, onMySide);
-        Objects.requireNonNull(nodesToTraverse, "nodesToTraverse is null");
+        List<XYPair> unrevealedGrassNodes = fullMapUtilities.getUnrevealedGrassNodes(fullMap, onMySide);
+        if (!onMySide && knowledgeBase.isFirstValidEnemyPlayerPositionIdentified())
+            unrevealedGrassNodes = knowledgeBase.filterCoordinatesNearEnemyPlayer(unrevealedGrassNodes);
+        logger.debug("Collected {} unrevealed grass nodes, onMySide: {}", unrevealedGrassNodes.size(), onMySide);
 
-        int originalSize = nodesToTraverse.size();
+        List<XYPair> neighborMountains = fullMapUtilities.getNeighborMountains(fullMap, unrevealedGrassNodes, onMySide);
+        var expectedArrivalPathSolver =
+                expectedArrivalPathFactory.createSolver(fullMap.size(), knowledgeBase.getFullMapGraph(),
+                        knowledgeBase.getCurrentMyPlayerPosition(), unrevealedGrassNodes, neighborMountains);
 
-        if (!onMySide && firstValidEnemyPlayerPosition != null) {
-            nodesToTraverse = nodesToTraverse.stream()
-                    .filter(coordinate -> fullMapGraph.getDistance(firstValidEnemyPlayerPosition, coordinate)
-                            <= FIRST_VALID_ENEMY_PLAYER_POSITION_MOVE)
-                    .toList();
-
-            logger.debug("Filtered unrevealed nodes near enemy. Reduced from {} to {}", originalSize, nodesToTraverse.size());
-        } else
-            logger.debug("Collected {} unrevealed grass nodes, onMySide: {}", nodesToTraverse.size(), onMySide);
-
-        return nodesToTraverse;
+        List<XYPair> waypoints = expectedArrivalPathSolver.getWaypoints();
+        return knowledgeBase.getStepPathBetweenWaypoints(waypoints);
     }
 }
