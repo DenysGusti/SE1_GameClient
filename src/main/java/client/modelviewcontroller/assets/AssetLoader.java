@@ -1,6 +1,6 @@
-package client.main;
+package client.modelviewcontroller.assets;
 
-import client.main.obj.ObjTriangleMeshFactory;
+import client.main.MainClient;
 import javafx.scene.image.Image;
 import javafx.scene.shape.TriangleMesh;
 import org.slf4j.Logger;

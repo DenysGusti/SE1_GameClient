@@ -83,7 +83,7 @@ public class JavaFXApplication extends Application {
 
         var animationTimer = new AnimationTimer() {
             @Override
-            public void handle(long now) {
+            public void handle(long timestampNow) {
                 if (mouseLocked) {
                     handleMovement(cameraController);
                     debugHUD.update(cameraController);
