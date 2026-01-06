@@ -40,7 +40,9 @@ public class MainClient {
             "stone", BLOCK_TEXTURES_FOLDER + "stone.png",
             "snow", BLOCK_TEXTURES_FOLDER + "snow.png",
             "dirt_path", BLOCK_TEXTURES_FOLDER + "dirt_path.png",
-            "ice", BLOCK_TEXTURES_FOLDER + "ice.png"
+            "ice", BLOCK_TEXTURES_FOLDER + "ice.png",
+            "red_wool", BLOCK_TEXTURES_FOLDER + "red_wool.png",
+            "cyan_wool", BLOCK_TEXTURES_FOLDER + "cyan_wool.png"
     );
     private static final String WATER_TEXTURES_FOLDER = BLOCK_TEXTURES_FOLDER + "water/";
 

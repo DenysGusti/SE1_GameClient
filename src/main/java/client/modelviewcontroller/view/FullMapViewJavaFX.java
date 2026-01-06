@@ -213,7 +213,7 @@ public class FullMapViewJavaFX implements Subscriber<FullMap> {
                 worldRoot.getChildren().add(myPlayerModel);
             }
             double xOffset = fullMap.getOptionalEnemyPlayerPosition().filter(coordinate::equals).isPresent() ? -0.25 : 0;
-            double targetY = fullMap.nodes().get(coordinate).isMountain() ? -3 : -2;
+            double targetY = getTargetY(fullMap, coordinate);
             movePlayer(myPlayerModel, coordinate, xOffset, targetY);
         });
 
@@ -223,7 +223,7 @@ public class FullMapViewJavaFX implements Subscriber<FullMap> {
                 worldRoot.getChildren().add(enemyPlayerModel);
             }
             double xOffset = fullMap.getOptionalMyPlayerPosition().filter(coordinate::equals).isPresent() ? 0.25 : 0;
-            double targetY = fullMap.nodes().get(coordinate).isMountain() ? -3 : -2;
+            double targetY = getTargetY(fullMap, coordinate);
             movePlayer(enemyPlayerModel, coordinate, xOffset, targetY);
         });
 
@@ -242,6 +242,32 @@ public class FullMapViewJavaFX implements Subscriber<FullMap> {
                 myTreasureModel.setTranslateY(-1.78125);
             }
         });
+
+        fullMap.getOptionalMyFortPosition().ifPresent(coordinate -> {
+            MeshView topBlock = coordinateTopBlocks.get(coordinate);
+            topBlock.setMesh(meshes.get("block_16-16"));
+            topBlock.setMaterial(materials.get("cyan_wool"));
+        });
+
+        fullMap.getOptionalEnemyFortPosition().ifPresent(coordinate -> {
+            MeshView topBlock = coordinateTopBlocks.get(coordinate);
+            topBlock.setMesh(meshes.get("block_16-16"));
+            topBlock.setMaterial(materials.get("red_wool"));
+        });
+    }
+
+    private static double getTargetY(FullMap fullMap, XYPair coordinate) {
+        if (fullMap == null)
+            throw new IllegalArgumentException("fullMap is null");
+        if (coordinate == null)
+            throw new IllegalArgumentException("coordinate is null");
+
+        double targetY = fullMap.nodes().get(coordinate).isMountain() ? -3 : -1.9375;
+        if (fullMap.getOptionalMyFortPosition().filter(coordinate::equals).isPresent() ||
+                fullMap.getOptionalEnemyFortPosition().filter(coordinate::equals).isPresent())
+            targetY = -2;
+
+        return targetY;
     }
 
     private static void movePlayer(Node playerModel, XYPair targetCoordinate, double xOffset, double targetY) {
