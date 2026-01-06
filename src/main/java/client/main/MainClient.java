@@ -9,11 +9,13 @@ import client.main.exception.CommandLineArgumentsException;
 import client.modelviewcontroller.assets.AssetLoader;
 import client.modelviewcontroller.controller.GameController;
 import client.modelviewcontroller.assets.ObjTriangleMeshFactory;
+import client.modelviewcontroller.javafx.JavaFXApplication;
 import client.modelviewcontroller.view.FullMapViewJavaFX;
 import client.network.GameSession;
 import client.network.NetworkService;
 import client.network.accumulator.FullMapAccumulator;
 
+import javafx.application.Application;
 import javafx.scene.shape.TriangleMesh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -136,7 +138,9 @@ public class MainClient {
                 return;
             }
 
-            fullMapViewJavaFX = gameClientFactory.createFullMapViewJavaFX(textures, waterTextures, meshes);
+            new Thread(() -> Application.launch(JavaFXApplication.class)).start();
+            fullMapViewJavaFX = gameClientFactory.createFullMapViewJavaFX(JavaFXApplication.getWorldGroup(),
+                    JavaFXApplication.getCamera(), textures, waterTextures, meshes);
         }
 
         GameController gameController =

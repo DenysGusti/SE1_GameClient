@@ -20,7 +20,8 @@ import client.network.fromserver.*;
 import client.network.fromclient.FromClientConverter;
 import client.data.UniqueGameIdentifier;
 
-import javafx.application.Application;
+import javafx.scene.Camera;
+import javafx.scene.Group;
 import javafx.scene.image.Image;
 import javafx.scene.shape.TriangleMesh;
 import org.springframework.http.HttpHeaders;
@@ -90,7 +91,11 @@ public class GameClientFactory {
         return new AIPlayer(fullMapSplitter, expectedArrivalPathFactory, knowledgeBase);
     }
 
-    public FullMapViewJavaFX createFullMapViewJavaFX(Map<String, Image> textures, Image[] waterTextures, Map<String, TriangleMesh> meshes) {
+    public FullMapViewJavaFX createFullMapViewJavaFX(Group worldRoot, Camera camera, Map<String, Image> textures, Image[] waterTextures, Map<String, TriangleMesh> meshes) {
+        if (worldRoot == null)
+            throw new IllegalArgumentException("worldRoot is null");
+        if (camera == null)
+            throw new IllegalArgumentException("camera is null");
         if (textures == null)
             throw new IllegalArgumentException("textures is null");
         if (waterTextures == null)
@@ -98,9 +103,8 @@ public class GameClientFactory {
         if (meshes == null)
             throw new IllegalArgumentException("meshes is null");
 
-        new Thread(() -> Application.launch(JavaFXApplication.class)).start();
-        var cameraMovementDetector = new CameraMovementDetector(JavaFXApplication.getCamera());
-        return new FullMapViewJavaFX(JavaFXApplication.getWorldGroup(), cameraMovementDetector, textures, waterTextures, meshes);
+        var cameraMovementDetector = new CameraMovementDetector(camera);
+        return new FullMapViewJavaFX(worldRoot, cameraMovementDetector, textures, waterTextures, meshes);
     }
 
     public GameController createGameController(GameSession gameSession, HalfMapGenerator halfMapGenerator,
