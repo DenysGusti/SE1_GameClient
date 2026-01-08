@@ -9,13 +9,13 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 
-public class FullMapUtilities {
-    private static final Logger logger = LoggerFactory.getLogger(FullMapUtilities.class);
+public class FullMapSplitter {
+    private static final Logger logger = LoggerFactory.getLogger(FullMapSplitter.class);
     private static final XYPair HALF_MAP_SIZE = new XYPair(10, 5);
 
     private final boolean isMyFortOnTopOrLeftSide;
 
-    public FullMapUtilities(XYPair myFortPosition) {
+    public FullMapSplitter(XYPair myFortPosition) {
         if (myFortPosition == null)
             throw new IllegalArgumentException("myFortPosition is null");
 

@@ -3,7 +3,7 @@ package client.ai;
 import client.ai.path.ExpectedArrivalPathFactory;
 import client.ai.state.AIState;
 import client.ai.state.ScoutingMySideState;
-import client.ai.utilities.FullMapUtilities;
+import client.ai.utilities.FullMapSplitter;
 import client.data.XYPair;
 import client.data.fromclient.EMove;
 import client.data.fromserver.FullMap;
@@ -16,23 +16,23 @@ import java.util.*;
 public class AIPlayer {
     private static final Logger logger = LoggerFactory.getLogger(AIPlayer.class);
 
-    private final FullMapUtilities fullMapUtilities;
+    private final FullMapSplitter fullMapSplitter;
     private final ExpectedArrivalPathFactory expectedArrivalPathFactory;
     private final KnowledgeBase knowledgeBase;
 
     private AIState currentAIState = new ScoutingMySideState(this);
     private final Queue<XYPair> plannedStepPath = new ArrayDeque<>();
 
-    public AIPlayer(FullMapUtilities fullMapUtilities, ExpectedArrivalPathFactory expectedArrivalPathFactory,
+    public AIPlayer(FullMapSplitter fullMapSplitter, ExpectedArrivalPathFactory expectedArrivalPathFactory,
                     KnowledgeBase knowledgeBase) {
-        if (fullMapUtilities == null)
-            throw new IllegalArgumentException("fullMapUtilities is null");
+        if (fullMapSplitter == null)
+            throw new IllegalArgumentException("fullMapSplitter is null");
         if (expectedArrivalPathFactory == null)
             throw new IllegalArgumentException("expectedArrivalPathFactory is null");
         if (knowledgeBase == null)
             throw new IllegalArgumentException("knowledgeBase is null");
 
-        this.fullMapUtilities = fullMapUtilities;
+        this.fullMapSplitter = fullMapSplitter;
         this.expectedArrivalPathFactory = expectedArrivalPathFactory;
         this.knowledgeBase = knowledgeBase;
     }
@@ -107,13 +107,13 @@ public class AIPlayer {
         if (fullMap == null)
             throw new IllegalArgumentException("fullMap is null");
 
-        List<XYPair> unrevealedGrass = fullMapUtilities.getUnrevealedGrass(fullMap.nodes(), onMySide);
+        List<XYPair> unrevealedGrass = fullMapSplitter.getUnrevealedGrass(fullMap.nodes(), onMySide);
         if (!onMySide && knowledgeBase.isFirstValidEnemyPlayerPositionIdentified())
             unrevealedGrass = knowledgeBase.filterCoordinatesNearEnemyPlayer(unrevealedGrass);
         logger.debug("Collected {} unrevealed grass, onMySide: {}", unrevealedGrass.size(), onMySide);
 
-        List<XYPair> mountains = fullMapUtilities.getMountains(fullMap.nodes(), onMySide);
-        List<XYPair> neighborMountains = fullMapUtilities.getNeighbors(fullMap.size(), mountains, unrevealedGrass);
+        List<XYPair> mountains = fullMapSplitter.getMountains(fullMap.nodes(), onMySide);
+        List<XYPair> neighborMountains = fullMapSplitter.getNeighbors(fullMap.size(), mountains, unrevealedGrass);
         var expectedArrivalPathSolver =
                 expectedArrivalPathFactory.createSolver(fullMap.size(), knowledgeBase.getFullMapGraph(),
                         knowledgeBase.getCurrentMyPlayerPosition(), unrevealedGrass, neighborMountains);
