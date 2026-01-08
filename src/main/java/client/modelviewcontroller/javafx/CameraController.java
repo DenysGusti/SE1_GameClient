@@ -61,9 +61,9 @@ public class CameraController {
     // move left/right
     public void moveStrafe(double amount) {
         double scaledAmount = amount * movementSpeed;
-        double yRad = Math.toRadians(yaw + 90);
-        camera.setTranslateX(camera.getTranslateX() + scaledAmount * Math.sin(yRad));
-        camera.setTranslateZ(camera.getTranslateZ() + scaledAmount * Math.cos(yRad));
+        double yRad = Math.toRadians(yaw);
+        camera.setTranslateX(camera.getTranslateX() + scaledAmount * Math.cos(yRad));
+        camera.setTranslateZ(camera.getTranslateZ() - scaledAmount * Math.sin(yRad));
     }
 
     // move up/down
