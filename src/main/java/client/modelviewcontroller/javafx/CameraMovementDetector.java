@@ -2,7 +2,13 @@ package client.modelviewcontroller.javafx;
 
 import javafx.scene.Camera;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class CameraMovementDetector {
+    private static final Logger logger = LoggerFactory.getLogger(CameraMovementDetector.class);
+    private static final double EPS = 1e-2;
+
     private final Camera camera;
 
     private double lastCameraX = 0;
@@ -29,7 +35,7 @@ public class CameraMovementDetector {
         lastCameraY = newCameraY;
         lastCameraZ = newCameraZ;
 
-        return absDeltaX > 0.01 || absDeltaY > 0.01 || absDeltaZ > 0.01;
+        return absDeltaX > EPS || absDeltaY > EPS || absDeltaZ > EPS;
     }
 
     public double getLastCameraX() {
