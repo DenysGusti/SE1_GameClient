@@ -30,7 +30,7 @@ public class ConfigurationManager {
         if (key == null)
             throw new IllegalArgumentException("key is null");
 
-        return Objects.requireNonNull(properties.getProperty(key), "properties.getProperty(key) is null");
+        return properties.getProperty(key);
     }
 
     public boolean getBoolean(String key) {
