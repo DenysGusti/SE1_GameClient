@@ -4,14 +4,14 @@ import client.ai.AIPlayer;
 import client.ai.KnowledgeBase;
 import client.ai.graph.FullMapGraph;
 import client.ai.path.ExpectedArrivalPathFactory;
-import client.ai.utilities.FullMapUtilities;
+import client.ai.utilities.FullMapSplitter;
 import client.ai.graph.FullMapGraphFactory;
 import client.data.fromserver.FullMap;
 import client.halfmaplogic.generation.HalfMapGenerator;
 import client.halfmaplogic.validation.HalfMapValidator;
 import client.halfmaplogic.validation.rule.*;
 import client.modelviewcontroller.controller.GameController;
-import client.modelviewcontroller.javafx.CameraMovementDetector;
+import client.modelviewcontroller.javafx.*;
 import client.modelviewcontroller.model.*;
 import client.modelviewcontroller.view.*;
 import client.network.*;
@@ -96,7 +96,7 @@ public class GameClientFactory {
             throw new IllegalArgumentException("fullMap is null");
 
         FullMapGraph fullMapGraph = fullMapGraphFactory.createGraph(fullMap);
-        var fullMapSplitter = new FullMapUtilities(fullMap.getOptionalMyFortPosition().orElseThrow());
+        var fullMapSplitter = new FullMapSplitter(fullMap.getOptionalMyFortPosition().orElseThrow());
         var expectedArrivalPathFactory = new ExpectedArrivalPathFactory();
         var knowledgeBase = new KnowledgeBase(fullMapGraph);
         return new AIPlayer(fullMapSplitter, expectedArrivalPathFactory, knowledgeBase);
@@ -115,7 +115,11 @@ public class GameClientFactory {
             throw new IllegalArgumentException("meshes is null");
 
         var cameraMovementDetector = new CameraMovementDetector(camera);
-        return new FullMapViewJavaFX(worldRoot, cameraMovementDetector, textures, waterTextures, meshes);
+        var assets = new Assets(textures, waterTextures, meshes);
+        var terrainManager = new TerrainManager(worldRoot, assets);
+        var animationManager = new AnimationManager();
+        EntityManager entityManager = new EntityManager(worldRoot, assets, animationManager);
+        return new FullMapViewJavaFX(cameraMovementDetector, assets, terrainManager, entityManager);
     }
 
     public GameController createGameController(GameSession gameSession, HalfMapGenerator halfMapGenerator,
