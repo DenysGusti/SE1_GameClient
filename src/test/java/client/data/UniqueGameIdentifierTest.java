@@ -15,8 +15,8 @@ public class UniqueGameIdentifierTest {
     @ParameterizedTest
     @MethodSource("provideValidGameIDs")
     public void ValidIDWithLengthFive_ConstructorCalled_IdentifierIsStored(String id) {
-        var gameIdentifier = new UniqueGameIdentifier(id);
-        assertThat(gameIdentifier.uniqueGameID(), is(id));
+        var uniqueGameIdentifier = new UniqueGameIdentifier(id);
+        assertThat(uniqueGameIdentifier.uniqueGameID(), is(id));
     }
 
     private static Stream<Arguments> provideValidGameIDs() {

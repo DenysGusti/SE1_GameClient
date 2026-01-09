@@ -109,9 +109,9 @@ public class XYPairTest {
 
     @Test
     public void CentralPoint_GetAllNeighborsWithThis_ReturnsNinePointsIncludingSelf() {
-        List<XYPair> result = CENTRAL_COORDINATE.getAllNeighborsWithThis(FULL_MAP_SIZE);
-        assertThat(result, hasSize(9));
-        assertThat(result, hasItem(CENTRAL_COORDINATE));
+        List<XYPair> allNeighborsWithThis = CENTRAL_COORDINATE.getAllNeighborsWithThis(FULL_MAP_SIZE);
+        assertThat(allNeighborsWithThis, hasSize(9));
+        assertThat(allNeighborsWithThis, hasItem(CENTRAL_COORDINATE));
     }
 
     @Test

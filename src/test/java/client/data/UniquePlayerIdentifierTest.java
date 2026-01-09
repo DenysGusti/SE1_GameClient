@@ -15,8 +15,8 @@ public class UniquePlayerIdentifierTest {
     @ParameterizedTest
     @MethodSource("provideValidPlayerIDs")
     public void ValidIDProvided_ConstructorCalled_IdentifierCreated(String id) {
-        var playerIdentifier = new UniquePlayerIdentifier(id);
-        assertThat(playerIdentifier.uniquePlayerID(), is(id));
+        var uniquePlayerIdentifier = new UniquePlayerIdentifier(id);
+        assertThat(uniquePlayerIdentifier.uniquePlayerID(), is(id));
     }
 
     private static Stream<Arguments> provideValidPlayerIDs() {
