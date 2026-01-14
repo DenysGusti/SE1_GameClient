@@ -49,6 +49,116 @@ public class HalfMapGenerator {
         int totalMountains = HALF_MAP_NODES - MIN_GRASS_NODES - MIN_WATER_NODES;
         Map<XYPair, ETerrain> nodes = new HashMap<>(HALF_MAP_NODES);
 
+//        nodes.put(new XYPair(0, 0), ETerrain.Water);
+//        nodes.put(new XYPair(1, 0), ETerrain.Water);
+//        nodes.put(new XYPair(2, 0), ETerrain.Mountain);
+//        nodes.put(new XYPair(3, 0), ETerrain.Mountain);
+//        nodes.put(new XYPair(4, 0), ETerrain.Mountain);
+//        nodes.put(new XYPair(5, 0), ETerrain.Mountain);
+//        nodes.put(new XYPair(6, 0), ETerrain.Mountain);
+//        nodes.put(new XYPair(7, 0), ETerrain.Mountain);
+//        nodes.put(new XYPair(8, 0), ETerrain.Water);
+//        nodes.put(new XYPair(9, 0), ETerrain.Water);
+//
+//        nodes.put(new XYPair(0, 1), ETerrain.Grass);
+//        nodes.put(new XYPair(1, 1), ETerrain.Grass);
+//        nodes.put(new XYPair(2, 1), ETerrain.Grass);
+//        nodes.put(new XYPair(3, 1), ETerrain.Grass);
+//        nodes.put(new XYPair(4, 1), ETerrain.Grass);
+//        nodes.put(new XYPair(5, 1), ETerrain.Grass);
+//        nodes.put(new XYPair(6, 1), ETerrain.Grass);
+//        nodes.put(new XYPair(7, 1), ETerrain.Grass);
+//        nodes.put(new XYPair(8, 1), ETerrain.Water);
+//        nodes.put(new XYPair(9, 1), ETerrain.Mountain);
+//
+//        nodes.put(new XYPair(0, 2), ETerrain.Grass);
+//        nodes.put(new XYPair(1, 2), ETerrain.Mountain);
+//        nodes.put(new XYPair(2, 2), ETerrain.Grass);
+//        nodes.put(new XYPair(3, 2), ETerrain.Grass);
+//        nodes.put(new XYPair(4, 2), ETerrain.Mountain);
+//        nodes.put(new XYPair(5, 2), ETerrain.Grass);
+//        nodes.put(new XYPair(6, 2), ETerrain.Mountain);
+//        nodes.put(new XYPair(7, 2), ETerrain.Grass);
+//        nodes.put(new XYPair(8, 2), ETerrain.Grass);
+//        nodes.put(new XYPair(9, 2), ETerrain.Mountain);
+//
+//        nodes.put(new XYPair(0, 3), ETerrain.Grass);
+//        nodes.put(new XYPair(1, 3), ETerrain.Grass);
+//        nodes.put(new XYPair(2, 3), ETerrain.Grass);
+//        nodes.put(new XYPair(3, 3), ETerrain.Grass);
+//        nodes.put(new XYPair(4, 3), ETerrain.Grass);
+//        nodes.put(new XYPair(5, 3), ETerrain.Grass);
+//        nodes.put(new XYPair(6, 3), ETerrain.Grass);
+//        nodes.put(new XYPair(7, 3), ETerrain.Grass);
+//        nodes.put(new XYPair(8, 3), ETerrain.Grass);
+//        nodes.put(new XYPair(9, 3), ETerrain.Mountain);
+//
+//        nodes.put(new XYPair(0, 4), ETerrain.Water);
+//        nodes.put(new XYPair(1, 4), ETerrain.Water);
+//        nodes.put(new XYPair(2, 4), ETerrain.Mountain);
+//        nodes.put(new XYPair(3, 4), ETerrain.Mountain);
+//        nodes.put(new XYPair(4, 4), ETerrain.Mountain);
+//        nodes.put(new XYPair(5, 4), ETerrain.Mountain);
+//        nodes.put(new XYPair(6, 4), ETerrain.Mountain);
+//        nodes.put(new XYPair(7, 4), ETerrain.Mountain);
+//        nodes.put(new XYPair(8, 4), ETerrain.Grass);
+//        nodes.put(new XYPair(9, 4), ETerrain.Water);
+
+//        nodes.put(new XYPair(0, 0), ETerrain.Water);
+//        nodes.put(new XYPair(1, 0), ETerrain.Water);
+//        nodes.put(new XYPair(2, 0), ETerrain.Mountain);
+//        nodes.put(new XYPair(3, 0), ETerrain.Mountain);
+//        nodes.put(new XYPair(4, 0), ETerrain.Mountain);
+//        nodes.put(new XYPair(5, 0), ETerrain.Mountain);
+//        nodes.put(new XYPair(6, 0), ETerrain.Mountain);
+//        nodes.put(new XYPair(7, 0), ETerrain.Mountain);
+//        nodes.put(new XYPair(8, 0), ETerrain.Water);
+//        nodes.put(new XYPair(9, 0), ETerrain.Water);
+//
+//        nodes.put(new XYPair(0, 1), ETerrain.Grass);
+//        nodes.put(new XYPair(1, 1), ETerrain.Grass);
+//        nodes.put(new XYPair(2, 1), ETerrain.Grass);
+//        nodes.put(new XYPair(3, 1), ETerrain.Grass);
+//        nodes.put(new XYPair(4, 1), ETerrain.Grass);
+//        nodes.put(new XYPair(5, 1), ETerrain.Grass);
+//        nodes.put(new XYPair(6, 1), ETerrain.Grass);
+//        nodes.put(new XYPair(7, 1), ETerrain.Grass);
+//        nodes.put(new XYPair(8, 1), ETerrain.Grass);
+//        nodes.put(new XYPair(9, 1), ETerrain.Mountain);
+//
+//        nodes.put(new XYPair(0, 2), ETerrain.Grass);
+//        nodes.put(new XYPair(1, 2), ETerrain.Mountain);
+//        nodes.put(new XYPair(2, 2), ETerrain.Grass);
+//        nodes.put(new XYPair(3, 2), ETerrain.Grass);
+//        nodes.put(new XYPair(4, 2), ETerrain.Mountain);
+//        nodes.put(new XYPair(5, 2), ETerrain.Grass);
+//        nodes.put(new XYPair(6, 2), ETerrain.Grass);
+//        nodes.put(new XYPair(7, 2), ETerrain.Mountain);
+//        nodes.put(new XYPair(8, 2), ETerrain.Grass);
+//        nodes.put(new XYPair(9, 2), ETerrain.Mountain);
+//
+//        nodes.put(new XYPair(0, 3), ETerrain.Grass);
+//        nodes.put(new XYPair(1, 3), ETerrain.Grass);
+//        nodes.put(new XYPair(2, 3), ETerrain.Grass);
+//        nodes.put(new XYPair(3, 3), ETerrain.Grass);
+//        nodes.put(new XYPair(4, 3), ETerrain.Grass);
+//        nodes.put(new XYPair(5, 3), ETerrain.Grass);
+//        nodes.put(new XYPair(6, 3), ETerrain.Grass);
+//        nodes.put(new XYPair(7, 3), ETerrain.Grass);
+//        nodes.put(new XYPair(8, 3), ETerrain.Grass);
+//        nodes.put(new XYPair(9, 3), ETerrain.Mountain);
+//
+//        nodes.put(new XYPair(0, 4), ETerrain.Water);
+//        nodes.put(new XYPair(1, 4), ETerrain.Water);
+//        nodes.put(new XYPair(2, 4), ETerrain.Mountain);
+//        nodes.put(new XYPair(3, 4), ETerrain.Mountain);
+//        nodes.put(new XYPair(4, 4), ETerrain.Mountain);
+//        nodes.put(new XYPair(5, 4), ETerrain.Mountain);
+//        nodes.put(new XYPair(6, 4), ETerrain.Mountain);
+//        nodes.put(new XYPair(7, 4), ETerrain.Mountain);
+//        nodes.put(new XYPair(8, 4), ETerrain.Water);
+//        nodes.put(new XYPair(9, 4), ETerrain.Water);
+
         do {
             nodes.putAll(GRASS_NODES);
             Collections.shuffle(COORDINATES, randomGenerator);
@@ -115,6 +225,8 @@ public class HalfMapGenerator {
                 .filter(entry -> entry.getValue() == ETerrain.Grass)
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
+
+//        List<XYPair> grassCoordinates = List.of(new XYPair(0, 2));
 
         Collections.shuffle(grassCoordinates, randomGenerator);
         return new HashSet<>(grassCoordinates.subList(0, REQUIRED_FORTS));
