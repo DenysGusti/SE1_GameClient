@@ -4,45 +4,65 @@ import client.ai.graph.DistanceMatrix;
 import client.ai.graph.FullMapGraph;
 import client.data.XYPair;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.*;
 
 public class ExpectedArrivalPathFactory {
-    private static final int MAX_GRASS = 38;
-    private static final int MAX_MOUNTAINS = 29;
-    private static final int[][] HEURISTICS = new int[MAX_GRASS + 1][MAX_MOUNTAINS + 1];
+    private static final Logger logger = LoggerFactory.getLogger(ExpectedArrivalPathFactory.class);
 
-    static {
-        for (int grass = 1; grass <= MAX_GRASS; ++grass)
-            for (int mountains = 0; mountains <= MAX_MOUNTAINS; ++mountains)
-                HEURISTICS[grass][mountains] = calculateExpectedValueSum(grass, mountains);
+    private static final int MAX_TILES_SINCE_LAST_MOUNTAIN = 2;
+    private static final int MAX_GRASS = 38;
+    private static final int MAX_MOUNTAINS = 5;
+    private static final int[][][] HEURISTICS = new int[MAX_TILES_SINCE_LAST_MOUNTAIN + 1][MAX_GRASS + 1][MAX_MOUNTAINS + 1];
+
+    private record HeuristicResult(int cost, String path) {
     }
 
-    private static int calculateExpectedValueSum(int grass, int mountains) {
-        int expectedValueSum = 0;
-        int currentRelativeDistance = 0;
-        int remainingGrass = grass;
-        int remainingMountains = mountains;
+    static {
+        for (int previousMountainTiles = 0; previousMountainTiles < HEURISTICS.length; ++previousMountainTiles)
+            for (int grass = 0; grass < HEURISTICS[0].length; ++grass)
+                for (int mountains = 0; mountains < HEURISTICS[0][0].length; ++mountains) {
+                    HeuristicResult minDistance = calculateExpectedValueSum(previousMountainTiles, 0, 0, grass, mountains, previousMountainTiles == 0 ? "m" : "g");
+                    HEURISTICS[previousMountainTiles][grass][mountains] = minDistance.cost();
+                }
+    }
 
-        while (remainingGrass > 0 && remainingMountains > 0) {
-            currentRelativeDistance += 3;
+    private static HeuristicResult calculateExpectedValueSum(int tilesSinceLastMountain, int currentRowStep, int currentDistanceSum,
+                                                             int remainingGrass, int remainingMountains, String currentPath) {
+        if (remainingGrass == 0)
+            return new HeuristicResult(currentDistanceSum, currentPath);
 
-            int adjacentGrass = Math.min(remainingGrass, 3);
-            int cornerGrass = Math.min(remainingGrass - adjacentGrass, 4);
-            int foundGrass = adjacentGrass + cornerGrass;
-            int contribution = foundGrass * currentRelativeDistance + adjacentGrass * 3 + cornerGrass * 5;
+        int stepGrass = tilesSinceLastMountain == 0 ? 3 : 2;
 
-            expectedValueSum += contribution;
-            remainingGrass -= foundGrass;
-            --remainingMountains;
-        }
+        HeuristicResult pickGrass = tilesSinceLastMountain == 0 ?
+                calculateExpectedValueSum(1, currentRowStep + stepGrass,
+                        currentDistanceSum, remainingGrass, remainingMountains, currentPath + "g") :
+                calculateExpectedValueSum(tilesSinceLastMountain + 1, currentRowStep + stepGrass,
+                        currentDistanceSum + currentRowStep + stepGrass,
+                        remainingGrass - 1, remainingMountains, currentPath + "G");
 
-        while (remainingGrass > 0) {
-            currentRelativeDistance += 2;
-            expectedValueSum += currentRelativeDistance;
-            --remainingGrass;
-        }
+        if (remainingMountains == 0)
+            return pickGrass;
 
-        return expectedValueSum;
+        int stepMountain = tilesSinceLastMountain == 0 ? 4 : 3;
+        int maxCornerGrass = tilesSinceLastMountain <= 1 ? 2 : 4;
+        int maxAdjacentGrass = tilesSinceLastMountain == 0 ? 1 : 3;
+
+        int adjacentGrass = Math.min(remainingGrass, maxAdjacentGrass);
+        int cornerGrass = Math.min(remainingGrass - adjacentGrass, maxCornerGrass);
+        int foundGrass = adjacentGrass + cornerGrass;
+        int contribution = foundGrass * (currentRowStep + stepMountain) + adjacentGrass * 3 + cornerGrass * 5;
+
+        HeuristicResult pickMountain = calculateExpectedValueSum(1, currentRowStep + stepMountain + 3,
+                currentDistanceSum + contribution, remainingGrass - foundGrass,
+                remainingMountains - 1, currentPath + (adjacentGrass > 0 ? "Mg" : "M"));
+
+        if (pickGrass.cost() <= pickMountain.cost())
+            return pickGrass;
+        else
+            return pickMountain;
     }
 
     public ExpectedArrivalPathSolver createSolver(XYPair fullMapSize, FullMapGraph fullMapGraph, XYPair start,
@@ -68,7 +88,6 @@ public class ExpectedArrivalPathFactory {
         DistanceMatrix distanceMatrix = fullMapGraph.getDistanceMatrix(allNodes);
 
         var mountainRevelationMasks = new long[mountains.size()];
-        var mountainToGrassDistances = new int[mountains.size()][];
 
         Map<XYPair, Integer> grassIndexMap = new HashMap<>();
         for (int i = 0; i < grass.size(); ++i)
@@ -81,19 +100,12 @@ public class ExpectedArrivalPathFactory {
                     .filter(grass::contains)
                     .toList();
 
-            Map<Integer, Integer> neighborDistances = new HashMap<>();
             for (XYPair grassNeighbor : mountainGrassNeighbors) {
                 int grassIdx = grassIndexMap.get(grassNeighbor);
                 grassMask |= 1L << grassIdx;
-                neighborDistances.put(grassIdx, fullMapGraph.getDistance(mountainCoordinate, grassNeighbor));
             }
 
             mountainRevelationMasks[mountainIdx] = grassMask;
-            mountainToGrassDistances[mountainIdx] = new int[grass.size()];
-
-            int fromMountainIdx = mountainIdx;
-            neighborDistances.forEach((grassIdx, distance) ->
-                    mountainToGrassDistances[fromMountainIdx][grassIdx] = distance);
         }
 
         var grassProximity = new int[allNodes.size()][grass.size()];
@@ -118,6 +130,6 @@ public class ExpectedArrivalPathFactory {
         }
 
         return new ExpectedArrivalPathSolver(HEURISTICS, allNodes, grass.size(), mountains.size(), distanceMatrix,
-                mountainRevelationMasks, mountainToGrassDistances, grassProximity, mountainProximity);
+                mountainRevelationMasks, grassProximity, mountainProximity);
     }
 }

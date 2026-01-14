@@ -117,7 +117,7 @@ public class AIPlayer {
         var expectedArrivalPathSolver =
                 expectedArrivalPathFactory.createSolver(fullMap.size(), knowledgeBase.getFullMapGraph(),
                         knowledgeBase.getCurrentMyPlayerPosition(), unrevealedGrass, neighborMountains);
-
+        expectedArrivalPathSolver.solve();
         List<XYPair> waypoints = expectedArrivalPathSolver.getWaypoints();
         return knowledgeBase.getStepPathBetweenWaypoints(waypoints);
     }
