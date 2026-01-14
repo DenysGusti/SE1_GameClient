@@ -23,6 +23,20 @@ public record HalfMap(Map<XYPair, ETerrain> nodes, Set<XYPair> potentialForts) {
         return nodes.get(coordinate) == ETerrain.Water;
     }
 
+    public boolean isMountain(XYPair coordinate) {
+        if (coordinate == null)
+            throw new IllegalArgumentException("coordinate is null");
+
+        return nodes.get(coordinate) == ETerrain.Mountain;
+    }
+
+    public boolean isGrass(XYPair coordinate) {
+        if (coordinate == null)
+            throw new IllegalArgumentException("coordinate is null");
+
+        return nodes.get(coordinate) == ETerrain.Grass;
+    }
+
     public ETerrain getTerrain(XYPair coordinate) {
         if (coordinate == null)
             throw new IllegalArgumentException("coordinate is null");

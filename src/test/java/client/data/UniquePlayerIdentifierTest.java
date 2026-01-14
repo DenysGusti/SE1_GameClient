@@ -28,7 +28,7 @@ public class UniquePlayerIdentifierTest {
     }
 
     @Test
-    public void NullIDProvided_ConstructorCalled_IllegalArgumentExceptionThrown() {
+    public void NullIDProvided_ConstructorCalled_ThrowsIllegalArgumentException() {
         assertThrows(IllegalArgumentException.class, () -> new UniquePlayerIdentifier(null));
     }
 }
