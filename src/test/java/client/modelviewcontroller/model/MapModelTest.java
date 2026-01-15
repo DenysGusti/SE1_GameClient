@@ -1,8 +1,7 @@
 package client.modelviewcontroller.model;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 import java.util.List;
 
@@ -34,7 +33,7 @@ public class MapModelTest {
         mapModel.subscribeOnFullMapUpdated(fullMapSubscriber);
         mapModel.updateFullMap(fullMap);
 
-        verify(fullMapSubscriber).update(fullMap);
+        verify(fullMapSubscriber, times(1)).update(fullMap);
     }
 
     @Test
@@ -43,7 +42,7 @@ public class MapModelTest {
         mapModel.subscribeOnHalfMapGenerated(halfMapSubscriber);
         mapModel.updateHalfMap(halfMap);
 
-        verify(halfMapSubscriber).update(halfMap);
+        verify(halfMapSubscriber, times(1)).update(halfMap);
     }
 
     @Test
@@ -52,7 +51,7 @@ public class MapModelTest {
         mapModel.subscribeOnHalfMapValidationErrors(errorSubscriber);
         mapModel.updateHalfMapValidationErrors(errors);
 
-        verify(errorSubscriber).update(errors);
+        verify(errorSubscriber, times(1)).update(errors);
     }
 
     @Test
