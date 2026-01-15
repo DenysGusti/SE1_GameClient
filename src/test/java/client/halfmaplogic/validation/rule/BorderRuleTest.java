@@ -42,7 +42,6 @@ public class BorderRuleTest {
 
         var halfMap = new HalfMap(nodes, Set.of(new XYPair(2, 2)));
         var errors = borderRule.validate(halfMap);
-        new HalfMapView().update(halfMap);
         assertThat(errors, empty());
     }
 
