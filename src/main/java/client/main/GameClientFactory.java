@@ -118,7 +118,7 @@ public class GameClientFactory {
         var assets = new Assets(textures, waterTextures, meshes);
         var terrainManager = new TerrainManager(worldRoot, assets);
         var animationManager = new AnimationManager();
-        EntityManager entityManager = new EntityManager(worldRoot, assets, animationManager);
+        var entityManager = new EntityManager(worldRoot, assets, animationManager);
         return new FullMapViewJavaFX(cameraMovementDetector, assets, terrainManager, entityManager);
     }
 
