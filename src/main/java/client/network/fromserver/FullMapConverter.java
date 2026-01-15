@@ -68,8 +68,6 @@ public class FullMapConverter {
     }
 
     private static boolean representsEnemyPlayer(EPlayerPositionState state) {
-        if (state == null)
-            throw new IllegalArgumentException("state is null");
         return state == EPlayerPositionState.EnemyPlayerPosition || state == EPlayerPositionState.BothPlayerPosition;
     }
 }
