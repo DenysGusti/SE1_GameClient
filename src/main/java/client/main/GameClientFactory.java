@@ -152,4 +152,11 @@ public class GameClientFactory {
 
         return new GameController(playerModel, mapModel, gameSession, halfMapGenerator, halfMapValidator, this);
     }
+
+    public SecondHalfMapTransitionRule createSecondHalfMapTransitionRule(FullMap fullMap) {
+        if (fullMap == null)
+            throw new IllegalArgumentException("fullMap is null");
+
+        return new SecondHalfMapTransitionRule(fullMap);
+    }
 }
