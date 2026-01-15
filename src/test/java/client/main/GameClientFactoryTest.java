@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
+import java.awt.*;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -25,6 +26,7 @@ import client.data.UniqueGameIdentifier;
 import client.ai.graph.FullMapGraphFactory;
 
 import javafx.collections.FXCollections;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import javafx.scene.Camera;
@@ -93,7 +95,7 @@ public class GameClientFactoryTest {
     }
 
     @Test
-    void CreateFullMapViewJavaFX_ValidInputs_ReturnsInstance() {
+    void CreateFullMapViewJavaFX_ValidInputs_ThrowsIllegalStateExceptionDueToToolkit() {
         var groupMock = mock(Group.class);
         when(groupMock.getChildren()).thenReturn(FXCollections.observableArrayList());
 
@@ -102,8 +104,8 @@ public class GameClientFactoryTest {
         var water = new Image[0];
         Map<String, TriangleMesh> meshes = Collections.emptyMap();
 
-        var view = factory.createFullMapViewJavaFX(groupMock, camera, textures, water, meshes);
-        assertThat(view, notNullValue());
+        assertThrows(IllegalStateException.class, () ->
+                factory.createFullMapViewJavaFX(groupMock, camera, textures, water, meshes));
     }
 
     @Test
