@@ -1,4 +1,4 @@
-package client.modelviewcontroller.javafx;
+package client.javafx;
 
 import client.data.XYPair;
 import client.data.fromserver.FullMap;

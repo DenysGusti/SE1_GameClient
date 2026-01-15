@@ -1,4 +1,4 @@
-package client.modelviewcontroller.assets;
+package client.assets;
 
 import javafx.scene.shape.TriangleMesh;
 import javafx.scene.shape.VertexFormat;

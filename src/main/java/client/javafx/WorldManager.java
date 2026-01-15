@@ -1,4 +1,4 @@
-package client.modelviewcontroller.javafx;
+package client.javafx;
 
 import javafx.scene.AmbientLight;
 import javafx.scene.Group;

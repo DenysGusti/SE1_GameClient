@@ -1,4 +1,4 @@
-package client.modelviewcontroller.assets;
+package client.assets;
 
 import client.main.MainClient;
 import javafx.scene.image.Image;

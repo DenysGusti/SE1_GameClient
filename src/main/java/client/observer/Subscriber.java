@@ -1,4 +1,4 @@
-package client.modelviewcontroller.observer;
+package client.observer;
 
 public interface Subscriber<T> {
     void update(T data);

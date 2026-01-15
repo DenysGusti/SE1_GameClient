@@ -1,17 +1,15 @@
 package client.main;
 
-import client.ai.AIPlayer;
-import client.ai.graph.FullMapGraph;
 import client.ai.graph.FullMapGraphFactory;
 import client.data.PlayerInformation;
 import client.data.UniqueGameIdentifier;
 import client.halfmaplogic.generation.HalfMapGenerator;
 import client.halfmaplogic.validation.HalfMapValidator;
 import client.main.exception.CommandLineArgumentsException;
-import client.modelviewcontroller.assets.AssetLoader;
+import client.assets.AssetLoader;
 import client.modelviewcontroller.controller.GameController;
-import client.modelviewcontroller.assets.ObjTriangleMeshFactory;
-import client.modelviewcontroller.javafx.JavaFXApplication;
+import client.assets.ObjTriangleMeshFactory;
+import client.javafx.JavaFXApplication;
 import client.modelviewcontroller.view.FullMapViewJavaFX;
 import client.network.GameSession;
 import client.network.NetworkService;

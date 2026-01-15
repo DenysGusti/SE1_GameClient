@@ -1,4 +1,4 @@
-package client.modelviewcontroller.observer;
+package client.observer;
 
 import java.util.ArrayList;
 import java.util.List;

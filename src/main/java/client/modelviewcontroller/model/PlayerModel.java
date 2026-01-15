@@ -2,8 +2,8 @@ package client.modelviewcontroller.model;
 
 import client.data.fromserver.EPlayerGameState;
 import client.data.fromserver.PlayerState;
-import client.modelviewcontroller.observer.Publisher;
-import client.modelviewcontroller.observer.Subscriber;
+import client.observer.Publisher;
+import client.observer.Subscriber;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

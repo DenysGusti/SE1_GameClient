@@ -1,4 +1,4 @@
-package client.modelviewcontroller.javafx;
+package client.javafx;
 
 import javafx.geometry.Point3D;
 import javafx.scene.Camera;

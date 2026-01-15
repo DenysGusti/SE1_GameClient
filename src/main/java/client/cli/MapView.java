@@ -1,4 +1,4 @@
-package client.modelviewcontroller.cli;
+package client.cli;
 
 import client.data.ETerrain;
 

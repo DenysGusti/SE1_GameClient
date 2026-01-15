@@ -10,6 +10,7 @@ import client.data.fromserver.FullMap;
 import client.halfmaplogic.generation.HalfMapGenerator;
 import client.halfmaplogic.validation.HalfMapValidator;
 import client.halfmaplogic.validation.rule.*;
+import client.javafx.*;
 import client.modelviewcontroller.controller.GameController;
 import client.modelviewcontroller.javafx.*;
 import client.modelviewcontroller.model.*;

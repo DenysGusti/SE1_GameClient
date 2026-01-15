@@ -1,8 +1,12 @@
 package client.modelviewcontroller.view;
 
 import client.data.fromserver.FullMap;
+import client.javafx.Assets;
+import client.javafx.CameraMovementDetector;
+import client.javafx.EntityManager;
+import client.javafx.TerrainManager;
 import client.modelviewcontroller.javafx.*;
-import client.modelviewcontroller.observer.Subscriber;
+import client.observer.Subscriber;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 
