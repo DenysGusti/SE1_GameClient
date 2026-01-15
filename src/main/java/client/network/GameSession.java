@@ -73,18 +73,12 @@ public class GameSession {
     }
 
     private boolean isNewGameState(GameState gameState) {
-        if (gameState == null)
-            throw new IllegalArgumentException("gameState is null");
-
         // null-safe comparison, if lastGameStateID is null
         return !Objects.equals(lastGameStateID, gameState.gameStateID());
     }
 
     // Command
     private void updateInternalState(GameState gameState) {
-        if (gameState == null)
-            throw new IllegalArgumentException("gameState is null");
-
         lastGameStateID = gameState.gameStateID();
         logger.debug("Received new GameState ID: {}", lastGameStateID);
 
@@ -93,9 +87,6 @@ public class GameSession {
 
     // Query
     private GameState injectAccumulatedMap(GameState gameState) {
-        if (gameState == null)
-            throw new IllegalArgumentException("gameState is null");
-
         return gameState.withFullMap(fullMapAccumulator.getFullMap());
     }
 }
