@@ -20,7 +20,7 @@ import client.data.fromclient.HalfMap;
 public class TerrainRuleTest {
     private TerrainRule terrainRule;
     private Map<XYPair, ETerrain> nodes;
-    private final Set<XYPair> fortPos = Set.of(new XYPair(0, 0));
+    private final Set<XYPair> fortPosition = Set.of(new XYPair(0, 0));
 
     @BeforeEach
     public void setUp() {
@@ -48,7 +48,7 @@ public class TerrainRuleTest {
     @Test
     public void ValidComposition_ValidateCalled_ReturnsNoErrors() {
         fillMap(24, 5);
-        var halfMap = new HalfMap(nodes, fortPos);
+        var halfMap = new HalfMap(nodes, fortPosition);
         var errors = terrainRule.validate(halfMap);
 
         assertThat(errors, empty());
@@ -57,7 +57,7 @@ public class TerrainRuleTest {
     @Test
     public void TooFewGrass_ValidateCalled_ReturnsTerrainError() {
         fillMap(23, 7);
-        var halfMap = new HalfMap(nodes, fortPos);
+        var halfMap = new HalfMap(nodes, fortPosition);
         var errors = terrainRule.validate(halfMap);
 
         assertThat(errors, hasSize(1));
@@ -67,7 +67,7 @@ public class TerrainRuleTest {
     @Test
     public void TooFewMountains_ValidateCalled_ReturnsTerrainError() {
         fillMap(30, 4);
-        var halfMap = new HalfMap(nodes, fortPos);
+        var halfMap = new HalfMap(nodes, fortPosition);
         var errors = terrainRule.validate(halfMap);
 
         assertThat(errors, hasSize(1));
@@ -77,7 +77,7 @@ public class TerrainRuleTest {
     @Test
     public void TooFewWater_ValidateCalled_ReturnsTerrainError() {
         fillMap(40, 5);
-        var halfMap = new HalfMap(nodes, fortPos);
+        var halfMap = new HalfMap(nodes, fortPosition);
         var errors = terrainRule.validate(halfMap);
 
         assertThat(errors, hasSize(1));
@@ -87,7 +87,7 @@ public class TerrainRuleTest {
     @Test
     public void WrongNodeCount_ValidateCalled_ReturnsSizeError() {
         nodes.put(new XYPair(0, 0), ETerrain.Grass);
-        var halfMap = new HalfMap(nodes, fortPos);
+        var halfMap = new HalfMap(nodes, fortPosition);
         var errors = terrainRule.validate(halfMap);
 
         boolean sizeErrorFound = errors.stream()

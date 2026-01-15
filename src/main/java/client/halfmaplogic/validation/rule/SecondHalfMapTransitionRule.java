@@ -4,7 +4,6 @@ import client.data.ETerrain;
 import client.data.XYPair;
 import client.data.fromclient.HalfMap;
 import client.data.fromserver.FullMap;
-import client.data.fromserver.FullMapNode;
 import client.halfmaplogic.validation.exception.BorderRuleException;
 import client.halfmaplogic.validation.exception.HalfMapGenerationException;
 
@@ -13,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class SecondHalfMapTransitionRule implements HalfMapValidationRule {
     private static final Logger logger = LoggerFactory.getLogger(SecondHalfMapTransitionRule.class);
@@ -37,28 +35,23 @@ public class SecondHalfMapTransitionRule implements HalfMapValidationRule {
         if (fullMap.nodes().size() != 50)
             throw new HalfMapGenerationException("fullMap must have exactly 50 nodes");
 
-        Map<XYPair, FullMapNode> nodes = fullMap.nodes();
         XYPair topLeft = fullMap.getOptionalTopLeftCoordinate().orElseThrow();
 
         for (int x = 0; x < HALF_MAP_SIZE.x(); ++x) {
             var coordinate = new XYPair(topLeft.x() + x, topLeft.y());
-            FullMapNode node = nodes.get(coordinate);
-            opponentTopBorder[x] = node.terrain();
+            opponentTopBorder[x] = fullMap.getTerrain(coordinate);
         }
         for (int x = 0; x < HALF_MAP_SIZE.x(); ++x) {
             var coordinate = new XYPair(topLeft.x() + x, topLeft.y() + HALF_MAP_SIZE.y() - 1);
-            FullMapNode node = nodes.get(coordinate);
-            opponentBottomBorder[x] = node.terrain();
+            opponentBottomBorder[x] = fullMap.getTerrain(coordinate);
         }
         for (int y = 0; y < HALF_MAP_SIZE.y(); ++y) {
             var coordinate = new XYPair(topLeft.x(), topLeft.y() + y);
-            FullMapNode node = nodes.get(coordinate);
-            opponentLeftBorder[y] = node.terrain();
+            opponentLeftBorder[y] = fullMap.getTerrain(coordinate);
         }
         for (int y = 0; y < HALF_MAP_SIZE.y(); ++y) {
             var coordinate = new XYPair(topLeft.x() + HALF_MAP_SIZE.x() - 1, topLeft.y() + y);
-            FullMapNode node = nodes.get(coordinate);
-            opponentRightBorder[y] = node.terrain();
+            opponentRightBorder[y] = fullMap.getTerrain(coordinate);
         }
     }
 
