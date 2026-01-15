@@ -61,9 +61,6 @@ public class FullMapRevealer {
     }
 
     private Set<XYPair> getCoordinatesToRevealFromMyPlayer(FullMap fullMap) {
-        if (fullMap == null)
-            throw new IllegalArgumentException("fullMap is null");
-
         return fullMap.getOptionalMyPlayerPosition()
                 .map(coordinate -> {
                     if (fullMap.isMountain(coordinate))
