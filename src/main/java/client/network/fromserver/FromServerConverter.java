@@ -45,11 +45,11 @@ public class FromServerConverter {
 
         PlayerState myPlayerState = gameState.getPlayers().stream()
                 .filter(player -> player.equals(messagesbase.UniquePlayerIdentifier.of(uniquePlayerIdentifier.uniquePlayerID())))
-                .findFirst().map(this::convertPlayerState).orElseThrow();  // my player must always be present
+                .findFirst().map(FromServerConverter::convertPlayerState).orElseThrow();  // my player must always be present
 
         PlayerState enemyPlayerState = gameState.getPlayers().stream()
                 .filter(player -> !player.equals(messagesbase.UniquePlayerIdentifier.of(uniquePlayerIdentifier.uniquePlayerID())))
-                .findFirst().map(this::convertPlayerState).orElse(null);
+                .findFirst().map(FromServerConverter::convertPlayerState).orElse(null);
 
         return new GameState(
                 gameState.getGameStateId(),
@@ -59,10 +59,7 @@ public class FromServerConverter {
         );
     }
 
-    private PlayerState convertPlayerState(messagesbase.messagesfromserver.PlayerState playerState) {
-        if (playerState == null)
-            throw new IllegalArgumentException("playerState is null");
-
+    private static PlayerState convertPlayerState(messagesbase.messagesfromserver.PlayerState playerState) {
         var playerInformation = new PlayerInformation(
                 playerState.getFirstName(),
                 playerState.getLastName(),

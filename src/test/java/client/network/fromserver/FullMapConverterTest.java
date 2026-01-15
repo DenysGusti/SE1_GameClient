@@ -112,7 +112,7 @@ public class FullMapConverterTest {
     }
 
     private FullMapNode createNode(XYPair coordinate) {
-        FullMapNode node = mock(FullMapNode.class);
+        var node = mock(FullMapNode.class);
         when(node.getX()).thenReturn(coordinate.x());
         when(node.getY()).thenReturn(coordinate.y());
         when(node.getTerrain()).thenReturn(ETerrain.Grass);
