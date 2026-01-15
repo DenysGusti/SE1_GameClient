@@ -28,7 +28,7 @@ public class HalfMapGenerator {
                 GRASS_NODES.put(new XYPair(x, y), ETerrain.Grass);
     }
 
-    private static final List<XYPair> COORDINATES = new ArrayList<>(GRASS_NODES.keySet());
+    private final List<XYPair> coordinates = new ArrayList<>(GRASS_NODES.keySet());
 
     private final RandomGenerator randomGenerator;
 
@@ -51,10 +51,10 @@ public class HalfMapGenerator {
 
         do {
             nodes.putAll(GRASS_NODES);
-            Collections.shuffle(COORDINATES, randomGenerator);
+            Collections.shuffle(coordinates, randomGenerator);
 
             int waterPlaced = 0;
-            for (XYPair coordinate : COORDINATES) {
+            for (XYPair coordinate : coordinates) {
                 if (waterPlaced >= MIN_WATER_NODES)
                     break;
 
@@ -87,19 +87,11 @@ public class HalfMapGenerator {
     }
 
     private static boolean hasNoMountainNeighborNotOnBorder(Map<XYPair, ETerrain> nodes, XYPair coordinate) {
-        if (nodes == null)
-            throw new IllegalArgumentException("nodes is null");
-        if (coordinate == null)
-            throw new IllegalArgumentException("coordinate is null");
-
         return coordinate.getAllNeighbors(HALF_MAP_SIZE).stream()
                 .allMatch(neighbor -> nodes.get(neighbor) != ETerrain.Mountain || neighbor.isOnBorder(HALF_MAP_SIZE));
     }
 
     private static boolean allGrassHaveTwoGrassNeighbors(Map<XYPair, ETerrain> nodes) {
-        if (nodes == null)
-            throw new IllegalArgumentException("nodes is null");
-
         return nodes.entrySet().stream()
                 .filter(e -> e.getValue() == ETerrain.Grass)
                 .map(Map.Entry::getKey)
@@ -108,9 +100,6 @@ public class HalfMapGenerator {
     }
 
     private Set<XYPair> placePotentialForts(Map<XYPair, ETerrain> nodes) {
-        if (nodes == null)
-            throw new IllegalArgumentException("nodes is null");
-
         List<XYPair> grassCoordinates = nodes.entrySet().stream()
                 .filter(entry -> entry.getValue() == ETerrain.Grass)
                 .map(Map.Entry::getKey)

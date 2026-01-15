@@ -31,7 +31,7 @@ public class FullMapAccumulatorTest {
 
     @Test
     public void NewAccumulator_GetFullMap_ReturnsNull() {
-        assertThat(accumulator.getFullMap(), is(nullValue()));
+        assertThat(accumulator.getFullMap(), nullValue());
     }
 
     @Test

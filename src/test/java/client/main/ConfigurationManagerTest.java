@@ -43,7 +43,7 @@ public class ConfigurationManagerTest {
 
     @Test
     public void GetString_NonExistentKey_ReturnsNull() {
-        assertThat(configManager.getString("missing.key"), is(nullValue()));
+        assertThat(configManager.getString("missing.key"), nullValue());
     }
 
     @Test

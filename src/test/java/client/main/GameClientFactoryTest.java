@@ -78,7 +78,7 @@ public class GameClientFactoryTest {
 
         var aiPlayer = factory.createAIPlayer(mapMock);
 
-        assertThat(aiPlayer, is(notNullValue()));
+        assertThat(aiPlayer, notNullValue());
         verify(graphFactoryMock, times(1)).createGraph(mapMock);
     }
 
