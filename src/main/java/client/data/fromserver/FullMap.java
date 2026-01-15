@@ -49,11 +49,25 @@ public record FullMap(Map<XYPair, FullMapNode> nodes, XYPair topLeftCoordinate, 
                 newMyTreasurePosition, isMyTreasureCollected);
     }
 
+    public boolean isWater(XYPair coordinate) {
+        if (coordinate == null)
+            throw new IllegalArgumentException("coordinate is null");
+
+        return nodes.get(coordinate).isWater();
+    }
+
     public boolean isMountain(XYPair coordinate) {
         if (coordinate == null)
             throw new IllegalArgumentException("coordinate is null");
 
         return nodes.get(coordinate).isMountain();
+    }
+
+    public boolean isGrass(XYPair coordinate) {
+        if (coordinate == null)
+            throw new IllegalArgumentException("coordinate is null");
+
+        return nodes.get(coordinate).isGrass();
     }
 
     public boolean isRevealed(XYPair coordinate) {

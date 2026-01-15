@@ -22,7 +22,7 @@ import client.data.XYPair;
 public class HalfMapTest {
     private static Map<XYPair, ETerrain> nodes;
     private static Set<XYPair> potentialForts;
-    private static HalfMap halfMap;
+    private static HalfMap realisticHalfMap;
 
     @BeforeAll
     public static void setUp() {
@@ -31,7 +31,7 @@ public class HalfMapTest {
             for (int x = 0; x < 10; ++x) {
                 XYPair current = new XYPair(x, y);
                 ETerrain terrain = switch (current) {
-                    case XYPair p when p.y() == 0 && (p.x() < 2 || p.x() > 7) -> ETerrain.Water;
+                    case XYPair p when p.y() == 0 && (p.x() <= 1 || p.x() >= 8) -> ETerrain.Water;
                     case XYPair p when p.y() == 0 -> ETerrain.Mountain;
 
                     case XYPair p when p.y() == 1 && p.x() == 8 -> ETerrain.Water;
@@ -42,31 +42,31 @@ public class HalfMapTest {
 
                     case XYPair p when p.y() == 3 && p.x() == 9 -> ETerrain.Mountain;
 
-                    case XYPair p when p.y() == 4 && (p.x() < 2 || p.x() == 9) -> ETerrain.Water;
-                    case XYPair p when p.y() == 4 && p.x() < 8 -> ETerrain.Mountain;
+                    case XYPair p when p.y() == 4 && (p.x() <= 1 || p.x() == 9) -> ETerrain.Water;
+                    case XYPair p when p.y() == 4 && p.x() <= 7 -> ETerrain.Mountain;
 
                     default -> ETerrain.Grass;
                 };
                 nodes.put(current, terrain);
             }
         potentialForts = new HashSet<>(Set.of(new XYPair(0, 2)));
-        halfMap = new HalfMap(nodes, potentialForts);
+        realisticHalfMap = new HalfMap(nodes, potentialForts);
     }
 
     @Test
     public void ValidArguments_ConstructorCalled_CollectionsAreDefensivelyCopied() {
-        assertThat(halfMap.nodes(), is(not(sameInstance(nodes))));
-        assertThat(halfMap.potentialForts(), is(not(sameInstance(potentialForts))));
-        assertThat(halfMap.nodes(), is(nodes));
+        assertThat(realisticHalfMap.nodes(), is(not(sameInstance(nodes))));
+        assertThat(realisticHalfMap.potentialForts(), is(not(sameInstance(potentialForts))));
+        assertThat(realisticHalfMap.nodes(), is(nodes));
     }
 
     @ParameterizedTest
     @MethodSource("provideTerrainCheckScenarios")
-    public void RealisticMap_CheckTerrainType_ReturnsCorrectBoolean(XYPair coordinate, ETerrain expectedTerrain) {
-        assertThat(halfMap.isWater(coordinate), is(expectedTerrain == ETerrain.Water));
-        assertThat(halfMap.isMountain(coordinate), is(expectedTerrain == ETerrain.Mountain));
-        assertThat(halfMap.isGrass(coordinate), is(expectedTerrain == ETerrain.Grass));
-        assertThat(halfMap.getTerrain(coordinate), is(expectedTerrain));
+    public void RealisticHalfMap_CheckTerrainType_ReturnsCorrectBoolean(XYPair coordinate, ETerrain expectedTerrain) {
+        assertThat(realisticHalfMap.isWater(coordinate), is(expectedTerrain == ETerrain.Water));
+        assertThat(realisticHalfMap.isMountain(coordinate), is(expectedTerrain == ETerrain.Mountain));
+        assertThat(realisticHalfMap.isGrass(coordinate), is(expectedTerrain == ETerrain.Grass));
+        assertThat(realisticHalfMap.getTerrain(coordinate), is(expectedTerrain));
     }
 
     private static Stream<Arguments> provideTerrainCheckScenarios() {
@@ -89,21 +89,21 @@ public class HalfMapTest {
 
     @Test
     public void ValidHalfMap_isWaterWithNull_ThrowsIllegalArgumentException() {
-        assertThrows(IllegalArgumentException.class, () -> halfMap.isWater(null));
+        assertThrows(IllegalArgumentException.class, () -> realisticHalfMap.isWater(null));
     }
 
     @Test
     public void ValidHalfMap_isMountainWithNull_ThrowsIllegalArgumentException() {
-        assertThrows(IllegalArgumentException.class, () -> halfMap.isMountain(null));
+        assertThrows(IllegalArgumentException.class, () -> realisticHalfMap.isMountain(null));
     }
 
     @Test
     public void ValidHalfMap_isGrassWithNull_ThrowsIllegalArgumentException() {
-        assertThrows(IllegalArgumentException.class, () -> halfMap.isGrass(null));
+        assertThrows(IllegalArgumentException.class, () -> realisticHalfMap.isGrass(null));
     }
 
     @Test
     public void ValidHalfMap_getTerrainWithNull_ThrowsIllegalArgumentException() {
-        assertThrows(IllegalArgumentException.class, () -> halfMap.getTerrain(null));
+        assertThrows(IllegalArgumentException.class, () -> realisticHalfMap.getTerrain(null));
     }
 }
