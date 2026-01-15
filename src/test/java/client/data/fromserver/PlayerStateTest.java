@@ -26,7 +26,7 @@ public class PlayerStateTest {
     @MethodSource("provideStateScenarios")
     public void PlayerInSpecificState_CheckStatusMethods_ReturnsCorrectBooleans(EPlayerGameState gameState,
                                                                                 boolean wait, boolean act, boolean won, boolean lost) {
-        PlayerState state = new PlayerState(playerInformation, false, gameState);
+        var state = new PlayerState(playerInformation, false, gameState);
 
         assertThat(state.mustWait(), is(wait));
         assertThat(state.mustAct(), is(act));
@@ -45,7 +45,7 @@ public class PlayerStateTest {
 
     @Test
     public void PlayerHasTreasure_GetterCalled_ReturnsTrue() {
-        PlayerState state = new PlayerState(playerInformation, true, EPlayerGameState.MustAct);
+        var state = new PlayerState(playerInformation, true, EPlayerGameState.MustAct);
         assertThat(state.hasCollectedTreasure(), is(true));
     }
 
