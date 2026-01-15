@@ -62,16 +62,10 @@ public class FullMapSplitter {
 
     // is coordinate on the same side as my fort
     private boolean isCoordinateOnMySide(XYPair coordinate) {
-        if (coordinate == null)
-            throw new IllegalArgumentException("coordinate is null");
-
         return isMyFortOnTopOrLeftSide == isCoordinateOnTopOrLeftSide(coordinate);
     }
 
     private static boolean isCoordinateOnTopOrLeftSide(XYPair coordinate) {
-        if (coordinate == null)
-            throw new IllegalArgumentException("coordinate is null");
-
         return coordinate.x() < HALF_MAP_SIZE.x() && coordinate.y() < HALF_MAP_SIZE.y();
     }
 }
