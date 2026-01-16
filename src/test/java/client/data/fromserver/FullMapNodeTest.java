@@ -43,7 +43,7 @@ public class FullMapNodeTest {
 
         assertThat(updatedNode.isRevealed(), is(true));
         assertThat(updatedNode.terrain(), is(initialNode.terrain()));
-        assertThat(updatedNode, is(not(sameInstance(initialNode))));
+        assertThat(updatedNode, not(sameInstance(initialNode)));
     }
 
     @Test

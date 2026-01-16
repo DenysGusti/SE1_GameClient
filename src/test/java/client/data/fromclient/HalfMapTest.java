@@ -55,8 +55,8 @@ public class HalfMapTest {
 
     @Test
     public void ValidArguments_ConstructorCalled_CollectionsAreDefensivelyCopied() {
-        assertThat(realisticHalfMap.nodes(), is(not(sameInstance(nodes))));
-        assertThat(realisticHalfMap.potentialForts(), is(not(sameInstance(potentialForts))));
+        assertThat(realisticHalfMap.nodes(), not(sameInstance(nodes)));
+        assertThat(realisticHalfMap.potentialForts(), not(sameInstance(potentialForts)));
         assertThat(realisticHalfMap.nodes(), is(nodes));
     }
 

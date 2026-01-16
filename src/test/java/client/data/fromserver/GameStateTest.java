@@ -56,7 +56,7 @@ public class GameStateTest {
         GameState updatedGameState = initialGameState.withFullMap(newMap);
 
         assertThat(updatedGameState.fullMap(), is(newMap));
-        assertThat(updatedGameState, is(not(sameInstance(initialGameState))));
+        assertThat(updatedGameState, not(sameInstance(initialGameState)));
     }
 
     @ParameterizedTest

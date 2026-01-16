@@ -85,7 +85,7 @@ public class FullMapTest {
 
         assertThat(updatedFullMap.myTreasurePosition(), is(newTreasurePosition));
         assertThat(updatedFullMap.getOptionalMyTreasurePosition(), is(Optional.of(newTreasurePosition)));
-        assertThat(updatedFullMap, is(not(sameInstance(realisticFullMap))));
+        assertThat(updatedFullMap, not(sameInstance(realisticFullMap)));
     }
 
     @Test
@@ -95,7 +95,7 @@ public class FullMapTest {
         FullMap updatedFullMap = realisticFullMap.withNodes(newNodes);
 
         assertThat(updatedFullMap.nodes(), is(newNodes));
-        assertThat(updatedFullMap.nodes(), is(not(sameInstance(newNodes))));
+        assertThat(updatedFullMap.nodes(), not(sameInstance(newNodes)));
     }
 
     @ParameterizedTest
