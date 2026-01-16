@@ -55,7 +55,7 @@ public class AssetLoader {
         List<Image> textures = new ArrayList<>();
         for (int i = 0; true; ++i) {
             String fileName = String.format("%02d.png", i);
-            String fullPath = folderPath + "/" + fileName;
+            String fullPath = folderPath + fileName;
 
             try (InputStream inputStream = getClass().getResourceAsStream(fullPath)) {
                 if (inputStream == null)
