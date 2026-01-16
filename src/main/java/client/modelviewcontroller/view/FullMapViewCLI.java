@@ -70,11 +70,6 @@ public class FullMapViewCLI extends MapView implements Subscriber<FullMap> {
     }
 
     private String[] stringifyFullMapTile(FullMap fullMap, XYPair coordinate) {
-        if (fullMap == null)
-            throw new IllegalArgumentException("fullMap is null");
-        if (coordinate == null)
-            throw new IllegalArgumentException("coordinate is null");
-
         ETerrain terrain = fullMap.getTerrain(coordinate);
         String terrainEmoji = terrainEmojiConverter.get(terrain);
 

@@ -24,9 +24,9 @@ public class FullMapAccumulatorTest {
         accumulator = new FullMapAccumulator(revealerMock);
         mapMock = mock(FullMap.class);
 
-        when(revealerMock.revealCoordinatesFromMyPlayer(any())).thenAnswer(i -> i.getArgument(0));
-        when(revealerMock.combineRevealedMyTreasure(any(), any())).thenAnswer(i -> i.getArgument(1));
-        when(revealerMock.combineRevealedNodes(any(), any())).thenAnswer(i -> i.getArgument(1));
+        when(revealerMock.revealCoordinatesFromMyPlayer(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(revealerMock.combineRevealedMyTreasure(any(), any())).thenAnswer(inv -> inv.getArgument(1));
+        when(revealerMock.combineRevealedNodes(any(), any())).thenAnswer(inv -> inv.getArgument(1));
     }
 
     @Test
