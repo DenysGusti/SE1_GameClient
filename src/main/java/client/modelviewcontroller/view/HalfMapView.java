@@ -59,11 +59,6 @@ public class HalfMapView extends MapView implements Subscriber<HalfMap> {
     }
 
     private String[] stringifyHalfMapTile(HalfMap halfMap, XYPair coordinate) {
-        if (halfMap == null)
-            throw new IllegalArgumentException("halfMap is null");
-        if (coordinate == null)
-            throw new IllegalArgumentException("coordinate is null");
-
         ETerrain terrain = halfMap.getTerrain(coordinate);
 
         String terrainEmoji = terrainEmojiConverter.get(terrain);
