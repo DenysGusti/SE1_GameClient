@@ -8,7 +8,7 @@ public class ScreenBuffer {
     // 3 * 4x1 (max emoji size)
     private static final XYPair TILE_DIMENSIONS = new XYPair(EXPECTED_EMOJI_WIDTH * TILE_SIZE, TILE_SIZE);
 
-    StringBuilder[] rows;
+    private final StringBuilder[] rows;
 
     public ScreenBuffer(XYPair bufferDimensions) {
         if (bufferDimensions == null)
