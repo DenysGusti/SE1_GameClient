@@ -93,18 +93,18 @@ class AssetsTest {
     @Test
     void CreateMeshView_NullMeshName_ThrowsIllegalArgumentException() {
         var coordinate = new XYPair(1, 1);
-        assertThrows(IllegalArgumentException.class, () -> assets.createMeshView(null, "grass", coordinate, 0));
+        assertThrows(IllegalArgumentException.class, () -> assets.createMeshView(null, "grass", coordinate, 0.));
     }
 
     @Test
     void CreateMeshView_NullMaterialName_ThrowsIllegalArgumentException() {
         var coordinate = new XYPair(1, 1);
-        assertThrows(IllegalArgumentException.class, () -> assets.createMeshView("cube", null, coordinate, 0));
+        assertThrows(IllegalArgumentException.class, () -> assets.createMeshView("cube", null, coordinate, 0.));
     }
 
     @Test
     void CreateMeshView_NullCoordinate_ThrowsIllegalArgumentException() {
-        assertThrows(IllegalArgumentException.class, () -> assets.createMeshView("cube", "grass", null, 0));
+        assertThrows(IllegalArgumentException.class, () -> assets.createMeshView("cube", "grass", null, 0.));
     }
 
     @Test
@@ -119,8 +119,8 @@ class AssetsTest {
         assertThat(view.getMaterial(), is(assets.getMaterial("grass")));
 
         // (10, 20) -> X=20, Z=10
-        assertThat(view.getTranslateX(), is(20.0));
-        assertThat(view.getTranslateZ(), is(10.0));
-        assertThat(view.getTranslateY(), is(5.0));
+        assertThat(view.getTranslateX(), is(20.));
+        assertThat(view.getTranslateZ(), is(10.));
+        assertThat(view.getTranslateY(), is(5.));
     }
 }
