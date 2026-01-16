@@ -33,7 +33,7 @@ public class MapModelTest {
         mapModel.subscribeOnFullMapUpdated(fullMapSubscriber);
         mapModel.updateFullMap(fullMap);
 
-        verify(fullMapSubscriber, times(1)).update(fullMap);
+        verify(fullMapSubscriber).update(fullMap);
     }
 
     @Test
@@ -42,7 +42,7 @@ public class MapModelTest {
         mapModel.subscribeOnHalfMapGenerated(halfMapSubscriber);
         mapModel.updateHalfMap(halfMap);
 
-        verify(halfMapSubscriber, times(1)).update(halfMap);
+        verify(halfMapSubscriber).update(halfMap);
     }
 
     @Test
@@ -51,7 +51,7 @@ public class MapModelTest {
         mapModel.subscribeOnHalfMapValidationErrors(errorSubscriber);
         mapModel.updateHalfMapValidationErrors(errors);
 
-        verify(errorSubscriber, times(1)).update(errors);
+        verify(errorSubscriber).update(errors);
     }
 
     @Test

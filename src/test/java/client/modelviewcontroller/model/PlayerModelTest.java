@@ -29,7 +29,7 @@ public class PlayerModelTest {
         playerModel.subscribeOnMyPlayerStateUpdated(myPlayerSubscriber);
         playerModel.updateMyPlayerState(state);
 
-        verify(myPlayerSubscriber, times(1)).update(state);
+        verify(myPlayerSubscriber).update(state);
     }
 
     @Test
@@ -38,7 +38,7 @@ public class PlayerModelTest {
         playerModel.subscribeOnEnemyPlayerStateUpdated(enemyPlayerSubscriber);
         playerModel.updateEnemyPlayerState(state);
 
-        verify(enemyPlayerSubscriber, times(1)).update(state);
+        verify(enemyPlayerSubscriber).update(state);
     }
 
     @Test
@@ -47,7 +47,7 @@ public class PlayerModelTest {
         playerModel.subscribeOnGameEnded(gameEndSubscriber);
         playerModel.updateGameEnd(endState);
 
-        verify(gameEndSubscriber, times(1)).update(endState);
+        verify(gameEndSubscriber).update(endState);
     }
 
     @Test

@@ -24,7 +24,7 @@ public class PublisherTest {
         publisher.subscribe(subscriberMock);
         publisher.notify(testData);
 
-        verify(subscriberMock, times(1)).update(testData);
+        verify(subscriberMock).update(testData);
     }
 
     @Test

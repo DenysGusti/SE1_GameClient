@@ -111,7 +111,7 @@ public class GameSessionTest {
         assertThat(results.getLast().gameStateID(), is("ID_B"));
 
         verify(accumulatorMock, times(2)).accumulateFullMap(any());
-        verify(state1, times(1)).withFullMap(combinedMap);
+        verify(state1).withFullMap(combinedMap);
     }
 
     @Test

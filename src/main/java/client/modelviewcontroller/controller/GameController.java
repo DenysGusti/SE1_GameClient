@@ -8,7 +8,6 @@ import client.data.fromserver.GameState;
 import client.halfmaplogic.generation.HalfMapGenerator;
 import client.halfmaplogic.validation.HalfMapValidator;
 import client.halfmaplogic.validation.exception.HalfMapGenerationException;
-import client.halfmaplogic.validation.rule.SecondHalfMapTransitionRule;
 import client.main.GameClientFactory;
 import client.modelviewcontroller.model.MapModel;
 import client.modelviewcontroller.model.PlayerModel;
@@ -107,9 +106,6 @@ public class GameController {
     }
 
     private void updateModels(GameState gameState) {
-        if (gameState == null)
-            throw new IllegalArgumentException("gameState is null");
-
         playerModel.updateMyPlayerState(gameState.myPlayer());
         gameState.getOptionalEnemyPlayer().ifPresent(playerModel::updateEnemyPlayerState);
         mapModel.updateFullMap(gameState.fullMap());

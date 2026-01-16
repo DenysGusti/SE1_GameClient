@@ -79,7 +79,7 @@ public class GameClientFactoryTest {
         var aiPlayer = factory.createAIPlayer(mapMock);
 
         assertThat(aiPlayer, notNullValue());
-        verify(graphFactoryMock, times(1)).createGraph(mapMock);
+        verify(graphFactoryMock).createGraph(mapMock);
     }
 
     @Test
@@ -190,7 +190,7 @@ public class GameClientFactoryTest {
         when(fakeNodes.size()).thenReturn(50);
         when(mapMock.nodes()).thenReturn(fakeNodes);
 
-        doReturn(Optional.of(topLeft)).when(mapMock).getOptionalTopLeftCoordinate();
+        when(mapMock.getOptionalTopLeftCoordinate()).thenReturn(Optional.of(topLeft));
         when(mapMock.getTerrain(ArgumentMatchers.any(XYPair.class))).thenReturn(ETerrain.Grass);
 
         assertThat(factory.createSecondHalfMapTransitionRule(mapMock), notNullValue());
