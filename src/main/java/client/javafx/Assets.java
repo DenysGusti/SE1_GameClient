@@ -61,8 +61,8 @@ public class Assets {
     }
 
     public TriangleMesh getMesh(String meshName) {
-        if (meshes == null)
-            throw new IllegalArgumentException("meshes is null");
+        if (meshName == null)
+            throw new IllegalArgumentException("meshName is null");
 
         if (!meshes.containsKey(meshName))
             throw new NoSuchElementException("Mesh " + meshName + " not found");
