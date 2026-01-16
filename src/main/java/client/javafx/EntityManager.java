@@ -3,6 +3,7 @@ package client.javafx;
 import client.data.XYPair;
 import client.data.fromserver.FullMap;
 import javafx.animation.Animation;
+import javafx.animation.Transition;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.shape.MeshView;
@@ -58,7 +59,8 @@ public class EntityManager {
                 worldRoot.getChildren().add(myPlayerModel);
             }
             double xOffset = fullMap.getOptionalEnemyPlayerPosition().filter(coordinate::equals).isPresent() ? -PLAYER_X_OFFSET : 0;
-            animationManager.movePlayer(myPlayerModel, coordinate, xOffset, targetY);
+            Transition myPlayerAnimation = animationManager.createPlayerAnimation(myPlayerModel, coordinate, xOffset, targetY);
+            myPlayerAnimation.play();
         });
 
         fullMap.getOptionalEnemyPlayerPosition().ifPresent(coordinate -> {
@@ -68,7 +70,8 @@ public class EntityManager {
                 worldRoot.getChildren().add(enemyPlayerModel);
             }
             double xOffset = fullMap.getOptionalMyPlayerPosition().filter(coordinate::equals).isPresent() ? PLAYER_X_OFFSET : 0;
-            animationManager.movePlayer(enemyPlayerModel, coordinate, xOffset, targetY);
+            Transition enemyPlayerAnimation = animationManager.createPlayerAnimation(enemyPlayerModel, coordinate, xOffset, targetY);
+            enemyPlayerAnimation.play();
         });
 
         fullMap.getOptionalMyTreasurePosition().ifPresent(coordinate -> {

@@ -19,7 +19,7 @@ public class AnimationManager {
     private static final double TREASURE_FLOAT_S = 1.5;
     private static final double FLOATING_TREASURE_DELTA_Y = -0.1875;
 
-    public void movePlayer(Node playerModel, XYPair targetCoordinate, double xOffset, double targetY) {
+    public Transition createPlayerAnimation(Node playerModel, XYPair targetCoordinate, double xOffset, double targetY) {
         if (playerModel == null)
             throw new IllegalArgumentException("playerModel is null");
         if (targetCoordinate == null)
@@ -37,18 +37,14 @@ public class AnimationManager {
         double deltaZ = targetZ - Math.round(playerModel.getTranslateZ());
 
         if (Math.abs(deltaX) < EPS && Math.abs(deltaZ) < EPS)
-            translateTransition.play();
+            return translateTransition;
         else {
             var rotateTransition = getRotateTransition(playerModel, deltaZ, deltaX);
-            var parallelTransition = new ParallelTransition(translateTransition, rotateTransition);
-            parallelTransition.play();
+            return new ParallelTransition(translateTransition, rotateTransition);
         }
     }
 
     private static RotateTransition getRotateTransition(Node playerModel, double deltaZ, double deltaX) {
-        if (playerModel == null)
-            throw new IllegalArgumentException("playerModel is null");
-
         double targetAngle = -Math.toDegrees(Math.atan2(deltaZ, deltaX));
         double currentAngle = playerModel.getRotate();
 
