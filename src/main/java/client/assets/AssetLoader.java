@@ -85,10 +85,6 @@ public class AssetLoader {
     private static Image loadTexture(String texturePath, int textureWidth, int textureHeight) throws IOException {
         if (texturePath == null)
             throw new IllegalArgumentException("texturePath is null");
-        if (textureWidth < 0)
-            throw new IllegalArgumentException("textureWidth is negative");
-        if (textureHeight < 0)
-            throw new IllegalArgumentException("textureHeight is negative");
 
         Image texture;
         try (InputStream inputStream = MainClient.class.getResourceAsStream(texturePath)) {
