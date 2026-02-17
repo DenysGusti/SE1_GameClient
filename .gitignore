@@ -7,7 +7,7 @@ build
 bin
 out
 *.log
-#res/config.properties
+res/config.properties
 
 #    Source (von uns bereits erstellt)
 #        └── Client (von uns bereits erstellt)
