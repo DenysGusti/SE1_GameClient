@@ -21,6 +21,10 @@ public class HalfMapValidator {
         this.rules = new HashSet<>(rules);
     }
 
+    public HalfMapValidator copy() {
+        return new HalfMapValidator(this.rules);
+    }
+
     public void addRule(HalfMapValidationRule rule) {
         if (rule == null)
             throw new IllegalArgumentException("rule is null");
