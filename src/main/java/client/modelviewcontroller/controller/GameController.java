@@ -69,8 +69,8 @@ public class GameController {
 
         if (!currentState.fullMapIsEmpty()) {
             logger.warn("My player is the second.");
-            var rule = gameClientFactory.createSecondHalfMapTransitionRule(currentState.fullMap());
-            halfMapValidator.addRule(rule);
+//            var rule = gameClientFactory.createSecondHalfMapTransitionRule(currentState.fullMap());
+//            halfMapValidator.addRule(rule);
         }
 
         HalfMap halfMap = generateHalfMap();

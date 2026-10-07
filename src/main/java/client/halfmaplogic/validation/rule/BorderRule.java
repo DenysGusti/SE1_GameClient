@@ -15,8 +15,8 @@ public class BorderRule implements HalfMapValidationRule {
     private static final Logger logger = LoggerFactory.getLogger(BorderRule.class);
 
     private static final XYPair HALF_MAP_SIZE = new XYPair(10, 5);
-    private static final XYPair REQUIRED_TRAVERSABLE_SIDE = new XYPair(4, 2);
-    private static final XYPair REQUIRED_NON_TRAVERSABLE_SIDE = new XYPair(2, 1);
+    private static final XYPair REQUIRED_TRAVERSABLE_SIDE = new XYPair(6, 3);
+    private static final XYPair REQUIRED_NON_TRAVERSABLE_SIDE = new XYPair(0, 0);
 
     private static final XYPair TOP_LEFT_CORNER = new XYPair(0, 0);
     private static final XYPair TOP_RIGHT_CORNER = new XYPair(HALF_MAP_SIZE.x() - 1, 0);
